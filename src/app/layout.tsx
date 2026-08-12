@@ -5,8 +5,10 @@ import InaugurationRibbon from "@/components/InaugurationRibbon";
 import { AuthProvider } from "@/lib/AuthContext";
 import { CartProvider } from "@/components/CartContext";
 import { LanguageProvider } from "@/lib/LanguageContext";
+import API_BASE_URL from "@/lib/api";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://restaurant-psi-henna-35.vercel.app";
+
 
 export const viewport: Viewport = {
   themeColor: "#f59e0b",
@@ -80,8 +82,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         {/* Preconnect to API for faster first requests */}
-        <link rel="preconnect" href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"} />
-        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000"} />
+        <link rel="preconnect" href={API_BASE_URL} />
+        <link rel="dns-prefetch" href={API_BASE_URL} />
+
       </head>
       <body className="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-amber-500 selection:text-black">
         <AuthProvider>

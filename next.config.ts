@@ -1,8 +1,32 @@
 import type { NextConfig } from "next";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
-const apiHost = new URL(API_URL).hostname;
-const apiPort = new URL(API_URL).port;
+const rawApiUrl = (process.env.NEXT_PUBLIC_API_URL || "https://my-next-js-restaurant-lnc6.vercel.app").replace(/\/+$/, "");
+const API_URL = rawApiUrl;
+let apiHost = "localhost";
+let apiPort = "5000";
+let apiOrigin = "https://my-next-js-restaurant-lnc6.vercel.app";
+
+try {
+  const parsed = new URL(API_URL);
+  apiHost = parsed.hostname;
+  apiPort = parsed.port;
+  apiOrigin = parsed.origin;
+} catch {
+  // Fallback
+}
+
+const connectOrigins = Array.from(
+  new Set([
+    "'self'",
+    "http://localhost:5000",
+    "https://my-next-js-restaurant-lnc6.vercel.app",
+    apiOrigin,
+    "https://*.vercel.app",
+    "https://api.razorpay.com",
+    "https://lumberjack.razorpay.com",
+    "https://checkout.razorpay.com",
+  ])
+).join(" ");
 
 const nextConfig: NextConfig = {
   images: {
@@ -77,10 +101,10 @@ const nextConfig: NextConfig = {
             value: [
               "default-src 'self'",
               "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com",
-              "frame-src https://checkout.razorpay.com",
+              "frame-src 'self' https://checkout.razorpay.com",
               "style-src 'self' 'unsafe-inline'",
               "img-src 'self' data: blob: http: https:",
-              `connect-src 'self' ${API_URL}`,
+              `connect-src ${connectOrigins}`,
               "frame-ancestors 'none'",
             ].join("; "),
           },
