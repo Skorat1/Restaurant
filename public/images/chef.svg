@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <rect width="400" height="400" fill="#081226"/>
+  <circle cx="200" cy="160" r="80" fill="#0b1220" />
+  <rect x="90" y="260" width="220" height="90" rx="12" fill="#0b1220" />
+  <text x="50%" y="78%" text-anchor="middle" fill="#9ca3af" font-size="16" font-family="Inter, sans-serif">Chef photo</text>
+</svg>

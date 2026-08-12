@@ -1,0 +1,362 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+▲ Next.js 16.2.9 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.1.117:3000
+✓ Ready in 1428ms
+
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <SegmentViewNode type="layout" pagePath="layout.tsx">
+      <SegmentTrieNode>
+      <link>
+      <script>
+      <script>
+      <script>
+      <RootLayout>
+        <html lang="en" className="scroll-smooth">
+          <head>
+          <body className="bg-neutral...">
+            <AuthProvider>
+              <CartProvider>
+                <a>
+                <Header>
+                  <header className="fixed top-...">
+                    <div className="transition...">
+                      <nav className="max-w-7xl ...">
+                        <LinkComponent>
+                        <div className="hidden md:...">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/services" className="relative t...">
+                            <a
+                              className="relative transition-colors duration-200 pb-0.5 text-neutral-300 hover:text-am..."
+                              ref={function}
+                              onClick={function onClick}
+                              onMouseEnter={function onMouseEnter}
+                              onTouchStart={function onTouchStart}
++                             href="/services"
+-                             href="/contact"
+                            >
++                             Services
+-                             Contact
+                          ...
+                        ...
+                    ...
+                ...
+            ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at throwOnHydrationMismatch (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3318:56)
+    at prepareToHydrateHostInstance (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3372:23)
+    at completeWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:6922:60)
+    at runWithFiberInDEV (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at completeUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9622:23)
+    at performUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9557:28)
+    at workLoopConcurrentByScheduler (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9551:58)
+    at renderRootConcurrent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9534:71)
+    at performWorkOnRoot (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9061:150)
+    at performWorkOnRootViaSchedulerTask (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10255:9)
+    at MessagePort.performWorkUntilDeadline (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_1amofcm._.js:2647:64)
+    at a (<anonymous>)
+    at LinkComponent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_1ohmjn5._.js:1133:50)
+    at <unknown> (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:274)
+    at Array.map (<anonymous>)
+    at Header (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:49)
+    at RootLayout (about://React/Server/D:%5CRestaurant%5Crestaurant-portal%5Cfrontend%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C_0xzanbc._.js?9:293:284)
+○ Compiling /login ...
+ GET /order 200 in 7.6s (next.js: 6.2s, application-code: 1393ms)
+ GET /login 200 in 8.5s (next.js: 7.9s, application-code: 619ms)
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <SegmentViewNode type="layout" pagePath="layout.tsx">
+      <SegmentTrieNode>
+      <link>
+      <script>
+      <script>
+      <script>
+      <RootLayout>
+        <html lang="en" className="scroll-smooth">
+          <head>
+          <body className="bg-neutral...">
+            <AuthProvider>
+              <CartProvider>
+                <a>
+                <Header>
+                  <header className="fixed top-...">
+                    <div className="transition...">
+                      <nav className="max-w-7xl ...">
+                        <LinkComponent>
+                        <div className="hidden md:...">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/services" className="relative t...">
+                            <a
+                              className="relative transition-colors duration-200 pb-0.5 text-neutral-300 hover:text-am..."
+                              ref={function}
+                              onClick={function onClick}
+                              onMouseEnter={function onMouseEnter}
+                              onTouchStart={function onTouchStart}
++                             href="/services"
+-                             href="/contact"
+                            >
++                             Services
+-                             Contact
+                          ...
+                        ...
+                    ...
+                ...
+            ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at a (<anonymous>)
+    at <unknown> (src/components/Header.tsx:73:19)
+    at Array.map (<anonymous>)
+    at Header (src/components/Header.tsx:69:29)
+    at RootLayout (src\app\layout.tsx:88:13)
+  71 |                     ? "text-amber-400 after:absolute after:bottom-0 after:left-0 after:w-f...
+  72 |                     : "text-neutral-300 hover:text-amber-400"
+> 73 |                 }`}
+     |                   ^
+  74 |               >
+  75 |                 {label}
+  76 |               </Link>
+ GET / 200 in 1572ms (next.js: 1175ms, application-code: 397ms)
+ GET /menu 200 in 965ms (next.js: 833ms, application-code: 133ms)
+ GET /gujratithali.png 404 in 2.5s (next.js: 2.1s, application-code: 399ms)
+ GET /menu 200 in 146ms (next.js: 14ms, application-code: 132ms)
+ GET / 200 in 206ms (next.js: 11ms, application-code: 195ms)
+ GET /order 200 in 307ms (next.js: 16ms, application-code: 291ms)
+ GET /about 200 in 1235ms (next.js: 1058ms, application-code: 178ms)
+ GET /menu 200 in 134ms (next.js: 10ms, application-code: 124ms)
+ GET / 200 in 169ms (next.js: 10ms, application-code: 159ms)
+ GET /order 200 in 38ms (next.js: 15ms, application-code: 23ms)
+ GET /order 200 in 49ms (next.js: 8ms, application-code: 41ms)
+ GET /profile 200 in 763ms (next.js: 660ms, application-code: 103ms)
+[browser] Detected `scroll-behavior: smooth` on the `<html>` element. To disable smooth scrolling during route transitions, add `data-scroll-behavior="smooth"` to your <html> element. Learn more: https://nextjs.org/docs/messages/missing-data-scroll-behavior
+ GET /admin 200 in 867ms (next.js: 806ms, application-code: 61ms)
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <SegmentViewNode type="layout" pagePath="layout.tsx">
+      <SegmentTrieNode>
+      <link>
+      <script>
+      <script>
+      <script>
+      <RootLayout>
+        <html lang="en" className="scroll-smooth">
+          <head>
+          <body className="bg-neutral...">
+            <AuthProvider>
+              <CartProvider>
+                <a>
+                <Header>
+                  <header className="fixed top-...">
+                    <div className="transition...">
+                      <nav className="max-w-7xl ...">
+                        <LinkComponent>
+                        <div className="hidden md:...">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/services" className="relative t...">
+                            <a
+                              className="relative transition-colors duration-200 pb-0.5 text-neutral-300 hover:text-am..."
+                              ref={function}
+                              onClick={function onClick}
+                              onMouseEnter={function onMouseEnter}
+                              onTouchStart={function onTouchStart}
++                             href="/services"
+-                             href="/contact"
+                            >
++                             Services
+-                             Contact
+                          ...
+                        ...
+                    ...
+                ...
+            ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at throwOnHydrationMismatch (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3318:56)
+    at prepareToHydrateHostInstance (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3372:23)
+    at completeWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:6922:60)
+    at runWithFiberInDEV (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at completeUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9622:23)
+    at performUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9557:28)
+    at workLoopConcurrentByScheduler (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9551:58)
+    at renderRootConcurrent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9534:71)
+    at performWorkOnRoot (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9061:150)
+    at performWorkOnRootViaSchedulerTask (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10255:9)
+    at MessagePort.performWorkUntilDeadline (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_1amofcm._.js:2647:64)
+    at a (<anonymous>)
+    at LinkComponent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_1ohmjn5._.js:1133:50)
+    at <unknown> (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:274)
+    at Array.map (<anonymous>)
+    at Header (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:49)
+    at RootLayout (about://React/Server/D:%5CRestaurant%5Crestaurant-portal%5Cfrontend%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C_0xzanbc._.js?9:293:284)
+ GET /admin/menu 200 in 653ms (next.js: 604ms, application-code: 49ms)
+ GET /admin/panjabi%20thali1.jpg 404 in 582ms (next.js: 114ms, application-code: 468ms)
+ GET /admin/gujratithali.png 404 in 592ms (next.js: 51ms, application-code: 541ms)
+ GET /admin/panjabi%20thali.jfif 404 in 574ms (next.js: 233ms, application-code: 341ms)
+ GET /admin/vada-pav-1785922301038.jpg 404 in 575ms (next.js: 331ms, application-code: 244ms)
+ GET /admin/menu 200 in 125ms (next.js: 20ms, application-code: 105ms)
+ GET /admin/menu 200 in 245ms (next.js: 14ms, application-code: 231ms)
+[browser] Uncaught Error: Hydration failed because the server rendered text didn't match the client. As a result this tree will be regenerated on the client. This can happen if a SSR-ed Client Component used:
+
+- A server/client branch `if (typeof window !== 'undefined')`.
+- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.
+- Date formatting in a user's locale which doesn't match the server.
+- External changing data without sending a snapshot of it along with the HTML.
+- Invalid HTML tag nesting.
+
+It can also happen if the client has a browser extension installed which messes with the HTML before React loaded.
+
+https://react.dev/link/hydration-mismatch
+
+  ...
+    <SegmentViewNode type="layout" pagePath="layout.tsx">
+      <SegmentTrieNode>
+      <link>
+      <script>
+      <script>
+      <script>
+      <RootLayout>
+        <html lang="en" className="scroll-smooth">
+          <head>
+          <body className="bg-neutral...">
+            <AuthProvider>
+              <CartProvider>
+                <a>
+                <Header>
+                  <header className="fixed top-...">
+                    <div className="transition...">
+                      <nav className="max-w-7xl ...">
+                        <LinkComponent>
+                        <div className="hidden md:...">
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent>
+                          <LinkComponent href="/services" className="relative t...">
+                            <a
+                              className="relative transition-colors duration-200 pb-0.5 text-neutral-300 hover:text-am..."
+                              ref={function}
+                              onClick={function onClick}
+                              onMouseEnter={function onMouseEnter}
+                              onTouchStart={function onTouchStart}
++                             href="/services"
+-                             href="/contact"
+                            >
++                             Services
+-                             Contact
+                          ...
+                        ...
+                    ...
+                ...
+            ...
+
+    at <unknown> (https://react.dev/link/hydration-mismatch)
+    at throwOnHydrationMismatch (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3318:56)
+    at prepareToHydrateHostInstance (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:3372:23)
+    at completeWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:6922:60)
+    at runWithFiberInDEV (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:965:74)
+    at completeUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9622:23)
+    at performUnitOfWork (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9557:28)
+    at workLoopConcurrentByScheduler (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9551:58)
+    at renderRootConcurrent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9534:71)
+    at performWorkOnRoot (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:9061:150)
+    at performWorkOnRootViaSchedulerTask (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_react-dom_096_9a-._.js:10255:9)
+    at MessagePort.performWorkUntilDeadline (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_dist_compiled_1amofcm._.js:2647:64)
+    at a (<anonymous>)
+    at LinkComponent (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/node_modules_next_1ohmjn5._.js:1133:50)
+    at <unknown> (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:274)
+    at Array.map (<anonymous>)
+    at Header (file://D:/Restaurant/restaurant-portal/frontend/.next/dev/static/chunks/src_00kiail._.js:391:49)
+    at RootLayout (about://React/Server/D:%5CRestaurant%5Crestaurant-portal%5Cfrontend%5C.next%5Cdev%5Cserver%5Cchunks%5Cssr%5C_0xzanbc._.js?9:293:284)
+ GET /admin/panjabi%20thali.jfif 404 in 558ms (next.js: 246ms, application-code: 312ms)
+ GET /admin/panjabi%20thali1.jpg 404 in 576ms (next.js: 205ms, application-code: 371ms)
+ GET /admin/vada-pav-1785922301038.jpg 404 in 524ms (next.js: 87ms, application-code: 437ms)
+ GET /admin/gujratithali.png 404 in 596ms (next.js: 465ms, application-code: 132ms)
+ GET /order 200 in 226ms (next.js: 11ms, application-code: 216ms)
+ GET /order 200 in 156ms (next.js: 33ms, application-code: 123ms)
+ GET /order 200 in 94ms (next.js: 7ms, application-code: 88ms)
+[browser] Uncaught Error: Module [project]/node_modules/next/image.js [app-client] (ecmascript) was instantiated because it was required from module [project]/src/app/order/page.tsx [app-client] (ecmascript), but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at module evaluation (src/app/order/page.tsx:3:1)
+  1 | "use client";
+  2 | import { useState, useEffect, useMemo } from "react";
+> 3 | import { useRouter } from "next/navigation";
+    | ^
+  4 | import API_BASE_URL from "@/lib/api";
+  5 |
+  6 | function resolveImg(src: string) {
+ GET /order 200 in 152ms (next.js: 12ms, application-code: 141ms)
+[browser] Uncaught Error: Module [project]/node_modules/next/image.js [app-client] (ecmascript) was instantiated because it was required from module [project]/src/app/order/page.tsx [app-client] (ecmascript), but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at module evaluation (src/app/order/page.tsx:3:1)
+  1 | "use client";
+  2 | import { useState, useEffect, useMemo } from "react";
+> 3 | import { useRouter } from "next/navigation";
+    | ^
+  4 | import API_BASE_URL from "@/lib/api";
+  5 |
+  6 | function resolveImg(src: string) {
+ GET /order 200 in 338ms (next.js: 9ms, application-code: 330ms)
+[browser] Uncaught Error: Module [project]/node_modules/next/image.js [app-client] (ecmascript) was instantiated because it was required from module [project]/src/app/order/page.tsx [app-client] (ecmascript), but the module factory is not available.
+This is often caused by a stale browser cache, misconfigured Cache-Control headers, or a service worker serving outdated responses.
+To fix this, make sure your Cache-Control headers allow revalidation of chunks and review your service worker configuration. As an immediate workaround, try hard-reloading the page, clearing the browser cache, or unregistering any service workers.
+    at module evaluation (src/app/order/page.tsx:3:1)
+  1 | "use client";
+  2 | import { useState, useEffect, useMemo } from "react";
+> 3 | import { useRouter } from "next/navigation";
+    | ^
+  4 | import API_BASE_URL from "@/lib/api";
+  5 |
+  6 | function resolveImg(src: string) {

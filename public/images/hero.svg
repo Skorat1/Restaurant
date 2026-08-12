@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600">
+  <defs>
+    <linearGradient id="g" x1="0" x2="1">
+      <stop offset="0" stop-color="#111827"/>
+      <stop offset="1" stop-color="#0f172a"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="600" fill="url(#g)" />
+  <g fill="#c2410c" fill-opacity="0.06">
+    <circle cx="900" cy="120" r="220" />
+  </g>
+  <text x="60" y="320" fill="#9ca3af" font-family="Inter, sans-serif" font-size="36">Hero image placeholder</text>
+</svg>
