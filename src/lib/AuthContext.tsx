@@ -21,7 +21,7 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (token: string, user: User) => void;
+  login: (token: string, user: User, refreshToken?: string) => void;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
 }
@@ -50,9 +50,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (res.ok) {
         const data = await res.json();
         setUser(data);
-      } else {
-        // 401 = token expired or invalid — clear session
+      } else if (res.status === 401) {
+        // Attempt session refresh with refresh token
+        const storedRefresh = localStorage.getItem("refreshToken");
+        if (storedRefresh) {
+          const refreshRes = await fetch(`${API_BASE_URL}/api/auth/refresh`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ refreshToken: storedRefresh }),
+          });
+          if (refreshRes.ok) {
+            const data = await refreshRes.json();
+            localStorage.setItem("token", data.token);
+            if (data.refreshToken) localStorage.setItem("refreshToken", data.refreshToken);
+            setToken(data.token);
+            setUser(data.user);
+            return;
+          }
+        }
+        // 401 and refresh failed — clear session
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         setToken(null);
         setUser(null);
       }
@@ -77,8 +95,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     restoreSession();
   }, []);
 
-  const login = (newToken: string, newUser: User) => {
+  const login = (newToken: string, newUser: User, refreshToken?: string) => {
     localStorage.setItem("token", newToken);
+    if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
     setToken(newToken);
     setUser(newUser);
   };
@@ -94,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     } catch { /* ignore */ } finally {
       localStorage.removeItem("token");
+      localStorage.removeItem("refreshToken");
       setToken(null);
       setUser(null);
     }

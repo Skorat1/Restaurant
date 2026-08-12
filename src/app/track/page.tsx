@@ -10,6 +10,8 @@ import {
 import API_BASE_URL from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 
+import { io } from "socket.io-client";
+
 interface OrderStatusData {
   _id: string;
   orderNumber?: string;
@@ -38,6 +40,28 @@ export default function TrackPage() {
     }, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  // Socket.io real-time listener for current tracked order
+  useEffect(() => {
+    if (!order?._id) return;
+
+    const socket = io(API_BASE_URL, {
+      transports: ["websocket", "polling"],
+    });
+
+    socket.emit("join_order", order._id);
+    if (order.orderNumber) {
+      socket.emit("join_order", order.orderNumber);
+    }
+
+    socket.on("order_status_updated", (updatedOrder: OrderStatusData) => {
+      setOrder((prev) => (prev && (prev._id === updatedOrder._id || prev.orderNumber === updatedOrder.orderNumber) ? { ...prev, status: updatedOrder.status } : prev));
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [order?._id, order?.orderNumber]);
 
   // Fetch recent orders for logged-in user for 1-click tracking
   useEffect(() => {

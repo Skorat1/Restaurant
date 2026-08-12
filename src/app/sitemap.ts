@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 
-const BASE = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const BASE = process.env.NEXT_PUBLIC_SITE_URL || "https://letoiledoree.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   return [

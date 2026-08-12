@@ -1,3 +1,15 @@
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "About Us | L'Étoile Dorée Fine Dining",
+  description: "Learn about L'Étoile Dorée's heritage, seasonal sourcing, contemporary French gastronomy, and award-winning culinary craftsmanship.",
+  openGraph: {
+    title: "About Us | L'Étoile Dorée",
+    description: "Modern dining house shaped by classic hospitality rituals and sustainable sourcing.",
+    images: ["/images/hero-bg.jpg"],
+  },
+};
+
 export default function About() {
   const values = [
     { title: "Seasonal Sourcing", detail: "We partner with local producers to create menus defined by freshness and provenance." },
