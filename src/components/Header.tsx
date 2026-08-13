@@ -16,7 +16,6 @@ import {
 const PRIMARY_NAV = [
   { href: "/", label: "HOME" },
   { href: "/menu", label: "MENU" },
-  { href: "/reserve", label: "RESERVE" },
   { href: "/contact", label: "CONTACT" },
 ];
 

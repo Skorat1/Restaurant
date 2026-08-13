@@ -147,7 +147,7 @@ export default function ProfilePage() {
   // Referral Link Copy
   const referralCode = `ETOILE-${(user?.name || "VIP").split(" ")[0].toUpperCase()}-2026`;
   const copyReferralLink = () => {
-    navigator.clipboard.writeText(`https://letoiledoree.in/signup?ref=${referralCode}`);
+    navigator.clipboard.writeText(`https://velora.in/signup?ref=${referralCode}`);
     setCopiedReferral(true);
     setTimeout(() => setCopiedReferral(false), 2500);
   };
@@ -335,7 +335,6 @@ export default function ProfilePage() {
               href="/reserve"
               className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
             >
-              Reserve Table
             </Link>
             <button
               onClick={() => { logout(); router.push("/"); }}
@@ -482,8 +481,8 @@ export default function ProfilePage() {
                   type="button"
                   onClick={() => setSelectedAvatar(a.id)}
                   className={`px-3 py-2 rounded-xl border transition flex items-center gap-2 text-xs font-medium ${isSelected
-                      ? "bg-amber-500 text-black border-amber-400 font-bold shadow-md"
-                      : "bg-neutral-950/80 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                    ? "bg-amber-500 text-black border-amber-400 font-bold shadow-md"
+                    : "bg-neutral-950/80 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
                     }`}
                 >
                   <IconComp className="w-4 h-4" />
@@ -676,8 +675,8 @@ export default function ProfilePage() {
                   <div
                     key={addr.id}
                     className={`p-4 rounded-2xl border flex items-start justify-between gap-3 transition ${addr.isPrimary
-                        ? "border-amber-500/50 bg-amber-500/5"
-                        : "border-neutral-800 bg-neutral-950/80"
+                      ? "border-amber-500/50 bg-amber-500/5"
+                      : "border-neutral-800 bg-neutral-950/80"
                       }`}
                   >
                     <div className="space-y-1">
@@ -730,8 +729,8 @@ export default function ProfilePage() {
                         type="button"
                         onClick={() => setNewAddr({ ...newAddr, label: lbl })}
                         className={`py-2 rounded-xl text-xs font-semibold border transition ${newAddr.label === lbl
-                            ? "bg-amber-500 text-black border-amber-400 font-bold"
-                            : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:text-white"
+                          ? "bg-amber-500 text-black border-amber-400 font-bold"
+                          : "bg-neutral-900 border-neutral-800 text-neutral-300 hover:text-white"
                           }`}
                       >
                         {lbl}
@@ -795,8 +794,8 @@ export default function ProfilePage() {
                       key={seat}
                       onClick={() => setSelectedSeat(seat)}
                       className={`p-3.5 rounded-xl border text-xs font-medium cursor-pointer transition flex items-center justify-between ${selectedSeat === seat
-                          ? "bg-amber-500/15 border-amber-500 text-amber-300 shadow-sm"
-                          : "bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-700 hover:text-white"
+                        ? "bg-amber-500/15 border-amber-500 text-amber-300 shadow-sm"
+                        : "bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-700 hover:text-white"
                         }`}
                     >
                       <span className="font-semibold">{seat}</span>
@@ -820,8 +819,8 @@ export default function ProfilePage() {
                         type="button"
                         onClick={() => toggleDietary(tag)}
                         className={`px-4 py-2 rounded-xl border text-xs font-semibold transition ${isSel
-                            ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-md"
-                            : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-md"
+                          : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
                           }`}
                       >
                         {isSel ? "✓ " : ""}{tag}
@@ -849,8 +848,8 @@ export default function ProfilePage() {
                   >
                     <span className="text-neutral-200 font-medium">{label}</span>
                     <span className={`px-3 py-1 rounded-full text-[10px] font-bold transition ${notifications[key]
-                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                        : "bg-neutral-800 text-neutral-400"
+                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                      : "bg-neutral-800 text-neutral-400"
                       }`}>
                       {notifications[key] ? "ENABLED" : "DISABLED"}
                     </span>
@@ -926,8 +925,8 @@ export default function ProfilePage() {
                     <div
                       key={perk.id}
                       className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition ${canAfford
-                          ? "border-neutral-800 bg-neutral-950/90 hover:border-amber-500/30"
-                          : "border-neutral-800/50 bg-neutral-950/40 opacity-60"
+                        ? "border-neutral-800 bg-neutral-950/90 hover:border-amber-500/30"
+                        : "border-neutral-800/50 bg-neutral-950/40 opacity-60"
                         }`}
                     >
                       <div>
