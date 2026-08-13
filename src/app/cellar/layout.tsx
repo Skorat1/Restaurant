@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/cellar`,
     title: "Virtual Wine Cellar | L'Étoile Dorée",
     description: "Curated Grand Cru vintages and sommelier food pairings.",
-    images: [{ url: "/images/hero.svg", width: 1200, height: 630, alt: "L'Étoile Dorée Wine Cellar" }],
+    images: [{ url: "/images/hero.jpg", width: 1200, height: 630, alt: "L'Étoile Dorée Wine Cellar" }],
   },
 };
 

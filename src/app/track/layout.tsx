@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/track`,
     title: "Order Status Tracker | L'Étoile Dorée",
     description: "Trace your food order status live in real time.",
-    images: [{ url: "/images/hero.svg", width: 1200, height: 630, alt: "L'Étoile Dorée Order Tracker" }],
+    images: [{ url: "/images/hero.jpg", width: 1200, height: 630, alt: "L'Étoile Dorée Order Tracker" }],
   },
 };
 

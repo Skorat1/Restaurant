@@ -6,7 +6,7 @@ import API_BASE_URL from "@/lib/api";
 import { resolveImg } from "@/lib/image";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/components/CartContext";
-import { CardSkeleton } from "@/components/Skeleton";
+import { OrderCardSkeleton } from "@/components/Skeleton";
 
 interface OrderItem {
   itemId: string;
@@ -89,7 +89,7 @@ export default function OrdersPage() {
   if (loading || fetching) {
     return (
       <div className="mx-auto max-w-4xl px-6 py-24 space-y-4">
-        {Array.from({ length: 3 }).map((_, i) => <CardSkeleton key={i} />)}
+        {Array.from({ length: 3 }).map((_, i) => <OrderCardSkeleton key={i} />)}
       </div>
     );
   }

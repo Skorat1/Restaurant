@@ -1,7 +1,7 @@
 import API_BASE_URL from "./api";
 
 export function resolveImg(src: string): string {
-  if (!src) return "/images/hero.svg";
+  if (!src) return "/images/hero.jpg";
   if (src.startsWith("http://") || src.startsWith("https://")) return src;
   if (src.startsWith("data:")) return src;
 

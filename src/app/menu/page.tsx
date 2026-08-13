@@ -5,7 +5,7 @@ import API_BASE_URL from "@/lib/api";
 import { resolveImg } from "@/lib/image";
 import { useCart } from "@/components/CartContext";
 import { useAuth } from "@/lib/AuthContext";
-import { CardSkeleton } from "@/components/Skeleton";
+import { MenuCardSkeleton } from "@/components/Skeleton";
 
 interface MenuItem {
   _id: string;
@@ -308,7 +308,7 @@ export default function MenuPage() {
       {/* Menu grid */}
       <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3" role="tabpanel">
         {loading ? (
-          Array.from({ length: 4 }).map((_, i) => <CardSkeleton key={i} />)
+          Array.from({ length: 6 }).map((_, i) => <MenuCardSkeleton key={i} />)
         ) : menu.length === 0 ? (
           <div className="col-span-2 rounded-3xl border border-neutral-800 bg-neutral-900/60 p-12 text-center">
             <p className="text-neutral-400">No items found. Try adjusting your filters.</p>

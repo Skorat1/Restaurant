@@ -14,7 +14,7 @@ export const metadata: Metadata = {
     url: `${SITE_URL}/gift-cards`,
     title: "Digital Gift Passes | L'Étoile Dorée",
     description: "Gift an unforgettable fine dining experience with digital vouchers.",
-    images: [{ url: "/images/hero.svg", width: 1200, height: 630, alt: "L'Étoile Dorée Gift Cards" }],
+    images: [{ url: "/images/hero.jpg", width: 1200, height: 630, alt: "L'Étoile Dorée Gift Cards" }],
   },
 };
 

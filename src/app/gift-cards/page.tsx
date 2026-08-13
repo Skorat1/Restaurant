@@ -45,7 +45,7 @@ export default function GiftCardsPage() {
       name: `$${amount} Dining Gift Pass (${selectedTheme.name})`,
       price: amount,
       category: "Gift Vouchers",
-      image: "/images/hero.svg",
+      image: "/images/hero.jpg",
     });
   };
 

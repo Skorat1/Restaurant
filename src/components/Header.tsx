@@ -58,6 +58,18 @@ export default function Header() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [open]);
+
   // Close mobile menu on route change
   useEffect(() => {
     if (!open) return;
@@ -328,23 +340,26 @@ export default function Header() {
             {/* Mobile Reserve CTA Button */}
             <Link
               href="/reserve"
-              className="px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-md shadow-amber-500/20"
+              className="px-3.5 py-2 min-h-[40px] rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-md shadow-amber-500/20 active:scale-95 transition-transform flex items-center"
             >
               RESERVE
             </Link>
 
             {/* Mobile Cart Button */}
             {mounted && count > 0 && (
-              <Link href="/order" className="relative p-2 rounded-full border border-neutral-700 text-neutral-200 bg-neutral-900/80">
+              <Link href="/order" className="relative p-2.5 min-h-[40px] min-w-[40px] rounded-full border border-neutral-700 text-neutral-200 bg-neutral-900/90 active:scale-95 transition-transform flex items-center justify-center">
                 <ShoppingCart className="w-4 h-4 text-amber-400" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-black text-[9px] font-bold flex items-center justify-center">{count}</span>
+                <span className="absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full bg-amber-500 text-black text-[9px] font-bold flex items-center justify-center">
+                  {count > 99 ? "99+" : count}
+                </span>
               </Link>
             )}
 
-            {/* Hamburger Toggle */}
+            {/* Hamburger Toggle Button */}
             <button
-              aria-label="Toggle menu"
-              className="p-2 rounded-full border border-neutral-800 text-neutral-200 hover:bg-neutral-900 transition"
+              aria-label={open ? "Close menu" : "Open navigation menu"}
+              aria-expanded={open}
+              className="p-2.5 min-h-[44px] min-w-[44px] rounded-full border border-neutral-700/80 bg-neutral-900/90 text-neutral-200 hover:text-amber-400 hover:border-amber-500/40 active:scale-95 transition flex items-center justify-center shadow-sm"
               onClick={() => setOpen(!open)}
             >
               {open ? <X className="w-5 h-5 text-amber-400" /> : <MenuIcon className="w-5 h-5 text-neutral-200" />}
@@ -354,61 +369,114 @@ export default function Header() {
         </nav>
       </div>
 
-      {/* ── Mobile Slide-down Panel ── */}
-      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[46rem] opacity-100" : "max-h-0 opacity-0"}`}>
-        <div className="bg-neutral-950/98 border-b border-amber-500/20 backdrop-blur-2xl px-6 py-5 space-y-4 shadow-2xl">
+      {/* ── Touch Backdrop Overlay for Mobile Drawer ── */}
+      <div
+        aria-hidden="true"
+        onClick={() => setOpen(false)}
+        className={`fixed inset-0 top-[65px] sm:top-[81px] bg-black/80 backdrop-blur-md transition-opacity duration-300 z-40 lg:hidden ${
+          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+        }`}
+      />
 
-          {/* Primary links */}
-          <div className="grid grid-cols-2 gap-2">
-            {PRIMARY_NAV.map(({ href, label }) => (
+      {/* ── Mobile Slide-down Touch Menu ── */}
+      <div
+        className={`fixed left-0 right-0 top-[65px] sm:top-[81px] z-50 lg:hidden overflow-y-auto max-h-[calc(100vh-80px)] transition-all duration-300 ease-out shadow-2xl ${
+          open ? "translate-y-0 opacity-100 pointer-events-auto" : "-translate-y-4 opacity-0 pointer-events-none"
+        }`}
+      >
+        <div className="bg-neutral-950/98 border-b border-amber-500/30 backdrop-blur-2xl px-5 py-6 space-y-5 shadow-2xl rounded-b-3xl max-w-xl mx-auto">
+
+          {/* User Profile Banner (if logged in) */}
+          {mounted && user && (
+            <div className="p-3.5 rounded-2xl border border-amber-500/25 bg-gradient-to-r from-amber-500/10 via-neutral-900/80 to-neutral-900/90 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-bold text-sm flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
+                  {initials}
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-bold text-white truncate">{user.name}</p>
+                  <p className="text-xs text-neutral-400 truncate">{user.email}</p>
+                </div>
+              </div>
               <Link
-                key={href}
-                href={href}
+                href="/profile"
                 onClick={() => setOpen(false)}
-                className={`block px-4 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-center transition ${pathname === href ? "bg-amber-500/20 border border-amber-500/40 text-amber-400" : "bg-neutral-900/60 border border-neutral-800 text-neutral-300"
-                  }`}
+                className="px-3 py-1.5 rounded-full border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs font-bold shrink-0 hover:bg-amber-500/20 transition"
               >
-                {label}
+                Profile
               </Link>
-            ))}
-          </div>
+            </div>
+          )}
 
-          {/* More Section */}
-          <div className="pt-2">
-            <p className="px-2 pb-2 text-[10px] uppercase tracking-widest font-bold text-amber-400">More Experiences</p>
-            <div className="grid grid-cols-2 gap-2">
-              {MORE_NAV.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className={`flex items-center gap-2 px-3 py-2.5 rounded-xl text-xs font-semibold transition ${pathname === href ? "bg-amber-500/20 border border-amber-500/40 text-amber-400" : "bg-neutral-900/40 border border-neutral-800 text-neutral-300"
+          {/* Primary Navigation Grid */}
+          <div>
+            <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-neutral-400">Navigation</p>
+            <div className="grid grid-cols-2 gap-2.5">
+              {PRIMARY_NAV.map(({ href, label }) => {
+                const isActive = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center justify-center min-h-[48px] px-4 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider text-center transition-all duration-200 active:scale-95 ${
+                      isActive
+                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/20 border-2 border-amber-500/60 text-amber-300 shadow-md shadow-amber-500/10"
+                        : "bg-neutral-900/80 border border-neutral-800 text-neutral-200 hover:border-amber-500/40 hover:text-white"
                     }`}
-                >
-                  <Icon className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                  <span className="truncate">{label}</span>
-                </Link>
-              ))}
+                  >
+                    {label}
+                  </Link>
+                );
+              })}
             </div>
           </div>
 
-          {/* Mobile Language Switcher */}
+          {/* More Experiences Accordion Section */}
+          <div className="pt-1 border-t border-neutral-800/80">
+            <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-amber-400">More Experiences</p>
+            <div className="grid grid-cols-2 gap-2">
+              {MORE_NAV.map(({ href, label, icon: Icon }) => {
+                const isActive = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    className={`flex items-center gap-2.5 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
+                      isActive
+                        ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold"
+                        : "bg-neutral-900/50 border border-neutral-800/90 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                    }`}
+                  >
+                    <Icon className="w-4 h-4 text-amber-400 shrink-0" />
+                    <span className="truncate">{label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Language Switcher Bar */}
           <div className="pt-2 border-t border-neutral-800 flex items-center justify-between text-xs">
-            <span className="text-neutral-400 font-medium flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5 text-amber-400" /> Language:
+            <span className="text-neutral-400 font-semibold flex items-center gap-1.5">
+              <Globe className="w-4 h-4 text-amber-400" /> Language:
             </span>
-            <div className="flex gap-1">
+            <div className="flex gap-1.5">
               {[
-                { code: "en" as Language, name: "EN" },
-                { code: "gu" as Language, name: "ગુ" },
-                { code: "hi" as Language, name: "हि" },
+                { code: "en" as Language, name: "English" },
+                { code: "gu" as Language, name: "ગુજરાતી" },
+                { code: "hi" as Language, name: "हिन्दी" },
               ].map((l) => (
                 <button
                   key={l.code}
                   type="button"
                   onClick={() => setLanguage(l.code)}
-                  className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition ${language === l.code ? "bg-amber-500 text-black" : "bg-neutral-900 text-neutral-400 border border-neutral-800"
-                    }`}
+                  className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${
+                    language === l.code
+                      ? "bg-amber-500 text-black shadow-sm font-extrabold"
+                      : "bg-neutral-900 text-neutral-300 border border-neutral-800 hover:border-neutral-700"
+                  }`}
                 >
                   {l.name}
                 </button>
@@ -416,20 +484,23 @@ export default function Header() {
             </div>
           </div>
 
-          {/* Auth Action Buttons */}
-          <div className="pt-2 flex gap-2 border-t border-neutral-800">
+          {/* Bottom Call-to-Action Bar */}
+          <div className="pt-2 flex gap-2.5 border-t border-neutral-800">
             <Link
               href="/reserve"
               onClick={() => setOpen(false)}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-black font-extrabold text-xs text-center uppercase tracking-wider shadow-lg shadow-amber-500/20"
+              className="flex-1 min-h-[48px] flex items-center justify-center rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-lg shadow-amber-500/25 active:scale-98 transition-all"
             >
               Reserve Table
             </Link>
 
             {mounted && user ? (
               <button
-                onClick={handleLogout}
-                className="px-4 py-3 rounded-xl border border-red-500/40 bg-red-500/10 text-red-400 font-bold text-xs"
+                onClick={() => {
+                  handleLogout();
+                  setOpen(false);
+                }}
+                className="px-5 min-h-[48px] rounded-2xl border border-red-500/40 bg-red-500/10 text-red-400 font-bold text-xs active:scale-98 transition"
               >
                 Sign Out
               </button>
@@ -438,16 +509,16 @@ export default function Header() {
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="flex-1 py-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-200 font-bold text-xs text-center uppercase"
+                  className="flex-1 min-h-[48px] flex items-center justify-center rounded-2xl border border-neutral-700 bg-neutral-900 text-neutral-200 font-bold text-xs uppercase hover:border-neutral-600 transition"
                 >
-                  LOG IN
+                  Log In
                 </Link>
                 <Link
                   href="/signup"
                   onClick={() => setOpen(false)}
-                  className="flex-1 py-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300 font-bold text-xs text-center uppercase"
+                  className="flex-1 min-h-[48px] flex items-center justify-center rounded-2xl border border-amber-500/50 bg-amber-500/15 text-amber-300 font-bold text-xs uppercase hover:bg-amber-500/25 transition"
                 >
-                  SIGN UP
+                  Sign Up
                 </Link>
               </div>
             )}
