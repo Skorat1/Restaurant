@@ -446,7 +446,7 @@ export default function Home() {
       )}
 
       {/* ── HERO SECTION WITH OPTIMIZED DARK GRADIENT OVERLAY ───────────────── */}
-      <section className="relative pt-20 pb-16 overflow-hidden">
+      <section className="relative pt-8 sm:pt-10 pb-16 overflow-hidden">
 
         {/* Deep High-Contrast Dark Gradient Overlay for Maximum Text Contrast */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-neutral-950 z-0 pointer-events-none" />
@@ -459,7 +459,7 @@ export default function Home() {
           <div className="grid lg:grid-cols-12 gap-12 items-center">
 
             {/* Left Hero Copy with High Text Contrast */}
-            <div className="lg:col-span-7 space-y-8 animate-fade-up">
+            <div className="lg:col-span-7 space-y-6 animate-fade-up">
 
               {/* Status Pill */}
               <div className="flex items-center gap-3 flex-wrap">
