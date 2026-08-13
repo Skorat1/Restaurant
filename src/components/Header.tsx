@@ -9,26 +9,28 @@ import { useLanguage, Language } from "@/lib/LanguageContext";
 import {
   ChevronDown, ShoppingCart, Crown, LayoutDashboard,
   CalendarDays, Package, LogOut, User, Star,
-  Wine, Gift, Sparkles, Globe, Calendar, Menu as MenuIcon, X, Image as ImageIcon, Video
+  Wine, Gift, Sparkles, Globe, Calendar, Menu as MenuIcon, X, Image as ImageIcon, Video, Info
 } from "lucide-react";
 
 // ── Primary nav (always visible in desktop bar) ───────────────────────────────
 const PRIMARY_NAV = [
-  { href: "/", label: "Home" },
-  { href: "/menu", label: "Menu" },
-  { href: "/reserve", label: "Reserve" },
-  { href: "/order", label: "Order" },
-  { href: "/contact", label: "Contact" },
+  { href: "/", label: "HOME" },
+  { href: "/menu", label: "MENU" },
+  { href: "/reserve", label: "RESERVE" },
+  { href: "/order", label: "ORDER" },
+  { href: "/contact", label: "CONTACT" },
 ];
 
 // ── Secondary nav shown inside "More ▾" dropdown ─────────────────────────────
 const MORE_NAV = [
-  { href: "/media", label: "Media Vault", icon: Video },
+  { href: "/about", label: "About Us", icon: Info },
+  { href: "/gallery", label: "Gallery", icon: ImageIcon },
   { href: "/cellar", label: "Wine Cellar", icon: Wine },
+  { href: "/services", label: "Services & Experiences", icon: Sparkles },
+  { href: "/media", label: "Media Vault", icon: Video },
+  { href: "/membership", label: "Membership", icon: Crown },
   { href: "/gift-cards", label: "Gift Cards", icon: Gift },
   { href: "/track", label: "Track Order", icon: Package },
-  { href: "/gallery", label: "Gallery", icon: ImageIcon },
-  { href: "/services", label: "Experiences", icon: Sparkles },
 ];
 
 export default function Header() {
@@ -91,67 +93,70 @@ export default function Header() {
       <div
         className={`transition-all duration-300 border-b ${scrolled
             ? "backdrop-blur-2xl bg-neutral-950/95 shadow-2xl shadow-black/60 border-amber-500/20 py-1"
-            : "backdrop-blur-xl bg-neutral-950/80 border-neutral-800/80 py-2"
+            : "backdrop-blur-xl bg-neutral-950/85 border-neutral-800/80 py-2.5"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
 
-          {/* ── Logo ── */}
+          {/* ── Logo & Brand Identity ── */}
           <Link
             href="/"
-            className="shrink-0 flex items-center gap-2 group"
+            className="shrink-0 flex items-center gap-2.5 group"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-500 to-amber-300 flex items-center justify-center text-black font-serif font-bold text-base shadow-md shadow-amber-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-300 flex items-center justify-center text-neutral-950 font-serif font-bold text-lg shadow-md shadow-amber-500/25 group-hover:scale-105 group-hover:shadow-amber-500/40 transition-all duration-300 ring-2 ring-amber-400/30">
               É
             </div>
             <div className="flex flex-col">
               <span className="text-lg sm:text-xl font-serif tracking-widest text-amber-400 font-bold group-hover:text-amber-300 transition leading-none">
-                L&apos;ÉTOILE DORÉE
+                L&apos;Étoile Dorée
               </span>
-              <span className="text-[9px] uppercase tracking-[0.25em] text-neutral-400 font-sans font-medium mt-0.5">
-                Fine Dining · Haute Cuisine
+              <span className="text-[9px] uppercase tracking-[0.25em] text-neutral-400 font-sans font-semibold mt-1">
+                FINE DINING · HAUTE CUISINE
               </span>
             </div>
           </Link>
 
           {/* ── Desktop Primary Nav ── */}
           <div className="hidden lg:flex items-center gap-7 text-xs font-bold tracking-[0.15em] uppercase">
-            {PRIMARY_NAV.map(({ href, label }) => (
-              <Link
-                key={href}
-                href={href}
-                className={`relative py-1 transition-colors duration-200 ${pathname === href
-                    ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-600"
-                    : "text-neutral-300 hover:text-amber-400"
-                  }`}
-              >
-                {label}
-              </Link>
-            ))}
+            {PRIMARY_NAV.map(({ href, label }) => {
+              const isActive = pathname === href;
+              return (
+                <Link
+                  key={href}
+                  href={href}
+                  className={`relative py-1.5 transition-colors duration-200 ${isActive
+                      ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                      : "text-neutral-300 hover:text-amber-400"
+                    }`}
+                >
+                  {label}
+                </Link>
+              );
+            })}
 
-            {/* More dropdown */}
+            {/* More ∨ Dropdown */}
             <div className="relative" ref={moreRef}>
               <button
                 onClick={() => setMoreOpen(!moreOpen)}
-                className={`flex items-center gap-1 py-1 transition-colors duration-200 ${isMoreActive
-                    ? "text-amber-400 font-extrabold"
+                className={`flex items-center gap-1 py-1.5 transition-colors duration-200 ${isMoreActive
+                    ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
                     : "text-neutral-300 hover:text-amber-400"
                   }`}
               >
-                More
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${moreOpen ? "rotate-180 text-amber-400" : ""}`} />
+                <span>MORE</span>
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180 text-amber-400" : ""}`} />
               </button>
 
               {moreOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-56 rounded-2xl border border-amber-500/30 bg-neutral-950/98 backdrop-blur-2xl shadow-2xl shadow-black/70 overflow-hidden z-50 animate-fade-up">
+                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 rounded-2xl border border-amber-500/30 bg-neutral-950/98 backdrop-blur-2xl shadow-2xl shadow-black/70 overflow-hidden z-50 animate-fade-up">
                   <div className="py-2">
                     {MORE_NAV.map(({ href, label, icon: Icon }) => (
                       <Link
                         key={href}
                         href={href}
                         onClick={() => setMoreOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-3 text-xs font-semibold transition ${pathname === href
-                            ? "text-amber-400 bg-amber-500/15"
+                        className={`flex items-center gap-3 px-4 py-2.5 text-xs font-semibold transition ${pathname === href
+                            ? "text-amber-400 bg-amber-500/15 font-bold"
                             : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
                           }`}
                       >
@@ -165,20 +170,20 @@ export default function Header() {
             </div>
           </div>
 
-          {/* ── Desktop Right Actions ── */}
-          <div className="hidden lg:flex items-center gap-3">
+          {/* ── Desktop Right Controls & User Actions ── */}
+          <div className="hidden lg:flex items-center gap-3.5">
 
-            {/* Language Switcher */}
+            {/* Language Selector (EN ∨) */}
             <div className="relative" ref={langRef}>
               <button
                 type="button"
                 onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1.5 px-3 py-2 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 transition uppercase tracking-wider"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 transition-all uppercase tracking-wider shadow-sm group"
                 title="Change Language"
               >
-                <Globe className="w-3.5 h-3.5 text-amber-400" />
+                <Globe className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
                 <span>{language.toUpperCase()}</span>
-                <ChevronDown className="w-3 h-3 text-neutral-400" />
+                <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${langOpen ? "rotate-180 text-amber-400" : ""}`} />
               </button>
 
               {langOpen && (
@@ -192,7 +197,7 @@ export default function Header() {
                       key={l.code}
                       type="button"
                       onClick={() => { setLanguage(l.code); setLangOpen(false); }}
-                      className={`flex items-center justify-between w-full px-4 py-2 text-xs font-semibold transition ${language === l.code ? "text-amber-400 bg-amber-500/10" : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
+                      className={`flex items-center justify-between w-full px-4 py-2 text-xs font-semibold transition ${language === l.code ? "text-amber-400 bg-amber-500/10 font-bold" : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
                         }`}
                     >
                       <span>{l.name}</span>
@@ -203,15 +208,15 @@ export default function Header() {
               )}
             </div>
 
-            {/* Cart */}
+            {/* Cart Indicator */}
             <Link
               href="/order"
               aria-label="View cart"
-              className="relative p-2.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 transition"
+              className="relative p-2.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 group"
             >
-              <ShoppingCart className="w-4 h-4" />
+              <ShoppingCart className="w-4 h-4 group-hover:scale-110 transition-transform" />
               {mounted && count > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-black text-[11px] font-bold flex items-center justify-center shadow-md">
+                <span className="absolute -top-1.5 -right-1.5 min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-black text-[11px] font-bold flex items-center justify-center shadow-md shadow-amber-500/30 animate-pulse">
                   {count > 99 ? "99+" : count}
                 </span>
               )}
@@ -220,13 +225,13 @@ export default function Header() {
             {/* Reserve Table High-Impact CTA */}
             <Link
               href="/reserve"
-              className="relative group inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-xs font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 border border-amber-300/40"
+              className="relative group inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 border border-amber-300/40"
             >
               <Calendar className="w-4 h-4 text-black group-hover:rotate-12 transition-transform" />
-              <span>Reserve Table</span>
+              <span>RESERVE TABLE</span>
             </Link>
 
-            {/* Profile Menu */}
+            {/* Authentication Triggers / Profile Menu */}
             {mounted && user ? (
               <div className="relative" ref={profileRef}>
                 <button
@@ -299,11 +304,19 @@ export default function Header() {
               </div>
             ) : (
               <div className="flex items-center gap-2">
-                <Link href="/login" suppressHydrationWarning className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border border-neutral-700 text-neutral-300 hover:bg-neutral-900 transition">
-                  Log In
+                <Link
+                  href="/login"
+                  suppressHydrationWarning
+                  className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider border border-neutral-700/80 text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 hover:shadow-md transition-all duration-200"
+                >
+                  LOG IN
                 </Link>
-                <Link href="/signup" suppressHydrationWarning className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-neutral-800 border border-neutral-700 text-white hover:bg-neutral-700 transition">
-                  Sign Up
+                <Link
+                  href="/signup"
+                  suppressHydrationWarning
+                  className="px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/50 text-amber-300 hover:from-amber-500/30 hover:to-amber-600/30 hover:text-amber-200 hover:border-amber-400 hover:shadow-lg hover:shadow-amber-500/20 transition-all duration-200"
+                >
+                  SIGN UP
                 </Link>
               </div>
             )}
@@ -317,13 +330,13 @@ export default function Header() {
               href="/reserve"
               className="px-3.5 py-1.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-gradient-to-r from-amber-400 to-amber-500 text-black shadow-md shadow-amber-500/20"
             >
-              Reserve
+              RESERVE
             </Link>
 
             {/* Mobile Cart Button */}
             {mounted && count > 0 && (
               <Link href="/order" className="relative p-2 rounded-full border border-neutral-700 text-neutral-200 bg-neutral-900/80">
-                <ShoppingCart className="w-4 h-4" />
+                <ShoppingCart className="w-4 h-4 text-amber-400" />
                 <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-black text-[9px] font-bold flex items-center justify-center">{count}</span>
               </Link>
             )}
@@ -342,7 +355,7 @@ export default function Header() {
       </div>
 
       {/* ── Mobile Slide-down Panel ── */}
-      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[42rem] opacity-100" : "max-h-0 opacity-0"}`}>
+      <div className={`lg:hidden overflow-hidden transition-all duration-300 ease-in-out ${open ? "max-h-[46rem] opacity-100" : "max-h-0 opacity-0"}`}>
         <div className="bg-neutral-950/98 border-b border-amber-500/20 backdrop-blur-2xl px-6 py-5 space-y-4 shadow-2xl">
 
           {/* Primary links */}
@@ -421,13 +434,22 @@ export default function Header() {
                 Sign Out
               </button>
             ) : (
-              <Link
-                href="/login"
-                onClick={() => setOpen(false)}
-                className="px-5 py-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-200 font-bold text-xs text-center uppercase"
-              >
-                Log In
-              </Link>
+              <div className="flex gap-2 flex-1">
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 py-3 rounded-xl border border-neutral-700 bg-neutral-900 text-neutral-200 font-bold text-xs text-center uppercase"
+                >
+                  LOG IN
+                </Link>
+                <Link
+                  href="/signup"
+                  onClick={() => setOpen(false)}
+                  className="flex-1 py-3 rounded-xl border border-amber-500/40 bg-amber-500/10 text-amber-300 font-bold text-xs text-center uppercase"
+                >
+                  SIGN UP
+                </Link>
+              </div>
             )}
           </div>
 
@@ -436,3 +458,4 @@ export default function Header() {
     </header>
   );
 }
+
