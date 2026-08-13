@@ -445,66 +445,93 @@ export default function Home() {
         </div>
       )}
 
-      {/* ── HERO SECTION WITH OPTIMIZED DARK GRADIENT OVERLAY ───────────────── */}
-      <section className="relative pt-1 sm:pt-2 pb-16 overflow-hidden">
+      {/* ── LUXURY FULL-SCREEN HERO SECTION ─────────────────────────────────── */}
+      <section className="relative min-h-[85vh] lg:min-h-[90vh] pt-4 sm:pt-6 pb-20 overflow-hidden flex items-center justify-center">
 
-        {/* Deep High-Contrast Dark Gradient Overlay for Maximum Text Contrast */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-neutral-950 z-0 pointer-events-none" />
+        {/* Full-Screen Luxury Background Image */}
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <Image
+            src={resolveImg("/images/hero.jpg")}
+            alt="VELORA Luxury Restaurant Ambience"
+            fill
+            priority
+            className="object-cover object-center scale-105 filter brightness-[0.4] contrast-125 transition-transform duration-1000"
+          />
+          {/* Dark Cinematic Vignette Overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-black/75 to-black/80" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-500/15 via-transparent to-transparent" />
+        </div>
 
-        {/* Glowing Background Ambient Orbs */}
-        <div className="absolute top-1/4 left-1/3 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[550px] bg-amber-500/15 blur-[150px] pointer-events-none rounded-full z-0" />
-        <div className="absolute bottom-10 right-10 w-[480px] h-[480px] bg-purple-600/15 blur-[150px] pointer-events-none rounded-full z-0" />
+        {/* Glowing Background Ambient Lighting */}
+        <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/20 blur-[160px] pointer-events-none rounded-full z-0" />
+        <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-amber-600/15 blur-[160px] pointer-events-none rounded-full z-0" />
 
-        <div className="mx-auto max-w-7xl px-6 relative z-10 space-y-16">
+        <div className="mx-auto max-w-7xl px-6 relative z-10 space-y-16 w-full">
           <div className="grid lg:grid-cols-12 gap-12 items-center">
 
-            {/* Left Hero Copy with High Text Contrast */}
-            <div className="lg:col-span-7 space-y-6 animate-fade-up">
+            {/* Left Hero Content */}
+            <div className="lg:col-span-7 space-y-8 animate-fade-up">
 
-              {/* Status Pill */}
+              {/* Status & Michelin Badges */}
               <div className="flex items-center gap-3 flex-wrap">
-                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/15 border border-emerald-500/40 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-emerald-400 badge-pulse">
+                <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-500/50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-emerald-300 backdrop-blur-md shadow-lg shadow-emerald-950/40 badge-pulse">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
                   Open Tonight · 4 VIP Tables Remaining
                 </span>
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 px-3 py-1.5 text-xs font-bold text-amber-300">
-                  <Award className="w-3.5 h-3.5 text-amber-400" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 px-3.5 py-1.5 text-xs font-bold text-amber-300 backdrop-blur-md">
+                  <Award className="w-4 h-4 text-amber-400" />
                   Michelin Guide 2026 Recommended
                 </span>
               </div>
 
               {/* Main Headline */}
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif leading-[1.06] text-white tracking-tight drop-shadow-lg">
-                VELORA—<br />
-                <span className="text-gold-gradient font-italic font-semibold">High Gastronomy &amp; Modern Fine Dining</span>
-              </h1>
+              <div className="space-y-3">
+                <span className="text-xs uppercase tracking-[0.4em] font-mono text-amber-400 font-bold block">
+                  VELORA HAUTE CUISINE
+                </span>
+                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif leading-[1.05] text-white tracking-tight drop-shadow-2xl font-bold">
+                  Where Taste Meets <br />
+                  <span className="text-gold-gradient font-italic font-semibold drop-shadow-[0_4px_24px_rgba(245,158,11,0.4)]">
+                    Elegance &amp; Luxury
+                  </span>
+                </h1>
+              </div>
 
               {/* Subheadline */}
-              <p className="text-neutral-200 max-w-xl leading-relaxed text-base sm:text-lg font-light drop-shadow-sm">
-                Where French culinary heritage meets modern gastronomy. Experience 7-course seasonal tasting menus, 2,500+ Grand Cru cellar vintages, and extraordinary starlit dining ambiances.
+              <p className="text-neutral-200 max-w-xl leading-relaxed text-base sm:text-lg font-light drop-shadow">
+                Experience ultra-modern French culinary heritage redefined. 7-course seasonal tasting menus, 2,500+ Grand Cru cellar vintages, and extraordinary starlit dining ambiances.
               </p>
 
               {/* Action Buttons */}
               <div className="flex gap-4 flex-wrap items-center pt-2">
-                <Link href="/reserve" className="btn-primary text-xs py-4 px-8 tracking-widest shadow-xl font-extrabold">
-                  <Calendar className="w-4 h-4 mr-2" />
-                  Reserve A Table
+                <Link
+                  href="/menu"
+                  className="px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300/40 flex items-center gap-2.5"
+                >
+                  <Utensils className="w-4 h-4 text-black" />
+                  <span>Explore Menu</span>
+                  <ArrowRight className="w-4 h-4 text-black" />
                 </Link>
-                <Link href="/menu" className="btn-outline text-xs py-4 px-8 tracking-widest font-bold">
-                  <Utensils className="w-4 h-4 mr-2" />
-                  Explore Live Menu
+
+                <Link
+                  href="/reserve"
+                  className="px-8 py-4 rounded-full border-2 border-amber-400/60 bg-neutral-950/70 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 font-bold text-xs uppercase tracking-widest backdrop-blur-md shadow-xl transition-all duration-300 flex items-center gap-2.5"
+                >
+                  <Calendar className="w-4 h-4 text-amber-400" />
+                  <span>Reserve a Table</span>
                 </Link>
+
                 <button
                   type="button"
                   onClick={() => setTourModal(true)}
-                  className="px-5 py-4 rounded-full border border-amber-500/40 bg-amber-500/15 text-amber-300 text-xs font-bold uppercase tracking-wider hover:bg-amber-500/25 transition flex items-center gap-2"
+                  className="px-5 py-4 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 text-xs font-bold uppercase tracking-wider hover:border-amber-500/40 hover:text-amber-300 backdrop-blur-md transition flex items-center gap-2"
                 >
-                  <Eye className="w-4 h-4 text-amber-400" /> 360° Ambience Tour
+                  <Eye className="w-4 h-4 text-amber-400" /> 360° Ambience
                 </button>
               </div>
 
               {/* Trust Badges Bar */}
-              <div className="pt-6 border-t border-neutral-800/90 grid grid-cols-3 gap-4 text-xs text-neutral-300">
+              <div className="pt-6 border-t border-neutral-800/80 grid grid-cols-3 gap-4 text-xs text-neutral-300">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div>
@@ -530,9 +557,9 @@ export default function Home() {
 
             </div>
 
-            {/* Right Hero Showcase Image / Card */}
+            {/* Right Hero Showcase Card */}
             <div className="lg:col-span-5 relative">
-              <div className="relative h-[480px] sm:h-[540px] rounded-3xl overflow-hidden border border-amber-500/40 shadow-2xl group">
+              <div className="relative h-[480px] sm:h-[540px] rounded-3xl overflow-hidden border border-amber-500/50 shadow-2xl shadow-amber-500/10 group">
                 <Image
                   src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80"
                   alt="VELORA Fine Dining Ambience"

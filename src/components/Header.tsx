@@ -15,15 +15,16 @@ import {
 // ── Primary nav (always visible in desktop bar) ───────────────────────────────
 const PRIMARY_NAV = [
   { href: "/", label: "HOME" },
+  { href: "/about", label: "ABOUT" },
   { href: "/menu", label: "MENU" },
+  { href: "/cellar", label: "EVENTS & CELLAR" },
   { href: "/contact", label: "CONTACT" },
 ];
 
 // ── Secondary nav shown inside "More ▾" dropdown ─────────────────────────────
 const MORE_NAV = [
-  { href: "/about", label: "About Us", icon: Info },
-  { href: "/cellar", label: "Wine Cellar", icon: Wine },
-  { href: "/membership", label: "Membership", icon: Crown },
+  { href: "/membership", label: "VIP Membership", icon: Crown },
+  { href: "/orders", label: "My Orders", icon: Package },
 ];
 
 export default function Header() {
@@ -94,11 +95,11 @@ export default function Header() {
   const isMoreActive = MORE_NAV.some((l) => pathname === l.href);
 
   return (
-    <header className="fixed top-0 w-full z-50">
+    <header className="fixed top-0 w-full z-50 transition-all duration-300">
       <div
         className={`transition-all duration-300 border-b ${scrolled
-          ? "backdrop-blur-2xl bg-neutral-950/95 shadow-2xl shadow-black/60 border-amber-500/20 py-1"
-          : "backdrop-blur-xl bg-neutral-950/85 border-neutral-800/80 py-2.5"
+          ? "backdrop-blur-2xl bg-neutral-950/90 shadow-2xl shadow-black/80 border-amber-500/20 py-1.5"
+          : "backdrop-blur-md bg-neutral-950/50 border-white/10 py-3"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
@@ -108,14 +109,15 @@ export default function Header() {
             href="/"
             className="shrink-0 flex items-center gap-2.5 group"
           >
-            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-300 flex items-center justify-center text-neutral-950 font-serif font-bold text-lg shadow-md shadow-amber-500/25 group-hover:scale-105 group-hover:shadow-amber-500/40 transition-all duration-300 ring-2 ring-amber-400/30">
-              É
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-300 flex items-center justify-center text-neutral-950 font-serif font-extrabold text-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 ring-2 ring-amber-400/40">
+              V
             </div>
             <div className="flex flex-col">
-              <span className="text-lg sm:text-xl font-serif tracking-widest text-amber-400 font-bold group-hover:text-amber-300 transition leading-none">
+              <span className="text-xl sm:text-2xl font-serif tracking-[0.2em] text-amber-400 font-extrabold group-hover:text-amber-300 transition leading-none drop-shadow">
                 VELORA
               </span>
-              <span className="text-[9px] uppercase tracking-[0.25em] text-neutral-400 font-sans font-semibold mt-1">
+              <span className="text-[9px] uppercase tracking-[0.3em] text-neutral-300 font-sans font-bold mt-1">
+                HAUTE CUISINE
               </span>
             </div>
           </Link>
