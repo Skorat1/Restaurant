@@ -11,6 +11,7 @@ import {
   CalendarDays, Camera, Home, Briefcase, ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
+import { useCart } from "@/components/CartContext";
 import API_BASE_URL from "@/lib/api";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 
@@ -50,6 +51,7 @@ const INITIAL_ADDRESSES = [
 
 export default function ProfilePage() {
   const { user, token, loading, logout, refreshUser } = useAuth();
+  const { openCart } = useCart();
   const router = useRouter();
 
   // Basic Form State
@@ -1005,9 +1007,9 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-2 text-right">
-                <Link href="/orders" className="text-xs font-bold text-amber-400 hover:text-amber-300 transition inline-flex items-center gap-1">
+                <button type="button" onClick={openCart} className="text-xs font-bold text-amber-400 hover:text-amber-300 transition inline-flex items-center gap-1">
                   View Full Order &amp; Reservation History <ChevronRight className="w-3.5 h-3.5" />
-                </Link>
+                </button>
               </div>
             </div>
 

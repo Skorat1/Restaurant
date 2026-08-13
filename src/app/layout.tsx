@@ -4,6 +4,7 @@ import Header from "@/components/Header";
 import InaugurationRibbon from "@/components/InaugurationRibbon";
 import { AuthProvider } from "@/lib/AuthContext";
 import { CartProvider } from "@/components/CartContext";
+import CartDrawer from "@/components/CartDrawer";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import API_BASE_URL from "@/lib/api";
 
@@ -89,20 +90,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body className="bg-neutral-950 text-neutral-100 font-sans antialiased selection:bg-amber-500 selection:text-black">
         <AuthProvider>
           <LanguageProvider>
-            <CartProvider>
-              {/* Skip to main content for accessibility */}
-              <a
-                href="#main-content"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-xl focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:font-semibold"
-              >
-                Skip to main content
-              </a>
-              <InaugurationRibbon />
-              <Header />
-              <main id="main-content" className="pt-28 min-h-screen">
-                {children}
-              </main>
-            </CartProvider>
+              <CartProvider>
+                {/* Skip to main content for accessibility */}
+                <a
+                  href="#main-content"
+                  className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-xl focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:font-semibold"
+                >
+                  Skip to main content
+                </a>
+                <InaugurationRibbon />
+                <Header />
+                <main id="main-content" className="pt-28 min-h-screen">
+                  {children}
+                </main>
+                <CartDrawer />
+              </CartProvider>
           </LanguageProvider>
         </AuthProvider>
         <footer className="border-t border-neutral-900 bg-neutral-950 py-10 text-sm text-neutral-400" role="contentinfo">

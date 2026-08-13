@@ -27,6 +27,10 @@ interface CartContextType {
   items: CartItem[];
   count: number;
   subtotal: number;
+  isCartOpen: boolean;
+  openCart: () => void;
+  closeCart: () => void;
+  toggleCart: () => void;
   addItem: (item: Omit<CartItem, "quantity">, qty?: number) => void;
   removeItem: (itemId: string) => void;
   updateQty: (itemId: string, qty: number) => void;
@@ -37,6 +41,10 @@ const CartContext = createContext<CartContextType>({
   items: [],
   count: 0,
   subtotal: 0,
+  isCartOpen: false,
+  openCart: () => {},
+  closeCart: () => {},
+  toggleCart: () => {},
   addItem: () => {},
   removeItem: () => {},
   updateQty: () => {},
@@ -49,6 +57,11 @@ const STORAGE_KEY = "restaurant_cart";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+
+  const openCart = useCallback(() => setIsCartOpen(true), []);
+  const closeCart = useCallback(() => setIsCartOpen(false), []);
+  const toggleCart = useCallback(() => setIsCartOpen((prev) => !prev), []);
 
   // Load cart from localStorage on mount
   useEffect(() => {
@@ -77,7 +90,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((item: Omit<CartItem, "quantity">, qty: number = 1) => {
     setItems((prev) => {
-      // If item has addons/options, treat as unique line (by itemId + addon signature)
       const addonKey = (item.addons || []).map((a) => `${a.name}:${a.price}`).join("|");
       const optionKey = (item.options || []).map((o) => `${o.group}:${o.value}`).join("|");
       const signature = `${item.itemId}__${addonKey}__${optionKey}`;
@@ -92,7 +104,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const addonTotal = (item.addons || []).reduce((s, a) => s + a.price, 0);
       const newLineTotal = (item.price + addonTotal) * qty;
 
-if (idx >= 0) {
+      if (idx >= 0) {
         return prev.map((i, index) => {
           if (index !== idx) return i;
           const curAddonTotal = (i.addons || []).reduce((s, a) => s + a.price, 0);
@@ -102,6 +114,7 @@ if (idx >= 0) {
       }
       return [...prev, { ...item, quantity: qty, lineTotal: newLineTotal } as CartItem];
     });
+    setIsCartOpen(true);
   }, []);
 
   const removeItem = useCallback((itemId: string) => {
@@ -124,12 +137,24 @@ if (idx >= 0) {
     setItems([]);
   }, []);
 
-const count = items.reduce((sum, i) => sum + i.quantity, 0);
+  const count = items.reduce((sum, i) => sum + i.quantity, 0);
   const subtotal = items.reduce((sum, i) => sum + (i.lineTotal ?? 0), 0);
 
   return (
     <CartContext.Provider
-      value={{ items, count, subtotal, addItem, removeItem, updateQty, clearCart }}
+      value={{
+        items,
+        count,
+        subtotal,
+        isCartOpen,
+        openCart,
+        closeCart,
+        toggleCart,
+        addItem,
+        removeItem,
+        updateQty,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>

@@ -24,7 +24,6 @@ const PRIMARY_NAV = [
 // ── Secondary nav shown inside "More ▾" dropdown ─────────────────────────────
 const MORE_NAV = [
   { href: "/membership", label: "VIP Membership", icon: Crown },
-  { href: "/orders", label: "My Orders", icon: Package },
 ];
 
 export default function Header() {
@@ -38,7 +37,7 @@ export default function Header() {
   const pathname = usePathname();
   const router = useRouter();
   const { user, logout } = useAuth();
-  const { count } = useCart();
+  const { count, toggleCart } = useCart();
   const { language, setLanguage } = useLanguage();
 
   const moreRef = useRef<HTMLDivElement>(null);
@@ -215,8 +214,9 @@ export default function Header() {
             </div>
 
             {/* Cart Indicator */}
-            <Link
-              href="/menu"
+            <button
+              type="button"
+              onClick={toggleCart}
               aria-label="View cart"
               className="relative p-2.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 group"
             >
@@ -226,7 +226,7 @@ export default function Header() {
                   {count > 99 ? "99+" : count}
                 </span>
               )}
-            </Link>
+            </button>
 
             {/* Reserve Table High-Impact CTA */}
             <Link
