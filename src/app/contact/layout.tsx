@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Contact & Concierge | VELORA",
-  description: "Get in touch with VELORA for inquiries, private dining events, and media requests.",
+  title: "Contact Us & Location Directions",
+  description: "Contact VELORA Fine Dining. Inquire about private banquets, corporate dining, white-glove valet parking, or location directions.",
+  keywords: ["contact VELORA", "location", "valet parking", "private banquets", "restaurant contact"],
   openGraph: {
-    title: "Contact & Concierge | VELORA",
-    description: "Reach out to our concierge team for reservations, private events, and directions.",
-    images: ["/images/hero-bg.jpg"],
+    title: "Contact Us & Location Directions | VELORA",
+    description: "Get directions, contact our sommelier team, or book private banquets at VELORA.",
+    images: ["/images/event.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Contact Us | VELORA",
+    description: "Contact VELORA Fine Dining for inquiries and directions.",
+    images: ["/images/event.jpg"],
   },
 };
 

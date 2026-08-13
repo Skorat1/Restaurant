@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
-
 export const metadata: Metadata = {
-  title: "Virtual Wine Cellar & Sommelier Pairings",
-  description:
-    "Explore VELORA's private collection of Grand Cru vintages, rare Champagnes, and sommelier-curated dish pairings.",
-  alternates: {
-    canonical: `${SITE_URL}/cellar`,
-  },
+  title: "Grand Wine Vault & Sommelier Vintages",
+  description: "Explore VELORA's subterranean wine cellar housing 2,500+ Grand Cru vintage bottles, rare Champagnes, and sommelier tasting flights.",
+  keywords: ["wine cellar", "Grand Cru", "sommelier pairing", "vintage wine", "Champagne vault"],
   openGraph: {
-    type: "website",
-    url: `${SITE_URL}/cellar`,
-    title: "Virtual Wine Cellar | VELORA",
-    description: "Curated Grand Cru vintages and sommelier food pairings.",
-    images: [{ url: "/images/hero.jpg", width: 1200, height: 630, alt: "VELORA Wine Cellar" }],
+    title: "Grand Wine Vault & Sommelier Vintages | VELORA",
+    description: "Explore VELORA's subterranean vault with 2,500+ Grand Cru vintages.",
+    images: ["/images/interior.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Grand Wine Vault | VELORA",
+    description: "2,500+ Grand Cru vintages and sommelier tasting flights.",
+    images: ["/images/interior.jpg"],
   },
 };
 

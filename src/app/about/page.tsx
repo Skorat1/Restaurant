@@ -1,12 +1,19 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "About Us | VELORA Fine Dining",
-  description: "Learn about VELORA's heritage, seasonal sourcing, contemporary French gastronomy, and award-winning culinary craftsmanship.",
+  title: "Our Story & Michelin Culinary Standards",
+  description: "Discover the heritage of VELORA, our zero-waste philosophy, organic farm sourcing, and executive chef craftsmanship.",
+  keywords: ["about VELORA", "Michelin standard", "culinary heritage", "organic sourcing", "fine dining story"],
   openGraph: {
-    title: "About Us | VELORA",
-    description: "Modern dining house shaped by classic hospitality rituals and sustainable sourcing.",
-    images: ["/images/hero-bg.jpg"],
+    title: "Our Story & Michelin Culinary Standards | VELORA",
+    description: "Classic French techniques, organic farm sourcing, and artful presentation.",
+    images: ["/images/chef.jpg"],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Our Story | VELORA",
+    description: "Discover VELORA's culinary heritage and Michelin-standard philosophy.",
+    images: ["/images/chef.jpg"],
   },
 };
 
