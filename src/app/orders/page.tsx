@@ -122,15 +122,15 @@ export default function OrdersPage() {
               Live tracking
             </span>
           )}
-          <Link href="/order" className="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition">
-            Order Online
+          <Link href="/menu" className="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition">
+            Explore Menu
           </Link>
         </div>
       </div>
 
       {reorderMsg && (
         <div className="rounded-2xl bg-emerald-500/10 border border-emerald-500/20 px-6 py-3 text-sm text-emerald-300 mb-4">
-          ✓ {reorderMsg} <Link href="/order" className="underline ml-1">View cart →</Link>
+          ✓ {reorderMsg} <Link href="/menu" className="underline ml-1">Browse menu →</Link>
         </div>
       )}
 
@@ -151,10 +151,10 @@ export default function OrdersPage() {
           </div>
           <h3 className="text-xl font-serif text-white mb-2">No Orders Yet</h3>
           <p className="text-neutral-400 max-w-sm mx-auto mb-6">
-            You haven&apos;t placed any online orders. Browse the menu and order your favorites.
+            You haven&apos;t placed any online orders. Browse our seasonal menu.
           </p>
-          <Link href="/order" className="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition">
-            Start Ordering
+          <Link href="/menu" className="inline-flex items-center justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition">
+            Explore Menu
           </Link>
         </div>
       ) : (

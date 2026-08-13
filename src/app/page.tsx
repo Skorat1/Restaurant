@@ -175,7 +175,7 @@ const EXPERIENCES = [
       "1-Year Validity for Dining or Wine",
       "Instant Email & SMS Delivery"
     ],
-    href: "/gift-cards",
+    href: "/reserve",
     tag: "Instant Delivery",
     bg: "from-emerald-500/10 via-transparent to-transparent",
   },

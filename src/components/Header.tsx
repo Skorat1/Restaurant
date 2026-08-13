@@ -17,7 +17,6 @@ const PRIMARY_NAV = [
   { href: "/", label: "HOME" },
   { href: "/menu", label: "MENU" },
   { href: "/reserve", label: "RESERVE" },
-  { href: "/order", label: "ORDER" },
   { href: "/contact", label: "CONTACT" },
 ];
 
@@ -26,10 +25,7 @@ const MORE_NAV = [
   { href: "/about", label: "About Us", icon: Info },
   { href: "/gallery", label: "Gallery", icon: ImageIcon },
   { href: "/cellar", label: "Wine Cellar", icon: Wine },
-  { href: "/services", label: "Services & Experiences", icon: Sparkles },
-  { href: "/media", label: "Media Vault", icon: Video },
   { href: "/membership", label: "Membership", icon: Crown },
-  { href: "/gift-cards", label: "Gift Cards", icon: Gift },
   { href: "/track", label: "Track Order", icon: Package },
 ];
 
@@ -222,7 +218,7 @@ export default function Header() {
 
             {/* Cart Indicator */}
             <Link
-              href="/order"
+              href="/menu"
               aria-label="View cart"
               className="relative p-2.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 hover:shadow-lg hover:shadow-amber-500/10 transition-all duration-200 group"
             >
@@ -347,7 +343,7 @@ export default function Header() {
 
             {/* Mobile Cart Button */}
             {mounted && count > 0 && (
-              <Link href="/order" className="relative p-2.5 min-h-[40px] min-w-[40px] rounded-full border border-neutral-700 text-neutral-200 bg-neutral-900/90 active:scale-95 transition-transform flex items-center justify-center">
+              <Link href="/menu" className="relative p-2.5 min-h-[40px] min-w-[40px] rounded-full border border-neutral-700 text-neutral-200 bg-neutral-900/90 active:scale-95 transition-transform flex items-center justify-center">
                 <ShoppingCart className="w-4 h-4 text-amber-400" />
                 <span className="absolute -top-1 -right-1 min-w-[18px] h-4 px-1 rounded-full bg-amber-500 text-black text-[9px] font-bold flex items-center justify-center">
                   {count > 99 ? "99+" : count}

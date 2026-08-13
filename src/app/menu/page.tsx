@@ -167,13 +167,10 @@ export default function MenuPage() {
           A crafted selection of dishes to ignite every palate.
         </h1>
         <p className="mt-4 text-neutral-400 max-w-3xl mx-auto text-sm sm:text-base">
-          Add your favorites to the cart and order online, or reserve a table to dine in with a curated tasting menu built for the season.
+          Explore our seasonal dishes or reserve a table to dine in with a curated tasting menu built for the season.
         </p>
         <div className="mt-8 flex gap-4 justify-center flex-wrap">
-          <Link href="/order" className="rounded-full bg-amber-500 px-8 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition hover:bg-amber-400">
-            Order Online
-          </Link>
-          <Link href="/reserve" className="rounded-full border border-amber-500/30 bg-neutral-900/80 px-8 py-3 text-sm font-semibold text-amber-400 transition hover:bg-neutral-900">
+          <Link href="/reserve" className="rounded-full bg-amber-500 px-8 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition hover:bg-amber-400">
             Reserve a Table
           </Link>
         </div>
