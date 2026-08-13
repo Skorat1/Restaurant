@@ -68,6 +68,7 @@ export default function Gallery() {
                 alt={img.alt}
                 loading="lazy"
                 decoding="async"
+                suppressHydrationWarning
                 className="w-full h-auto object-cover transition duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition duration-300" />
