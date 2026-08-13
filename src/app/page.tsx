@@ -446,7 +446,7 @@ export default function Home() {
       )}
 
       {/* ── HERO SECTION WITH OPTIMIZED DARK GRADIENT OVERLAY ───────────────── */}
-      <section className="relative pt-8 sm:pt-10 pb-16 overflow-hidden">
+      <section className="relative pt-1 sm:pt-2 pb-16 overflow-hidden">
 
         {/* Deep High-Contrast Dark Gradient Overlay for Maximum Text Contrast */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-black/80 to-neutral-950 z-0 pointer-events-none" />
@@ -475,7 +475,7 @@ export default function Home() {
 
               {/* Main Headline */}
               <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif leading-[1.06] text-white tracking-tight drop-shadow-lg">
-                L&apos;Étoile Dorée —<br />
+                VELORA—<br />
                 <span className="text-gold-gradient font-italic font-semibold">High Gastronomy &amp; Modern Fine Dining</span>
               </h1>
 

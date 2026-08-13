@@ -108,7 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <footer className="border-t border-neutral-900 bg-neutral-950 py-10 text-sm text-neutral-400" role="contentinfo">
           <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
             <div className="space-y-1">
-              <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">L&apos;Étoile Dorée</p>
+              <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>
               <p className="text-neutral-400 text-xs">23, Boat Club Road, Pune · +91 20 4890 7700</p>
             </div>
             <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-xs font-semibold uppercase tracking-wider">
@@ -116,7 +116,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Terms</a>
               <a href="/contact" className="text-neutral-400 hover:text-amber-400 transition">Contact</a>
             </nav>
-            <p className="text-neutral-500 text-xs">© 2026 L&apos;Étoile Dorée. All rights reserved.</p>
+            <p className="text-neutral-500 text-xs">© 2026 VELORA. All rights reserved.</p>
           </div>
         </footer>
       </body>

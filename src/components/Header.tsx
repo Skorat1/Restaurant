@@ -100,8 +100,8 @@ export default function Header() {
     <header className="fixed top-0 w-full z-50">
       <div
         className={`transition-all duration-300 border-b ${scrolled
-            ? "backdrop-blur-2xl bg-neutral-950/95 shadow-2xl shadow-black/60 border-amber-500/20 py-1"
-            : "backdrop-blur-xl bg-neutral-950/85 border-neutral-800/80 py-2.5"
+          ? "backdrop-blur-2xl bg-neutral-950/95 shadow-2xl shadow-black/60 border-amber-500/20 py-1"
+          : "backdrop-blur-xl bg-neutral-950/85 border-neutral-800/80 py-2.5"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
@@ -116,10 +116,9 @@ export default function Header() {
             </div>
             <div className="flex flex-col">
               <span className="text-lg sm:text-xl font-serif tracking-widest text-amber-400 font-bold group-hover:text-amber-300 transition leading-none">
-                L&apos;Étoile Dorée
+                VELORA
               </span>
               <span className="text-[9px] uppercase tracking-[0.25em] text-neutral-400 font-sans font-semibold mt-1">
-                FINE DINING · HAUTE CUISINE
               </span>
             </div>
           </Link>
@@ -133,8 +132,8 @@ export default function Header() {
                   key={href}
                   href={href}
                   className={`relative py-1.5 transition-colors duration-200 ${isActive
-                      ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                      : "text-neutral-300 hover:text-amber-400"
+                    ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                    : "text-neutral-300 hover:text-amber-400"
                     }`}
                 >
                   {label}
@@ -147,8 +146,8 @@ export default function Header() {
               <button
                 onClick={() => setMoreOpen(!moreOpen)}
                 className={`flex items-center gap-1 py-1.5 transition-colors duration-200 ${isMoreActive
-                    ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                    : "text-neutral-300 hover:text-amber-400"
+                  ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
+                  : "text-neutral-300 hover:text-amber-400"
                   }`}
               >
                 <span>MORE</span>
@@ -164,8 +163,8 @@ export default function Header() {
                         href={href}
                         onClick={() => setMoreOpen(false)}
                         className={`flex items-center gap-3 px-4 py-2.5 text-xs font-semibold transition ${pathname === href
-                            ? "text-amber-400 bg-amber-500/15 font-bold"
-                            : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
+                          ? "text-amber-400 bg-amber-500/15 font-bold"
+                          : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
                           }`}
                       >
                         <Icon className="w-4 h-4 shrink-0 text-amber-400" />
@@ -271,8 +270,8 @@ export default function Header() {
                           <p className="text-[11px] text-neutral-400 truncate">{user.email}</p>
                           <div className="flex items-center gap-1.5 mt-1">
                             <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${user.role === "admin"
-                                ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
-                                : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
+                              ? "bg-purple-500/20 text-purple-300 border border-purple-500/40"
+                              : "bg-amber-500/20 text-amber-300 border border-amber-500/40"
                               }`}>
                               {user.role === "admin" ? <Crown className="w-2.5 h-2.5" /> : <Star className="w-2.5 h-2.5" />}
                               {user.role === "admin" ? "Admin" : "VIP Guest"}
@@ -369,16 +368,14 @@ export default function Header() {
       <div
         aria-hidden="true"
         onClick={() => setOpen(false)}
-        className={`fixed inset-0 top-[65px] sm:top-[81px] bg-black/80 backdrop-blur-md transition-opacity duration-300 z-40 lg:hidden ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        className={`fixed inset-0 top-[65px] sm:top-[81px] bg-black/80 backdrop-blur-md transition-opacity duration-300 z-40 lg:hidden ${open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          }`}
       />
 
       {/* ── Mobile Slide-down Touch Menu ── */}
       <div
-        className={`fixed left-0 right-0 top-[65px] sm:top-[81px] z-50 lg:hidden overflow-y-auto max-h-[calc(100vh-80px)] transition-all duration-300 ease-out shadow-2xl ${
-          open ? "translate-y-0 opacity-100 pointer-events-auto" : "-translate-y-4 opacity-0 pointer-events-none"
-        }`}
+        className={`fixed left-0 right-0 top-[65px] sm:top-[81px] z-50 lg:hidden overflow-y-auto max-h-[calc(100vh-80px)] transition-all duration-300 ease-out shadow-2xl ${open ? "translate-y-0 opacity-100 pointer-events-auto" : "-translate-y-4 opacity-0 pointer-events-none"
+          }`}
       >
         <div className="bg-neutral-950/98 border-b border-amber-500/30 backdrop-blur-2xl px-5 py-6 space-y-5 shadow-2xl rounded-b-3xl max-w-xl mx-auto">
 
@@ -415,11 +412,10 @@ export default function Header() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center justify-center min-h-[48px] px-4 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider text-center transition-all duration-200 active:scale-95 ${
-                      isActive
-                        ? "bg-gradient-to-r from-amber-500/25 to-amber-600/20 border-2 border-amber-500/60 text-amber-300 shadow-md shadow-amber-500/10"
-                        : "bg-neutral-900/80 border border-neutral-800 text-neutral-200 hover:border-amber-500/40 hover:text-white"
-                    }`}
+                    className={`flex items-center justify-center min-h-[48px] px-4 py-3 rounded-2xl text-xs font-extrabold uppercase tracking-wider text-center transition-all duration-200 active:scale-95 ${isActive
+                      ? "bg-gradient-to-r from-amber-500/25 to-amber-600/20 border-2 border-amber-500/60 text-amber-300 shadow-md shadow-amber-500/10"
+                      : "bg-neutral-900/80 border border-neutral-800 text-neutral-200 hover:border-amber-500/40 hover:text-white"
+                      }`}
                   >
                     {label}
                   </Link>
@@ -439,11 +435,10 @@ export default function Header() {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex items-center gap-2.5 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${
-                      isActive
-                        ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold"
-                        : "bg-neutral-900/50 border border-neutral-800/90 text-neutral-300 hover:border-neutral-700 hover:text-white"
-                    }`}
+                    className={`flex items-center gap-2.5 min-h-[44px] px-3.5 py-2.5 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-95 ${isActive
+                      ? "bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold"
+                      : "bg-neutral-900/50 border border-neutral-800/90 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                      }`}
                   >
                     <Icon className="w-4 h-4 text-amber-400 shrink-0" />
                     <span className="truncate">{label}</span>
@@ -468,11 +463,10 @@ export default function Header() {
                   key={l.code}
                   type="button"
                   onClick={() => setLanguage(l.code)}
-                  className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${
-                    language === l.code
-                      ? "bg-amber-500 text-black shadow-sm font-extrabold"
-                      : "bg-neutral-900 text-neutral-300 border border-neutral-800 hover:border-neutral-700"
-                  }`}
+                  className={`min-h-[38px] px-3 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${language === l.code
+                    ? "bg-amber-500 text-black shadow-sm font-extrabold"
+                    : "bg-neutral-900 text-neutral-300 border border-neutral-800 hover:border-neutral-700"
+                    }`}
                 >
                   {l.name}
                 </button>
