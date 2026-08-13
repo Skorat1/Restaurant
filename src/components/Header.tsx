@@ -22,10 +22,8 @@ const PRIMARY_NAV = [
 // ── Secondary nav shown inside "More ▾" dropdown ─────────────────────────────
 const MORE_NAV = [
   { href: "/about", label: "About Us", icon: Info },
-  { href: "/gallery", label: "Gallery", icon: ImageIcon },
   { href: "/cellar", label: "Wine Cellar", icon: Wine },
   { href: "/membership", label: "Membership", icon: Crown },
-  { href: "/track", label: "Track Order", icon: Package },
 ];
 
 export default function Header() {
