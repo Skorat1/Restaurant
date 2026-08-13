@@ -159,21 +159,13 @@ export default function MenuPage() {
   const activeFiltersCount = (activeTab !== "All" ? 1 : 0) + (maxPrice ? 1 : 0) + dietary.length + (search ? 1 : 0);
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-24 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.12),transparent_35%)]">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.12),transparent_35%)]">
       {/* Header */}
       <div className="text-center">
         <p className="text-sm uppercase tracking-[0.4em] text-amber-400/90">Seasonal showcase</p>
-        <h1 className="mt-4 text-4xl font-serif text-white sm:text-5xl lg:text-6xl leading-tight">
+        <h1 className="mt-4 text-3xl sm:text-4xl font-serif text-white lg:text-6xl leading-tight">
           A crafted selection of dishes to ignite every palate.
         </h1>
-        <p className="mt-4 text-neutral-400 max-w-3xl mx-auto text-sm sm:text-base">
-          Explore our seasonal dishes or reserve a table to dine in with a curated tasting menu built for the season.
-        </p>
-        <div className="mt-8 flex gap-4 justify-center flex-wrap">
-          <Link href="/reserve" className="rounded-full bg-amber-500 px-8 py-3 text-sm font-semibold text-black shadow-lg shadow-amber-500/20 transition hover:bg-amber-400">
-            Reserve a Table
-          </Link>
-        </div>
       </div>
 
       {/* Reorder suggestions */}
@@ -353,8 +345,8 @@ export default function MenuPage() {
                 </span>
               </div>
 
-              <div className="p-6">
-                <div className="flex items-start justify-between gap-4">
+              <div className="p-4 sm:p-6">
+                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
                   <div className="flex-1 min-w-0">
                     <h2 className="text-xl font-semibold text-white line-clamp-2">{item.name}</h2>
                     {item.premium && (
@@ -391,14 +383,14 @@ export default function MenuPage() {
                     </button>
                   </div>
 
-                  <div className="shrink-0 flex flex-col items-end gap-3">
+                  <div className="shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-3">
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={!item.available}
                       aria-label={`Add ${item.name} to cart`}
                       className={`rounded-full px-5 py-2 text-sm font-semibold transition ${addedId === item._id
-                          ? "bg-emerald-500 text-black"
-                          : "bg-amber-500 text-black hover:bg-amber-400"
+                        ? "bg-emerald-500 text-black"
+                        : "bg-amber-500 text-black hover:bg-amber-400"
                         } disabled:opacity-40 disabled:cursor-not-allowed`}
                     >
                       {addedId === item._id ? "Added ✓" : "Add to Cart"}

@@ -198,11 +198,11 @@ export default function Membership() {
   const activeMembership = status?.active && status.tier;
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-24">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-12 sm:py-24">
       {/* Hero */}
       <div className="text-center max-w-3xl mx-auto">
         <p className="text-sm uppercase tracking-[0.4em] text-amber-400/90">Membership</p>
-        <h1 className="mt-4 text-4xl font-serif text-white sm:text-5xl lg:text-6xl leading-tight">
+        <h1 className="mt-4 text-3xl sm:text-5xl lg:text-6xl font-serif text-white leading-tight">
           Elevate every dining experience.
         </h1>
         <p className="mt-4 text-neutral-400 text-sm sm:text-base leading-7">
@@ -255,7 +255,7 @@ export default function Membership() {
             <div
               key={tier.id}
               onClick={() => setSelected(tier.id)}
-              className={`relative rounded-3xl border p-8 transition cursor-pointer ${selected === tier.id
+              className={`relative rounded-3xl border p-6 sm:p-8 transition cursor-pointer ${selected === tier.id
                   ? "border-amber-500 bg-neutral-900/90 shadow-2xl shadow-amber-500/10"
                   : "border-neutral-800 bg-neutral-900/60 hover:border-neutral-700"
                 }`}
@@ -387,12 +387,12 @@ export default function Membership() {
       </div>
 
       {/* Newsletter */}
-      <div className="mt-20">
-        <div className="rounded-3xl bg-neutral-900/60 border border-neutral-800 p-10 flex flex-col items-center text-center">
-          <span className="text-sm uppercase tracking-[0.3em] text-amber-400">Newsletter</span>
-          <h3 className="mt-4 text-3xl font-serif text-white">Stay in the loop</h3>
-          <p className="text-neutral-400 mt-3 max-w-md">Sign up for seasonal menus and exclusive event invitations.</p>
-          <div className="mt-8 w-full max-w-xl"><Newsletter /></div>
+      <div className="mt-16 sm:mt-20">
+        <div className="rounded-3xl bg-neutral-900/60 border border-neutral-800 p-5 sm:p-10 flex flex-col items-center text-center">
+          <span className="text-xs sm:text-sm uppercase tracking-[0.3em] text-amber-400 font-bold">Newsletter</span>
+          <h3 className="mt-3 sm:mt-4 text-2xl sm:text-3xl font-serif text-white">Stay in the loop</h3>
+          <p className="text-neutral-400 mt-2 sm:mt-3 text-xs sm:text-sm max-w-md">Sign up for seasonal menus and exclusive event invitations.</p>
+          <div className="mt-6 sm:mt-8 w-full max-w-xl"><Newsletter /></div>
         </div>
       </div>
 

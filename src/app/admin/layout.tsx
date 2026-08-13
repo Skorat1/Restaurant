@@ -42,43 +42,46 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <section className="mx-auto max-w-7xl px-6 py-10">
-      <div className="grid gap-8 lg:grid-cols-[240px_1fr]">
-        {/* Sidebar */}
-        <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-900/80 p-4 flex flex-col justify-between scrollbar-thin scrollbar-thumb-neutral-700">
-          <div className="flex items-center gap-3 px-3 py-3 border-b border-neutral-800 mb-3">
-            <div className="w-10 h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center">
-              {user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+    <section className="mx-auto max-w-7xl px-3 sm:px-6 py-6 sm:py-10">
+      <div className="grid gap-6 sm:gap-8 lg:grid-cols-[240px_1fr]">
+        {/* Sidebar Navigation */}
+        <aside className="lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto rounded-2xl border border-neutral-800 bg-neutral-900/80 p-3 sm:p-4 flex flex-col justify-between shadow-xl">
+          <div>
+            <div className="flex items-center gap-3 px-3 py-2.5 border-b border-neutral-800 mb-3">
+              <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-amber-500 text-black font-bold flex items-center justify-center shrink-0">
+                {user?.name?.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs sm:text-sm font-semibold text-white truncate">{user?.name}</p>
+                <p className="text-[10px] text-amber-400 uppercase tracking-wide font-bold">Administrator</p>
+              </div>
             </div>
-            <div className="min-w-0">
-              <p className="text-sm font-semibold text-white truncate">{user?.name}</p>
-              <p className="text-xs text-amber-400 uppercase tracking-wide">Administrator</p>
-            </div>
+
+            {/* Horizontal Scrollable Nav on Mobile, Vertical Stack on Desktop */}
+            <nav className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible gap-1.5 pb-2 lg:pb-0 scrollbar-none">
+              {NAV_ITEMS.map(({ href, label, icon }) => {
+                const active = pathname === href;
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    className={`flex items-center gap-2 px-3 py-2 shrink-0 rounded-xl text-xs sm:text-sm font-medium transition ${
+                      active
+                        ? "bg-amber-500 text-black font-bold shadow-sm"
+                        : "text-neutral-300 hover:bg-neutral-800 hover:text-white bg-neutral-950/60 lg:bg-transparent border border-neutral-800/60 lg:border-none"
+                    }`}
+                  >
+                    <svg className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d={icon} />
+                    </svg>
+                    <span>{label}</span>
+                  </Link>
+                );
+              })}
+            </nav>
           </div>
 
-          <nav className="space-y-1">
-            {NAV_ITEMS.map(({ href, label, icon }) => {
-              const active = pathname === href;
-              return (
-                <Link
-                  key={href}
-                  href={href}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition ${
-                    active
-                      ? "bg-amber-500 text-black"
-                      : "text-neutral-300 hover:bg-neutral-800 hover:text-white"
-                  }`}
-                >
-                  <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d={icon} />
-                  </svg>
-                  {label}
-                </Link>
-              );
-            })}
-          </nav>
-
-          <div className="mt-4 pt-3 border-t border-neutral-800">
+          <div className="mt-3 lg:mt-4 pt-2.5 lg:pt-3 border-t border-neutral-800 hidden lg:block">
             <Link
               href="/"
               className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-neutral-300 hover:bg-neutral-800 hover:text-white transition"

@@ -286,7 +286,7 @@ export default function Home() {
     : SIGNATURE_DISHES.filter((d) => d.category === activeCategory);
 
   return (
-    <main className="space-y-28 overflow-x-hidden pb-16">
+    <main className="space-y-16 sm:space-y-28 overflow-x-hidden pb-16">
 
       {/* ── 360° VIRTUAL TOUR MODAL ───────────────────────────────────── */}
       {tourModal && (
@@ -489,8 +489,8 @@ export default function Home() {
                 <span className="text-xs uppercase tracking-[0.4em] font-mono text-amber-400 font-bold block">
                   VELORA HAUTE CUISINE
                 </span>
-                <h1 className="text-4xl sm:text-6xl lg:text-7xl font-serif leading-[1.05] text-white tracking-tight drop-shadow-2xl font-bold">
-                  Where Taste Meets <br />
+                <h1 className="text-3xl sm:text-6xl lg:text-7xl font-serif leading-[1.08] text-white tracking-tight drop-shadow-2xl font-bold">
+                  Where Taste Meets <br className="hidden sm:block" />
                   <span className="text-gold-gradient font-italic font-semibold drop-shadow-[0_4px_24px_rgba(245,158,11,0.4)]">
                     Elegance &amp; Luxury
                   </span>
@@ -503,10 +503,10 @@ export default function Home() {
               </p>
 
               {/* Action Buttons */}
-              <div className="flex gap-4 flex-wrap items-center pt-2">
+              <div className="flex gap-3 sm:gap-4 flex-wrap items-center pt-2">
                 <Link
                   href="/menu"
-                  className="px-8 py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300/40 flex items-center gap-2.5"
+                  className="px-5 sm:px-8 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-[11px] sm:text-xs uppercase tracking-widest shadow-xl shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300/40 flex items-center gap-2"
                 >
                   <Utensils className="w-4 h-4 text-black" />
                   <span>Explore Menu</span>
@@ -515,7 +515,7 @@ export default function Home() {
 
                 <Link
                   href="/reserve"
-                  className="px-8 py-4 rounded-full border-2 border-amber-400/60 bg-neutral-950/70 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 font-bold text-xs uppercase tracking-widest backdrop-blur-md shadow-xl transition-all duration-300 flex items-center gap-2.5"
+                  className="px-5 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-amber-400/60 bg-neutral-950/70 text-amber-300 hover:text-white hover:border-amber-400 hover:bg-amber-500/20 font-bold text-[11px] sm:text-xs uppercase tracking-widest backdrop-blur-md shadow-xl transition-all duration-300 flex items-center gap-2"
                 >
                   <Calendar className="w-4 h-4 text-amber-400" />
                   <span>Reserve a Table</span>
@@ -524,14 +524,14 @@ export default function Home() {
                 <button
                   type="button"
                   onClick={() => setTourModal(true)}
-                  className="px-5 py-4 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 text-xs font-bold uppercase tracking-wider hover:border-amber-500/40 hover:text-amber-300 backdrop-blur-md transition flex items-center gap-2"
+                  className="px-4 sm:px-5 py-3.5 sm:py-4 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-neutral-300 text-[11px] sm:text-xs font-bold uppercase tracking-wider hover:border-amber-500/40 hover:text-amber-300 backdrop-blur-md transition flex items-center gap-2"
                 >
-                  <Eye className="w-4 h-4 text-amber-400" /> 360° Ambience
+                  <Eye className="w-4 h-4 text-amber-400" /> 360° Tour
                 </button>
               </div>
 
               {/* Trust Badges Bar */}
-              <div className="pt-6 border-t border-neutral-800/80 grid grid-cols-3 gap-4 text-xs text-neutral-300">
+              <div className="pt-6 border-t border-neutral-800/80 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs text-neutral-300">
                 <div className="flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div>
@@ -558,7 +558,7 @@ export default function Home() {
             </div>
 
             {/* Right Hero Showcase Card */}
-            <div className="lg:col-span-5 relative">
+            <div className="lg:col-span-5 relative hidden lg:block">
               <div className="relative h-[480px] sm:h-[540px] rounded-3xl overflow-hidden border border-amber-500/50 shadow-2xl shadow-amber-500/10 group">
                 <Image
                   src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80"
@@ -600,18 +600,18 @@ export default function Home() {
           </div>
 
           {/* ── HIGH PROMINENCE TABLE RESERVATION SEARCH CARD FRAME ───────────── */}
-          <div className="relative rounded-3xl p-6 sm:p-10 border-2 border-amber-500/60 bg-neutral-950/95 shadow-[0_0_60px_rgba(245,158,11,0.25)] backdrop-blur-2xl ring-1 ring-amber-400/30 transition-all duration-300">
+          <div className="relative rounded-2xl sm:rounded-3xl p-4 sm:p-10 border-2 border-amber-500/60 bg-neutral-950/95 shadow-[0_0_60px_rgba(245,158,11,0.25)] backdrop-blur-2xl ring-1 ring-amber-400/30 transition-all duration-300">
             {/* Ambient Corner Glow */}
             <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/20 blur-3xl pointer-events-none rounded-full" />
 
-            <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
+            <div className="flex items-center justify-between mb-4 sm:mb-6 flex-wrap gap-2">
               <div className="flex items-center gap-3">
                 <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold text-xs">
                   📍
                 </span>
                 <div>
-                  <h2 className="text-sm font-serif font-bold text-white uppercase tracking-widest flex items-center gap-2">
-                    Instant Table Availability Finder
+                  <h2 className="text-xs sm:text-sm font-serif font-bold text-white uppercase tracking-wider sm:tracking-widest flex items-center gap-2 flex-wrap">
+                    <span>Instant Table Finder</span>
                     <span className="text-[10px] uppercase font-mono tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
                       Step 1 of 2
                     </span>
@@ -625,7 +625,7 @@ export default function Home() {
               </span>
             </div>
 
-            <div className="grid sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4 items-end">
+            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4 items-end">
 
               {/* Guests */}
               <div>
@@ -718,10 +718,10 @@ export default function Home() {
 
       {/* ── STATS STRIP ─────────────────────────────────────────────────── */}
       <section className="border-y border-neutral-900 bg-neutral-950/90 py-14">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
           {STATS.map((s) => (
             <div key={s.label} className="space-y-1.5">
-              <p className="text-4xl sm:text-5xl font-serif font-bold text-amber-400 tracking-tight">{s.value}</p>
+              <p className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-400 tracking-tight">{s.value}</p>
               <p className="text-xs font-bold text-white uppercase tracking-widest">{s.label}</p>
               <p className="text-[11px] text-neutral-400 font-light">{s.sub}</p>
             </div>
@@ -730,7 +730,7 @@ export default function Home() {
       </section>
 
       {/* ── SIGNATURE DISHES SHOWCASE ────────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 space-y-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-3">
             <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400 flex items-center gap-2">
@@ -835,7 +835,7 @@ export default function Home() {
       </section>
 
       {/* ── LUXURY EXPERIENCES WITH CLEAR PRICING & INCLUSIONS ───────────────── */}
-      <section className="max-w-7xl mx-auto px-6 space-y-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         <div className="text-center space-y-3">
           <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Curated Offerings</span>
           <h2 className="text-3xl sm:text-5xl font-serif text-white">Unrivaled Dining Experiences</h2>
@@ -971,7 +971,7 @@ export default function Home() {
       </section>
 
       {/* ── UPCOMING GALA EVENTS & SOIRÉES ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 space-y-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
           <div className="space-y-3">
             <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Limited Capacity</span>
@@ -1017,7 +1017,7 @@ export default function Home() {
       </section>
 
       {/* ── TESTIMONIALS & CRITICAL ACCLAIM ──────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 space-y-12">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         <div className="text-center space-y-3">
           <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Critical Acclaim</span>
           <h2 className="text-3xl sm:text-5xl font-serif text-white">Recognized Worldwide</h2>
@@ -1045,7 +1045,7 @@ export default function Home() {
       </section>
 
       {/* ── FREQUENTLY ASKED QUESTIONS (DYNAMIC ACCORDION) ──────────────────── */}
-      <section className="max-w-4xl mx-auto px-6 space-y-8">
+      <section className="max-w-4xl mx-auto px-4 sm:px-6 space-y-8">
         <div className="text-center space-y-3">
           <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Guest Information</span>
           <h2 className="text-3xl sm:text-4xl font-serif text-white">Frequently Asked Questions</h2>
@@ -1084,7 +1084,7 @@ export default function Home() {
       </section>
 
       {/* ── VIP NEWSLETTER CLUB & FOOTER FORM ───────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6">
         <Newsletter />
       </section>
 

@@ -224,7 +224,7 @@ export default function ReservePage() {
   };
 
   return (
-    <section className="min-h-screen bg-neutral-950 text-neutral-100 py-10 px-4 sm:px-8">
+    <section className="min-h-screen bg-neutral-950 text-neutral-100 py-10 px-3 sm:px-8">
 
       {/* ── DIGITAL VIP DINING PASS MODAL ── */}
       {passModal && (
@@ -431,7 +431,7 @@ export default function ReservePage() {
           <Sparkles className="w-3.5 h-3.5" />
           <span>Interactive Luxury Reservation Portal</span>
         </div>
-        <h1 className="text-3xl sm:text-5xl font-serif text-white tracking-tight leading-tight">
+        <h1 className="text-2xl sm:text-5xl font-serif text-white tracking-tight leading-tight">
           Reserve Your <span className="text-amber-400 italic">Signature Table.</span>
         </h1>
         <p className="mt-3 text-neutral-400 text-xs sm:text-base max-w-xl mx-auto">
@@ -482,7 +482,7 @@ export default function ReservePage() {
             </div>
 
             {/* Grid Floor Map Layout */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 bg-neutral-950/90 p-4 sm:p-6 rounded-2xl border border-neutral-800/80 relative">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-neutral-950/90 p-3 sm:p-6 rounded-2xl border border-neutral-800/80 relative">
               {filteredTables.map((t) => {
                 const isSelected = selectedTable === t.id;
                 const isAvailable = t.status === "available";

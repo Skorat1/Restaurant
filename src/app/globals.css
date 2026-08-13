@@ -227,6 +227,7 @@ img {
   position: fixed;
   bottom: 1.5rem;
   right: 1.5rem;
+  left: 1.5rem;
   z-index: 50;
   border-radius: 1rem;
   padding: 0.75rem 1.25rem;
@@ -234,4 +235,29 @@ img {
   font-weight: 500;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
   animation: fadeUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@media (min-width: 640px) {
+  .toast {
+    left: auto;
+    max-width: 400px;
+  }
+}
+
+/* Mobile touch target improvement */
+@media (max-width: 639px) {
+  button,
+  a,
+  [role="button"] {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* Safe-area padding for notched phones */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+    padding-bottom: env(safe-area-inset-bottom);
+  }
 }

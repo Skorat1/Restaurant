@@ -111,7 +111,7 @@ export default function ContactPage() {
   };
 
   return (
-    <section className="min-h-screen bg-neutral-950 text-neutral-100 py-12 px-4 sm:px-8">
+    <section className="min-h-screen bg-neutral-950 text-neutral-100 py-10 sm:py-12 px-3 sm:px-8">
 
       {/* ── INQUIRY TICKET CONFIRMATION MODAL ── */}
       {ticketModal && (
@@ -180,10 +180,10 @@ export default function ContactPage() {
           <Sparkles className="w-3.5 h-3.5" />
           <span>Concierge &amp; Private Guest Relations</span>
         </div>
-        <h1 className="text-4xl sm:text-6xl font-serif text-white tracking-tight leading-tight">
+        <h1 className="text-3xl sm:text-6xl font-serif text-white tracking-tight leading-tight">
           We Cordially Welcome <span className="text-amber-400 italic">Your Inquiry.</span>
         </h1>
-        <p className="mt-4 text-neutral-400 text-xs sm:text-base max-w-xl mx-auto leading-relaxed">
+        <p className="mt-3 sm:mt-4 text-neutral-400 text-xs sm:text-base max-w-xl mx-auto leading-relaxed">
           For private dining banquets, sommelier vault tastings, corporate events, or personal guest requests — our concierge desk is at your service.
         </p>
       </div>

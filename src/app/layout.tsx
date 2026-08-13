@@ -100,15 +100,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </a>
                 <InaugurationRibbon />
                 <Header />
-                <main id="main-content" className="pt-28 min-h-screen">
+                <main id="main-content" className="pt-20 sm:pt-28 min-h-screen">
                   {children}
                 </main>
                 <CartDrawer />
               </CartProvider>
           </LanguageProvider>
         </AuthProvider>
-        <footer className="border-t border-neutral-900 bg-neutral-950 py-10 text-sm text-neutral-400" role="contentinfo">
-          <div className="max-w-7xl mx-auto px-6 flex flex-col items-center gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
+        <footer className="border-t border-neutral-900 bg-neutral-950 py-6 sm:py-10 text-sm text-neutral-400" role="contentinfo">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
             <div className="space-y-1">
               <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>
               <p className="text-neutral-400 text-xs">23, Boat Club Road, Pune · +91 20 4890 7700</p>
