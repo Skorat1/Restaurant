@@ -103,7 +103,7 @@ export default function Membership() {
       })
         .then((r) => (r.ok ? r.json() : null))
         .then((data) => setStatus(data))
-        .catch(() => {})
+        .catch(() => { })
         .finally(() => setStatusLoading(false));
     }
   }, [authLoading, token]);
@@ -156,7 +156,7 @@ export default function Membership() {
         key: data.key,
         amount: data.amount,
         currency: data.currency,
-        name: "L'Étoile Dorée",
+        name: "VELORA",
         description: `${data.name} Membership (1 year)`,
         order_id: data.razorpayOrderId,
         prefill: { name: user?.name, email: user?.email },
@@ -255,11 +255,10 @@ export default function Membership() {
             <div
               key={tier.id}
               onClick={() => setSelected(tier.id)}
-              className={`relative rounded-3xl border p-8 transition cursor-pointer ${
-                selected === tier.id
+              className={`relative rounded-3xl border p-8 transition cursor-pointer ${selected === tier.id
                   ? "border-amber-500 bg-neutral-900/90 shadow-2xl shadow-amber-500/10"
                   : "border-neutral-800 bg-neutral-900/60 hover:border-neutral-700"
-              }`}
+                }`}
             >
               {isPlatinum && (
                 <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-500 px-4 py-1 text-xs font-bold text-black uppercase tracking-wide">
@@ -282,11 +281,10 @@ export default function Membership() {
               </ul>
               <button
                 onClick={() => setSelected(tier.id)}
-                className={`mt-8 w-full rounded-full px-6 py-3.5 text-sm font-semibold transition ${
-                  selected === tier.id
+                className={`mt-8 w-full rounded-full px-6 py-3.5 text-sm font-semibold transition ${selected === tier.id
                     ? "bg-amber-500 text-black hover:bg-amber-400"
                     : "border border-neutral-700 text-neutral-200 hover:bg-neutral-800"
-                }`}
+                  }`}
               >
                 {selected === tier.id ? "Selected" : "Select"}
               </button>

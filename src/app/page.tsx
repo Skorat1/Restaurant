@@ -224,7 +224,7 @@ const TESTIMONIALS = [
     rating: 5,
   },
   {
-    quote: "L'Étoile Dorée sets the absolute benchmark for modern French luxury dining with an unmissable wine cellar collection.",
+    quote: "VELORA sets the absolute benchmark for modern French luxury dining with an unmissable wine cellar collection.",
     author: "Culinary International",
     role: "Executive Food Editor",
     rating: 5,
@@ -242,7 +242,7 @@ const FAQS = [
     a: "Yes, absolutely. Our culinary team accommodates vegetarian, vegan, gluten-free, dairy-free, and pescatarian preferences. Please specify your requirements when booking so Chef Antoine can tailor your tasting courses.",
   },
   {
-    q: "What is the dress code policy at L'Étoile Dorée?",
+    q: "What is the dress code policy at VELORA?",
     a: "We observe a Smart Elegant dress code. Tailored jackets, evening dresses, or refined attire are recommended. Athletic wear, casual beach sandals, and baseball caps are strictly discouraged.",
   },
   {
@@ -325,8 +325,8 @@ export default function Home() {
                   key={room.id}
                   onClick={() => setActiveRoom(room)}
                   className={`p-3 rounded-2xl text-left border text-xs font-bold transition flex flex-col justify-between ${activeRoom.id === room.id
-                      ? "bg-amber-500/20 border-amber-500 text-amber-300 shadow-lg shadow-amber-500/10"
-                      : "bg-neutral-950/60 border-neutral-800/80 text-neutral-400 hover:text-white hover:border-neutral-700"
+                    ? "bg-amber-500/20 border-amber-500 text-amber-300 shadow-lg shadow-amber-500/10"
+                    : "bg-neutral-950/60 border-neutral-800/80 text-neutral-400 hover:text-white hover:border-neutral-700"
                     }`}
                 >
                   <span className="font-serif font-bold text-sm text-white mb-1">{room.name}</span>
@@ -535,7 +535,7 @@ export default function Home() {
               <div className="relative h-[480px] sm:h-[540px] rounded-3xl overflow-hidden border border-amber-500/40 shadow-2xl group">
                 <Image
                   src="https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=1200&q=80"
-                  alt="L'Étoile Dorée Fine Dining Ambience"
+                  alt="VELORA Fine Dining Ambience"
                   fill
                   priority
                   className="object-cover group-hover:scale-105 transition-transform duration-700"
@@ -720,8 +720,8 @@ export default function Home() {
             <button
               onClick={() => setActiveCategory("all")}
               className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "all"
-                  ? "bg-amber-500 text-black shadow-md"
-                  : "text-neutral-400 hover:text-white"
+                ? "bg-amber-500 text-black shadow-md"
+                : "text-neutral-400 hover:text-white"
                 }`}
             >
               All Highlights
@@ -729,8 +729,8 @@ export default function Home() {
             <button
               onClick={() => setActiveCategory("tasting")}
               className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "tasting"
-                  ? "bg-amber-500 text-black shadow-md"
-                  : "text-neutral-400 hover:text-white"
+                ? "bg-amber-500 text-black shadow-md"
+                : "text-neutral-400 hover:text-white"
                 }`}
             >
               Savory Courses
@@ -738,8 +738,8 @@ export default function Home() {
             <button
               onClick={() => setActiveCategory("dessert")}
               className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "dessert"
-                  ? "bg-amber-500 text-black shadow-md"
-                  : "text-neutral-400 hover:text-white"
+                ? "bg-amber-500 text-black shadow-md"
+                : "text-neutral-400 hover:text-white"
                 }`}
             >
               Artisanal Sweets

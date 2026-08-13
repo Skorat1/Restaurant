@@ -10,7 +10,7 @@ import {
 import API_BASE_URL from "@/lib/api";
 
 const RESTAURANT = {
-  name: "L'Étoile Dorée",
+  name: "VELORA",
   address: "23, Boat Club Road, Race Course Area",
   city: "Pune, Maharashtra — 411 001",
   phone: "+91 20 4890 7700",
@@ -260,25 +260,22 @@ export default function ContactPage() {
             <div className="flex gap-2 border-b border-neutral-800 pb-3">
               <button
                 onClick={() => setDirectionTab("valet")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                  directionTab === "valet" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${directionTab === "valet" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
+                  }`}
               >
                 🏎️ Private Valet
               </button>
               <button
                 onClick={() => setDirectionTab("transit")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                  directionTab === "transit" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${directionTab === "transit" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
+                  }`}
               >
                 🚇 Metro &amp; Transit
               </button>
               <button
                 onClick={() => setDirectionTab("airport")}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${
-                  directionTab === "airport" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${directionTab === "airport" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
+                  }`}
               >
                 ✈️ Pune Airport
               </button>
@@ -347,11 +344,10 @@ export default function ContactPage() {
                       key={type.id}
                       type="button"
                       onClick={() => setInquiryType(type.id)}
-                      className={`p-3 rounded-2xl border text-left transition flex items-center gap-2.5 ${
-                        isSel
+                      className={`p-3 rounded-2xl border text-left transition flex items-center gap-2.5 ${isSel
                           ? "bg-amber-500/20 border-amber-500 text-white ring-1 ring-amber-500/30"
                           : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-700"
-                      }`}
+                        }`}
                     >
                       <span className="text-base shrink-0">{type.icon}</span>
                       <div className="truncate">
@@ -440,11 +436,10 @@ export default function ContactPage() {
                       key={method}
                       type="button"
                       onClick={() => setForm({ ...form, preferredContact: method })}
-                      className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition ${
-                        form.preferredContact === method
+                      className={`flex-1 py-2 rounded-xl border text-xs font-semibold transition ${form.preferredContact === method
                           ? "bg-amber-500 text-black border-amber-400 font-bold"
                           : "bg-neutral-950 border-neutral-800 text-neutral-400 hover:text-white"
-                      }`}
+                        }`}
                     >
                       {method}
                     </button>

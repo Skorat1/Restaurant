@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Seasonal Menu | L'Étoile Dorée",
+  title: "Seasonal Menu | VELORA",
   description: "Explore our exquisite tasting menus, chef specials, artisan cocktails, and fine wines.",
   openGraph: {
-    title: "Seasonal Menu | L'Étoile Dorée",
+    title: "Seasonal Menu | VELORA",
     description: "Curated fine dining menu featuring local organic ingredients and contemporary French cuisine.",
     images: ["/images/hero-bg.jpg"],
   },
