@@ -102,6 +102,7 @@ export default function ReservePage() {
   const [passModal, setPassModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [bookingRef, setBookingRef] = useState("");
+  const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
   const selectedTableObj = TABLES.find((t) => t.id === selectedTable) || TABLES[0];
@@ -148,7 +149,7 @@ export default function ReservePage() {
     e.preventDefault();
     setSubmitting(true);
 
-    const refCode = `VIP-${Math.floor(100000 + Math.random() * 900000)}`;
+    const refCode = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
     const fullNotes = `Table: ${selectedTableObj.code} (${selectedTableObj.zone}) | Occasion: ${form.occasion} | PreOrders: ${selectedPreOrders.join(", ") || "None"} | Dietary: ${selectedDietary.join(", ") || "None"} | Promo: ${appliedPromo || "None"} | Special: ${specialRequests || "None"}`;
 
     const preOrderObjs = selectedPreOrders.map((id) => {
@@ -179,7 +180,9 @@ export default function ReservePage() {
       });
 
       if (res.ok) {
-        setBookingRef(refCode);
+        const data = await res.json();
+        setBookingRef(data.passCode || data.reservation?.passCode || refCode);
+        setQrCodeUrl(data.qrDataUrl || "");
         setPassModal(true);
       } else {
         setBookingRef(refCode);
@@ -240,7 +243,7 @@ export default function ReservePage() {
                 </div>
                 <div>
                   <h3 className="font-serif text-lg font-bold text-white tracking-wide">VIP Dining Access Pass</h3>
-                  <p className="text-[11px] text-amber-400/80 font-mono">Confirmed &amp; Dispatched</p>
+                  <p className="text-[11px] text-amber-400/80 font-mono">Confirmed &amp; Dispatched to Email</p>
                 </div>
               </div>
               <span className="text-xs font-mono font-bold bg-amber-500 text-black px-3 py-1 rounded-full uppercase tracking-wider">
@@ -252,7 +255,7 @@ export default function ReservePage() {
             <div className="rounded-2xl border border-amber-500/30 bg-neutral-950 p-5 space-y-4 relative shadow-inner">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-neutral-400 uppercase font-mono tracking-wider">Booking Ref</span>
+                  <span className="text-[10px] text-neutral-400 uppercase font-mono tracking-wider">Pass Code</span>
                   <p className="font-mono text-xl font-extrabold text-amber-400 tracking-widest">{bookingRef}</p>
                 </div>
                 <button
@@ -260,7 +263,7 @@ export default function ReservePage() {
                   className="px-3 py-1 rounded-lg bg-neutral-900 border border-neutral-700 text-neutral-300 hover:text-white text-xs flex items-center gap-1"
                 >
                   {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-                  <span>{copied ? "Copied" : "Copy"}</span>
+                  <span>{copied ? "Copied" : "Copy Code"}</span>
                 </button>
               </div>
 
@@ -317,23 +320,29 @@ export default function ReservePage() {
                 </div>
               )}
 
-              {/* Simulated QR Code & Barcode */}
+              {/* Real QR Code Display */}
               <div className="pt-2 flex items-center justify-between bg-neutral-900 p-3 rounded-xl border border-neutral-800">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 bg-white rounded-lg p-1 flex items-center justify-center shrink-0">
-                    <QrCode className="w-10 h-10 text-black" />
+                  <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center shrink-0 border border-amber-500/30">
+                    {qrCodeUrl ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={qrCodeUrl} alt="Reservation QR Code" className="w-full h-full object-contain" />
+                    ) : (
+                      <QrCode className="w-12 h-12 text-black" />
+                    )}
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-neutral-400 block">DIGITAL BOARDING PASS</span>
-                    <span className="text-xs font-bold text-amber-300">Scan at Entrance Concierge Desk</span>
+                    <span className="text-[10px] font-mono text-neutral-400 block">DIGITAL ENTRY PASS</span>
+                    <span className="text-xs font-bold text-amber-300">Scan at Concierge Desk</span>
+                    <span className="text-[10px] text-emerald-400 block mt-0.5 font-mono">QR Code Attached to Email</span>
                   </div>
                 </div>
-                <ShieldCheck className="w-6 h-6 text-emerald-400" />
+                <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
               </div>
             </div>
 
             <p className="text-[11px] text-neutral-400 text-center mt-4">
-              Confirmation link &amp; verification details sent to <span className="text-amber-300 font-mono">{form.email}</span>
+              Confirmation pass &amp; QR code dispatched to <span className="text-amber-300 font-mono">{form.email}</span>
             </p>
 
             <div className="mt-6 flex gap-3">

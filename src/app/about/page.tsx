@@ -1,3 +1,4 @@
+import React from "react";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -34,7 +35,7 @@ export default function About() {
             VELORA is a premium culinary destination that blends elevated technique, sustainable sourcing, and refined service for unforgettable shared moments.
           </p>
         </div>
-        <div className="rounded-2xl sm:rounded-[2rem] border border-neutral-800/80 bg-neutral-900/90 p-6 sm:p-10 shadow-2xl shadow-black/20">
+        <div className="rounded-2xl sm:rounded-3xl border border-neutral-800/80 bg-neutral-900/90 p-6 sm:p-10 shadow-2xl shadow-black/20">
           <h2 className="text-xl sm:text-2xl font-semibold text-white">Our heritage</h2>
           <p className="mt-3 sm:mt-4 text-sm text-neutral-400 leading-7">
             Rooted in contemporary French gastronomy, our kitchen honors classical foundations while delivering a bold, contemporary perspective.

@@ -17,17 +17,19 @@ const NAV_ITEMS = [
   { href: "/admin/activity", label: "Activity", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
 ];
 
+const STAFF_ROLES = ["admin", "owner", "manager", "chef", "kitchen"];
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, token, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
-  const isReady = !loading && !!token && user?.role === "admin";
+  const isReady = !loading && !!token && STAFF_ROLES.includes(user?.role || "");
 
   useEffect(() => {
     if (!loading) {
       if (!token) {
         router.replace("/login");
-      } else if (user && user.role !== "admin") {
+      } else if (user && !STAFF_ROLES.includes(user.role || "")) {
         router.replace("/");
       }
     }

@@ -2,6 +2,10 @@
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
+import {
+  Search, ChevronLeft, ChevronRight, CheckCircle2,
+  Clock, Truck, Package, XCircle, AlertCircle, ShoppingBag
+} from "lucide-react";
 
 interface OrderItem {
   itemId: string;
@@ -36,12 +40,15 @@ export default function AdminOrders() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [error, setError] = useState("");
   const [filter, setFilter] = useState("All");
+  const [searchQuery, setSearchQuery] = useState("");
   const [working, setWorking] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     const fetchOrders = async () => {
       if (!token) {
-        setError("Please log in with an Admin account (admin@restaurant.com) to access orders.");
+        setError("Please log in with Admin credentials to access orders.");
         return;
       }
       try {
@@ -54,10 +61,10 @@ export default function AdminOrders() {
           setError("");
         } else {
           const errData = await res.json().catch(() => ({}));
-          setError(errData.msg || "Failed to load orders. Admin credentials required.");
+          setError(errData.msg || "Failed to load orders.");
         }
       } catch {
-        setError("Unable to reach the server. Please check backend connection.");
+        setError("Unable to reach the server.");
       }
     };
 
@@ -91,7 +98,7 @@ export default function AdminOrders() {
   };
 
   const deleteOrder = async (id: string) => {
-    if (!confirm("Delete this order?")) return;
+    if (!confirm("Delete this order record permanently?")) return;
     setWorking(id);
     try {
       const res = await fetch(`${API_BASE_URL}/api/orders/${id}`, {
@@ -108,7 +115,25 @@ export default function AdminOrders() {
     }
   };
 
-  const filtered = filter === "All" ? orders : orders.filter((o) => o.status === filter);
+  // Filter & Search Logic
+  const filtered = orders.filter((o) => {
+    const matchesStatus = filter === "All" || o.status === filter;
+    const q = searchQuery.toLowerCase().trim();
+    const matchesQuery =
+      !q ||
+      o.orderNumber?.toLowerCase().includes(q) ||
+      o.customer?.name?.toLowerCase().includes(q) ||
+      o.customer?.email?.toLowerCase().includes(q) ||
+      o.customer?.phone?.includes(q);
+    return matchesStatus && matchesQuery;
+  });
+
+  // Pagination Logic
+  const totalPages = Math.ceil(filtered.length / itemsPerPage) || 1;
+  const paginatedOrders = filtered.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
@@ -116,13 +141,13 @@ export default function AdminOrders() {
     new Date(d).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
 
   const statusBadge = (status: string) => {
-    const base = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold";
+    const base = "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border";
     switch (status) {
-      case "Delivered": return `${base} bg-emerald-500/15 text-emerald-300`;
-      case "Cancelled": return `${base} bg-red-500/15 text-red-300`;
-      case "Out for Delivery": return `${base} bg-sky-500/15 text-sky-300`;
-      case "Preparing": case "Ready": return `${base} bg-orange-500/15 text-orange-300`;
-      default: return `${base} bg-amber-500/15 text-amber-300`;
+      case "Delivered": return `${base} bg-emerald-500/15 border-emerald-500/30 text-emerald-300`;
+      case "Cancelled": return `${base} bg-red-500/15 border-red-500/30 text-red-300`;
+      case "Out for Delivery": return `${base} bg-sky-500/15 border-sky-500/30 text-sky-300`;
+      case "Preparing": case "Ready": return `${base} bg-orange-500/15 border-orange-500/30 text-orange-300`;
+      default: return `${base} bg-amber-500/15 border-amber-500/30 text-amber-300`;
     }
   };
 
@@ -135,134 +160,183 @@ export default function AdminOrders() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div className="space-y-6 pb-12">
+      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5">
         <div>
-          <span className="text-sm uppercase tracking-[0.3em] text-amber-400">Admin</span>
-          <h1 className="mt-2 text-3xl font-serif text-white">Online Orders</h1>
-          <p className="mt-2 text-neutral-400">Manage orders, update status, and track deliveries.</p>
+          <span className="text-xs uppercase tracking-widest text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+            Operations Queue
+          </span>
+          <h1 className="mt-2 text-3xl font-serif text-white font-bold">Online Order Management</h1>
+          <p className="mt-1 text-neutral-400 text-xs sm:text-sm">
+            Live order tracking, status stepping, and kitchen queue management.
+          </p>
         </div>
-        <span className="inline-flex items-center px-4 py-2 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-amber-400 font-mono shrink-0">
-          Total Orders: {orders.length}
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="px-4 py-2 rounded-full bg-neutral-900 border border-neutral-800 text-xs text-amber-400 font-mono font-bold">
+            Total Orders: {orders.length}
+          </span>
+        </div>
       </div>
 
       {error && (
-        <div className="rounded-2xl bg-red-500/10 border border-red-500/30 px-6 py-5 text-sm text-red-200 mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg">
-          <div className="space-y-1">
-            <p className="font-bold text-red-300">⚠️ Access Required</p>
-            <p className="text-xs text-red-200/90">{error}</p>
-          </div>
-          <a
-            href="/login"
-            className="px-5 py-2.5 rounded-full bg-amber-500 text-black font-bold text-xs uppercase tracking-wider hover:bg-amber-400 transition text-center shrink-0"
-          >
-            Log In as Admin
-          </a>
+        <div className="rounded-2xl bg-red-500/10 border border-red-500/30 p-5 text-sm text-red-200 flex items-center justify-between gap-4">
+          <p className="font-semibold text-xs sm:text-sm">{error}</p>
+          <a href="/login" className="px-4 py-2 rounded-full bg-amber-500 text-black text-xs font-bold shrink-0">Log In</a>
         </div>
       )}
 
-      {/* Filter tabs */}
-      <div className="flex flex-wrap gap-2 mb-6">
-        {["All", ...STATUSES].map((s) => (
-          <button
-            key={s}
-            onClick={() => setFilter(s)}
-            className={`rounded-full px-4 py-2 text-sm font-medium transition ${
-              filter === s
-                ? "bg-amber-500 text-black"
-                : "bg-neutral-900 border border-neutral-800 text-neutral-300 hover:bg-neutral-800"
-            }`}
-          >
-            {s}
-            {s !== "All" && (
-              <span className="ml-1.5 opacity-60">
-                {orders.filter((o) => o.status === s).length}
-              </span>
-            )}
-          </button>
-        ))}
+      {/* ── SEARCH & FILTER BAR ────────────────────────────────────────── */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-neutral-900/90 border border-neutral-800 p-4 rounded-3xl shadow-lg">
+        {/* Search input */}
+        <div className="relative flex-1">
+          <Search className="w-4 h-4 text-neutral-400 absolute left-4 top-1/2 -translate-y-1/2" />
+          <input
+            type="text"
+            placeholder="Search by order #, guest name, email, or phone..."
+            value={searchQuery}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+            className="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-neutral-800 bg-neutral-950 text-xs text-white placeholder-neutral-500 outline-none focus:border-amber-500 transition"
+          />
+        </div>
+
+        {/* Filter Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none pb-1 sm:pb-0">
+          {["All", ...STATUSES].map((s) => (
+            <button
+              key={s}
+              onClick={() => { setFilter(s); setCurrentPage(1); }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition whitespace-nowrap ${
+                filter === s
+                  ? "bg-amber-500 text-black shadow-md"
+                  : "bg-neutral-950 border border-neutral-800 text-neutral-400 hover:text-white"
+              }`}
+            >
+              {s}
+              {s !== "All" && (
+                <span className="ml-1 opacity-70">
+                  ({orders.filter((o) => o.status === s).length})
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-12 text-center text-neutral-400">
-          No orders {filter !== "All" ? `with status "${filter}"` : "yet"}.
+      {/* ── ORDERS LIST ────────────────────────────────────────────────── */}
+      {paginatedOrders.length === 0 ? (
+        <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 p-12 text-center text-neutral-400 space-y-3">
+          <ShoppingBag className="w-10 h-10 mx-auto text-neutral-600" />
+          <p className="text-sm font-semibold">No matching orders found.</p>
+          <p className="text-xs text-neutral-500">Try adjusting your search query or status filter.</p>
         </div>
       ) : (
         <div className="space-y-4">
-          {filtered.map((order) => (
-            <div key={order._id} className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-6 transition hover:border-neutral-700">
-              <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 flex-wrap">
-                    <h3 className="text-lg font-semibold text-white">{order.orderNumber}</h3>
-                    <span className={statusBadge(order.status)}>{order.status}</span>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
-                      order.paymentStatus === "Paid"
-                        ? "bg-emerald-500/15 text-emerald-300"
-                        : "bg-amber-500/15 text-amber-300"
-                    }`}>
-                      {order.paymentStatus}
-                    </span>
-                  </div>
+          {paginatedOrders.map((order) => (
+            <div key={order._id} className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 transition hover:border-amber-500/40 shadow-xl space-y-4">
+              
+              {/* Top Row: Order Header */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-800/80 pb-4">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-lg font-mono font-bold text-white tracking-wider">{order.orderNumber}</span>
+                  <span className={statusBadge(order.status)}>{order.status}</span>
+                  <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 px-2.5 py-0.5 rounded-full">
+                    {order.paymentMethod} · {order.paymentStatus || "Paid"}
+                  </span>
+                </div>
+                <span className="text-xs text-neutral-400 font-mono">
+                  {formatDate(order.createdAt)} at {formatTime(order.createdAt)}
+                </span>
+              </div>
 
-                  <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm text-neutral-400">
-                    <span>{order.customer.name}</span>
-                    <span className="text-neutral-500">{order.customer.email}</span>
-                    {order.customer.phone && <span>{order.customer.phone}</span>}
-                    <span>{formatDate(order.createdAt)} · {formatTime(order.createdAt)}</span>
-                    <span>{order.paymentMethod}</span>
-                  </div>
-
-                  {order.customer.address && (
-                    <p className="mt-1 text-xs text-neutral-500">📍 {order.customer.address}</p>
-                  )}
-
-                  <div className="mt-3 space-y-1">
-                    {order.items.map((item, idx) => (
-                      <p key={idx} className="text-sm text-neutral-300">
-                        <span className="text-neutral-500">× {item.quantity}</span> {item.name}
-                        <span className="text-neutral-500"> — ${(item.price * item.quantity).toFixed(2)}</span>
-                      </p>
-                    ))}
-                  </div>
-
-                  {order.notes && (
-                    <p className="mt-2 text-sm text-neutral-500 italic">&ldquo;{order.notes}&rdquo;</p>
-                  )}
-
-                  <div className="mt-2 flex flex-wrap gap-x-6 gap-y-1 text-sm">
-                    {order.discount > 0 && (
-                      <span className="text-emerald-400">Discount: −${order.discount.toFixed(2)}</span>
-                    )}
-                    <span className="text-amber-400 font-semibold">Total: ${order.total.toFixed(2)}</span>
-                  </div>
+              {/* Middle Row: Customer Info & Items */}
+              <div className="grid md:grid-cols-2 gap-4 text-xs">
+                <div className="space-y-1.5 bg-neutral-950 p-4 rounded-2xl border border-neutral-800/80">
+                  <p className="text-neutral-400 font-bold uppercase tracking-wider text-[10px]">Customer Details</p>
+                  <p className="text-white font-bold text-sm">{order.customer?.name}</p>
+                  <p className="text-neutral-300">{order.customer?.email}</p>
+                  {order.customer?.phone && <p className="text-neutral-400">📞 {order.customer.phone}</p>}
+                  {order.customer?.address && <p className="text-neutral-400 mt-1">📍 {order.customer.address}</p>}
                 </div>
 
-                <div className="flex items-center gap-2 shrink-0 flex-wrap">
-                  <select
-                    value={order.status}
-                    onChange={(e) => updateStatus(order._id, e.target.value)}
-                    disabled={working === order._id}
-                    className="rounded-full border border-neutral-700 bg-neutral-900 px-3 py-2 text-sm text-white outline-none focus:border-amber-500 disabled:opacity-50"
-                  >
-                    {STATUSES.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                <div className="space-y-1.5 bg-neutral-950 p-4 rounded-2xl border border-neutral-800/80">
+                  <p className="text-neutral-400 font-bold uppercase tracking-wider text-[10px]">Order Items ({order.items.length})</p>
+                  <div className="space-y-1 max-h-28 overflow-y-auto">
+                    {order.items.map((item, idx) => (
+                      <div key={idx} className="flex justify-between text-neutral-300">
+                        <span><strong className="text-amber-400">{item.quantity}x</strong> {item.name}</span>
+                        <span className="font-mono text-neutral-400">₹{(item.price * item.quantity * 80).toLocaleString("en-IN")}</span>
+                      </div>
                     ))}
-                  </select>
-                  <button
-                    onClick={() => deleteOrder(order._id)}
-                    disabled={working === order._id}
-                    className="rounded-full border border-neutral-700 px-4 py-2 text-sm font-medium text-neutral-400 hover:bg-red-500/10 hover:text-red-300 hover:border-red-500/30 transition disabled:opacity-50"
-                  >
-                    Delete
-                  </button>
+                  </div>
+                  <div className="pt-2 border-t border-neutral-800 flex justify-between font-bold text-sm">
+                    <span className="text-neutral-300">Total Bill Amount:</span>
+                    <span className="text-amber-400">₹{(order.total * 80).toLocaleString("en-IN")}</span>
+                  </div>
                 </div>
               </div>
+
+              {/* Bottom Row: Quick Status Stepper & Delete */}
+              <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <span className="text-[10px] uppercase font-bold text-neutral-400 mr-2">Quick Status Step:</span>
+                  {["Preparing", "Out for Delivery", "Delivered", "Cancelled"].map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      disabled={working === order._id || order.status === st}
+                      onClick={() => updateStatus(order._id, st)}
+                      className={`px-3 py-1.5 rounded-xl text-[11px] font-bold transition ${
+                        order.status === st
+                          ? "bg-amber-500 text-black font-extrabold shadow-md"
+                          : "bg-neutral-950 border border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                      }`}
+                    >
+                      {st}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => deleteOrder(order._id)}
+                  disabled={working === order._id}
+                  className="px-4 py-1.5 rounded-xl border border-red-500/30 text-red-400 text-xs font-bold hover:bg-red-500/10 transition"
+                >
+                  Delete Order
+                </button>
+              </div>
+
             </div>
           ))}
+        </div>
+      )}
+
+      {/* ── PAGINATION CONTROLS ────────────────────────────────────────── */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between border-t border-neutral-800 pt-4 text-xs">
+          <span className="text-neutral-400 font-medium">
+            Page <strong className="text-white">{currentPage}</strong> of {totalPages}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 disabled:opacity-40 hover:text-white transition"
+            >
+              <ChevronLeft className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="p-2.5 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-300 disabled:opacity-40 hover:text-white transition"
+            >
+              <ChevronRight className="w-4 h-4" />
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
+
