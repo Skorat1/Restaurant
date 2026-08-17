@@ -79,8 +79,8 @@ export default function AdminCoupons() {
       minOrder: String(c.minOrder),
       maxDiscount: String(c.maxDiscount),
       usageLimit: String(c.usageLimit),
-      startsAt: c.startsAt ? c.startsAt.slice(0, 10) : "",
-      expiresAt: c.expiresAt ? c.expiresAt.slice(0, 10) : "",
+      startsAt: c.startsAt ? c.startsAt.slice(0, 16) : "",
+      expiresAt: c.expiresAt ? c.expiresAt.slice(0, 16) : "",
       active: c.active,
     });
     setShowForm(true);
@@ -284,18 +284,18 @@ export default function AdminCoupons() {
               />
             </div>
             <div>
-              <label className={labelCls}>Start Date (optional)</label>
+              <label className={labelCls}>Start Date & Time (optional)</label>
               <input
-                type="date"
+                type="datetime-local"
                 value={form.startsAt}
                 onChange={(e) => setForm({ ...form, startsAt: e.target.value })}
                 className={inputCls}
               />
             </div>
             <div>
-              <label className={labelCls}>Expiry Date (optional)</label>
+              <label className={labelCls}>Expiry Date & Time (optional)</label>
               <input
-                type="date"
+                type="datetime-local"
                 value={form.expiresAt}
                 onChange={(e) => setForm({ ...form, expiresAt: e.target.value })}
                 className={inputCls}
@@ -366,7 +366,7 @@ export default function AdminCoupons() {
                   <span>Usage</span> 
                   <span className="text-white">{c.usedCount}{c.usageLimit > 0 ? ` / ${c.usageLimit}` : " / ∞"}</span>
                 </p>
-                {c.expiresAt && <p className="flex justify-between pt-1"><span>Expires</span> <span className="text-amber-400/80">{new Date(c.expiresAt).toLocaleDateString()}</span></p>}
+                {c.expiresAt && <p className="flex justify-between pt-1"><span>Expires</span> <span className="text-amber-400/80">{new Date(c.expiresAt).toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' })}</span></p>}
               </div>
 
               <div className="mt-6 flex gap-3 relative z-10">
