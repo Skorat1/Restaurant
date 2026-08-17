@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Menu, X, ExternalLink, ShieldCheck, Plus, Store, ChevronRight, PanelLeftClose, PanelLeft } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
+import { io } from "socket.io-client";
 
 interface NavSubItem {
   href: string;
@@ -89,6 +90,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [aiThinking, setAiThinking] = useState(false);
   const [aiResponse, setAiResponse] = useState<string | null>(null);
 
+  const [waiterCalls, setWaiterCalls] = useState<Array<{ id: string, tableNumber: string, type: string, time: string }>>([]);
+
   useEffect(() => {
     if (!loading) {
       if (!token) {
@@ -116,6 +119,35 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const int = setInterval(fetchStats, 30000);
     return () => clearInterval(int);
   }, [token, isReady]);
+
+  // Socket setup for waiter calls
+  useEffect(() => {
+    if (!token || !isReady) return;
+    const socket = io(API_BASE_URL, {
+      transports: ["websocket", "polling"],
+    });
+
+    socket.on("waiter_called", (data: { tableNumber: string, type: string }) => {
+      // Play a small beep (if browser allows)
+      try {
+        const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"+Array(100).join("A"));
+        audio.play().catch(() => {});
+      } catch (e) {}
+
+      setWaiterCalls(prev => {
+        const newCall = { id: Date.now().toString(), ...data, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
+        return [newCall, ...prev];
+      });
+    });
+
+    return () => {
+      socket.disconnect();
+    };
+  }, [token, isReady]);
+
+  const removeWaiterCall = (id: string) => {
+    setWaiterCalls(prev => prev.filter(c => c.id !== id));
+  };
 
   const handleAiQuery = (e: React.FormEvent) => {
     e.preventDefault();
@@ -155,6 +187,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       {/* ── GLOBAL AMBIENT GLOWS ── */}
       <div className={`fixed top-0 left-[20%] w-[500px] h-[500px] rounded-full blur-[120px] pointer-events-none mix-blend-screen z-0 transition-colors duration-1000 ${isCinematic ? "bg-purple-600/10" : "bg-amber-500/5"}`}></div>
       <div className={`fixed bottom-0 right-[10%] w-[600px] h-[600px] rounded-full blur-[150px] pointer-events-none mix-blend-screen z-0 transition-colors duration-1000 ${isCinematic ? "bg-cyan-500/10" : "bg-emerald-500/5"}`}></div>
+
+      {/* ── WAITER CALL TOASTS ── */}
+      <div className="fixed top-6 right-6 z-[99999] flex flex-col gap-3 pointer-events-none">
+        {waiterCalls.map(call => (
+          <div key={call.id} className="pointer-events-auto bg-neutral-900 border-l-4 border-amber-500 p-4 rounded-xl shadow-2xl flex items-center gap-4 animate-fade-in min-w-[300px]">
+            <div className="w-10 h-10 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center shrink-0">
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white uppercase tracking-wider">{call.type === 'bill' ? 'Bill Request' : 'Waiter Requested'}</p>
+              <p className="text-xs text-amber-400 mt-1 font-semibold">Table {call.tableNumber} <span className="text-neutral-500 font-normal ml-2">{call.time}</span></p>
+            </div>
+            <button onClick={() => removeWaiterCall(call.id)} className="p-2 text-neutral-500 hover:text-white transition bg-neutral-800 rounded-lg">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        ))}
+      </div>
 
       {/* ── VELORA AI ASSISTANT WIDGET ── */}
       <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
@@ -221,7 +273,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <section className="mx-auto max-w-[1600px] px-3 sm:px-6 py-4 sm:py-8 relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-10">
         
         {/* Mobile Top Bar */}
-        <div className="lg:hidden flex items-center justify-between mb-2 bg-neutral-900/60 backdrop-blur-2xl p-4 rounded-2xl border border-neutral-800 shadow-2xl relative overflow-hidden">
+        <div className="lg:hidden sticky top-2 z-[50] flex items-center justify-between mb-4 bg-neutral-900/60 backdrop-blur-2xl p-4 rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden">
           <div className="flex items-center gap-4 relative z-10">
             <button 
               onClick={() => setIsMobileMenuOpen(true)}
@@ -243,7 +295,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         />
 
         {/* Sidebar Navigation */}
-        <aside className={`fixed lg:sticky top-0 left-0 h-full lg:h-[calc(100vh-4rem)] z-[9999] lg:z-10 bg-neutral-950/90 lg:bg-neutral-900/40 backdrop-blur-3xl border-r lg:border border-neutral-800/80 lg:rounded-3xl p-4 flex flex-col justify-between shadow-2xl transition-all duration-500 ease-out lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} ${isCollapsed ? "w-[88px]" : "w-[280px]"} overflow-y-auto custom-scrollbar group/sidebar`}>
+        <aside className={`fixed lg:sticky lg:self-start top-0 left-0 h-[100dvh] lg:h-[calc(100vh-4rem)] z-[9999] lg:z-10 bg-neutral-950/90 lg:bg-neutral-900/40 backdrop-blur-3xl border-r lg:border border-neutral-800/80 lg:rounded-3xl p-4 flex flex-col justify-between shadow-2xl transition-all duration-500 ease-out lg:translate-x-0 ${isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"} ${isCollapsed ? "w-[88px]" : "w-[280px]"} overflow-y-auto custom-scrollbar group/sidebar`}>
           
           <div>
             {/* Header & Toggle */}

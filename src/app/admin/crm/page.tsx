@@ -154,7 +154,7 @@ export default function CRMPage() {
             </div>
 
             {/* Node Graph Mockup */}
-            <div className="relative border-2 border-dashed border-neutral-800 rounded-3xl p-8 flex flex-col items-center min-h-[400px] bg-neutral-950/30">
+            <div className="relative border-2 border-dashed border-neutral-800 rounded-3xl p-8 flex flex-col items-center min-h-[400px] bg-neutral-950/30 overflow-x-auto custom-scrollbar">
               {/* Trigger Node */}
               <div className="bg-neutral-900 border border-sky-500/50 rounded-2xl p-4 w-64 shadow-xl z-10">
                 <p className="text-[10px] text-sky-400 font-bold uppercase tracking-widest mb-1">Trigger</p>
@@ -227,7 +227,7 @@ export default function CRMPage() {
               {/* Interactive Buttons Config */}
               <div className="bg-emerald-500/5 border border-emerald-500/20 rounded-2xl p-5">
                 <label className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mb-3 flex items-center gap-2"><PlayCircle className="w-3 h-3" /> Interactive Buttons</label>
-                <div className="flex gap-4">
+                <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                   <input type="text" className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2 text-sm text-white" value="Reserve Table" readOnly />
                   <input type="text" className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2 text-sm text-white" value="View Menu" readOnly />
                 </div>
@@ -240,7 +240,7 @@ export default function CRMPage() {
           </div>
 
           {/* Right Column: Live WhatsApp Preview */}
-          <div className="lg:col-span-4 hidden sm:flex flex-col items-center justify-center bg-neutral-950/50 rounded-[2rem] border border-neutral-800 p-6 lg:sticky lg:top-24">
+          <div className="lg:col-span-4 flex flex-col items-center justify-center bg-neutral-950/50 rounded-[2rem] border border-neutral-800 p-6 lg:sticky lg:top-24 mt-8 lg:mt-0">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-4">Live Template Preview</span>
             <div className="w-[280px] h-[550px] bg-[#efeae2] border-[8px] border-neutral-900 rounded-[2.5rem] shadow-2xl relative flex flex-col overflow-hidden">
               <div className="bg-[#075e54] text-white p-3 flex items-center gap-3 z-10 shadow-md">

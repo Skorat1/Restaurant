@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { GlassWater, Sparkles, Star, Award, ShoppingBag, CheckCircle2, ChevronRight, Filter, Bot, RefreshCw } from "lucide-react";
+import { GlassWater, Sparkles, Star, Award, ShoppingBag, CheckCircle2, ChevronRight, Filter, Bot, RefreshCw, ScanLine } from "lucide-react";
 import { useCart } from "@/components/CartContext";
 
 interface WineItem {
@@ -130,6 +130,14 @@ export default function CellarPage() {
   const [aiSuggestion, setAiSuggestion] = useState<WineItem | null>(WINES[0]);
   const [aiThinking, setAiThinking] = useState(false);
 
+  // Hero Parallax state
+  const [scrollY, setScrollY] = useState(0);
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   const filteredWines = filterType === "All" ? WINES : WINES.filter((w) => w.type === filterType);
 
   const handleAddToCart = (wine: WineItem) => {
@@ -145,6 +153,7 @@ export default function CellarPage() {
 
   const generateSommelierPairing = () => {
     setAiThinking(true);
+    setAiSuggestion(null);
     setTimeout(() => {
       let matched = WINES[0];
       if (selectedDish.includes("Sea Bass")) matched = WINES[3];
@@ -153,200 +162,286 @@ export default function CellarPage() {
       else if (selectedDish.includes("Soufflé")) matched = WINES[4];
       setAiSuggestion(matched);
       setAiThinking(false);
-    }, 600);
+    }, 1200);
   };
 
   return (
-    <section className="min-h-screen bg-neutral-950 text-neutral-100 py-10 px-4 sm:px-8">
+    <section className="min-h-screen bg-[#050505] text-neutral-100 relative overflow-hidden font-sans">
+      
+      {/* Dynamic Ambient Background */}
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <div 
+          className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-amber-900/10 blur-[150px] rounded-full mix-blend-screen transition-transform duration-1000"
+          style={{ transform: `translateY(${scrollY * 0.1}px)` }}
+        />
+        <div 
+          className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-900/10 blur-[150px] rounded-full mix-blend-screen transition-transform duration-1000"
+          style={{ transform: `translateY(-${scrollY * 0.1}px)` }}
+        />
+        <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-[0.03] mix-blend-overlay"></div>
+      </div>
 
-      {/* ── SOMMELIER AI PAIRING MODAL ─────────────────────────────────── */}
-      {aiModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-lg rounded-3xl border border-purple-500/40 bg-neutral-900 p-6 sm:p-8 shadow-2xl animate-fade-up">
-            <div className="flex items-center gap-3.5 mb-5 border-b border-neutral-800 pb-4">
-              <div className="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-300 flex items-center justify-center">
-                <Bot className="w-6 h-6" />
-              </div>
-              <div>
-                <h3 className="text-lg font-serif font-bold text-white">AI Sommelier Pairing Assistant</h3>
-                <p className="text-xs text-neutral-400">Match your dish with the ultimate vintage wine pairing</p>
-              </div>
-            </div>
+      <div className="relative z-10 py-16 px-4 sm:px-8 max-w-7xl mx-auto">
+        
+        {/* ── SOMMELIER AI PAIRING MODAL ─────────────────────────────────── */}
+        {aiModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xl animate-in fade-in duration-300">
+            <div className="w-full max-w-lg rounded-[2rem] border border-purple-500/30 bg-[#0a0a0a]/90 p-8 shadow-2xl shadow-purple-900/20 relative overflow-hidden">
+              
+              {/* Modal Background Glow */}
+              <div className="absolute -top-32 -right-32 w-64 h-64 bg-purple-600/20 blur-[80px] rounded-full pointer-events-none" />
 
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                  Select Your Main Course / Dish
-                </label>
-                <select
-                  value={selectedDish}
-                  onChange={(e) => setSelectedDish(e.target.value)}
-                  className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3.5 text-xs text-white outline-none focus:border-purple-500"
+              <div className="flex items-center gap-4 mb-8 border-b border-white/5 pb-6 relative z-10">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500/20 to-fuchsia-500/20 border border-purple-500/30 text-purple-400 flex items-center justify-center shadow-inner">
+                  <Bot className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-200 to-white">
+                    AI Sommelier Pairing
+                  </h3>
+                  <p className="text-xs text-purple-300/60 font-mono tracking-widest mt-1 uppercase">Machine Learning Assisted</p>
+                </div>
+              </div>
+
+              <div className="space-y-6 relative z-10">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">
+                    Select Your Main Course
+                  </label>
+                  <div className="relative">
+                    <select
+                      value={selectedDish}
+                      onChange={(e) => setSelectedDish(e.target.value)}
+                      className="w-full appearance-none rounded-xl border border-white/10 bg-white/5 px-5 py-4 text-sm text-white outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all backdrop-blur-md"
+                    >
+                      {DISHES_LIST.map((d) => (
+                        <option key={d} value={d} className="bg-neutral-900">{d}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-neutral-500">
+                      <ChevronRight className="w-4 h-4 rotate-90" />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={generateSommelierPairing}
+                  disabled={aiThinking}
+                  className="w-full py-4 rounded-xl bg-white text-black hover:bg-neutral-200 text-xs font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
                 >
-                  {DISHES_LIST.map((d) => (
-                    <option key={d} value={d}>{d}</option>
-                  ))}
-                </select>
+                  {aiThinking ? (
+                    <>
+                      <RefreshCw className="w-4 h-4 animate-spin text-purple-600" />
+                      <span className="text-purple-950">Analyzing Profile...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles className="w-4 h-4 text-purple-600" />
+                      <span>Generate Recommendation</span>
+                      
+                      {/* Button shine effect */}
+                      <div className="absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-[shimmer_1.5s_infinite] pointer-events-none" />
+                    </>
+                  )}
+                </button>
+
+                {/* AI Thinking Animation */}
+                {aiThinking && (
+                  <div className="h-40 rounded-2xl border border-purple-500/20 bg-purple-950/10 flex flex-col items-center justify-center gap-3 animate-pulse">
+                     <ScanLine className="w-8 h-8 text-purple-500 animate-[bounce_2s_infinite]" />
+                     <p className="text-xs font-mono text-purple-400">Cross-referencing vintage profiles...</p>
+                  </div>
+                )}
+
+                {/* AI Result Card */}
+                {aiSuggestion && !aiThinking && (
+                  <div className="rounded-2xl border border-purple-500/30 bg-gradient-to-b from-purple-900/20 to-transparent p-6 animate-in slide-in-from-bottom-4 duration-500 relative overflow-hidden group">
+                    <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-purple-500 to-transparent opacity-50" />
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <span className="text-[9px] font-black uppercase tracking-[0.2em] bg-purple-500 text-white px-3 py-1 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                        99.4% Match
+                      </span>
+                      <span className="text-amber-400 font-bold text-lg font-serif">₹{aiSuggestion.price.toLocaleString("en-IN")}</span>
+                    </div>
+
+                    <div className="flex gap-5 items-center mb-6">
+                      <div className="w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-neutral-950 border border-purple-500/20 relative shadow-2xl">
+                        <img src={aiSuggestion.image} alt={aiSuggestion.name} className="w-full h-full object-contain p-2" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent pointer-events-none"></div>
+                      </div>
+                      <div className="flex-1">
+                        <h4 className="text-lg font-serif font-bold text-white leading-tight mb-1">{aiSuggestion.name}</h4>
+                        <div className="flex items-center gap-2 mb-2">
+                           <span className="text-[10px] uppercase tracking-widest text-purple-300 border border-purple-500/30 px-2 py-0.5 rounded-sm">{aiSuggestion.vintage}</span>
+                           <span className="text-[10px] text-neutral-400">{aiSuggestion.region}</span>
+                        </div>
+                        <p className="text-xs text-neutral-400 leading-relaxed italic line-clamp-2">&quot;{aiSuggestion.tastingNotes}&quot;</p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => { handleAddToCart(aiSuggestion); setAiModal(false); }}
+                      className="w-full py-3.5 rounded-xl border border-amber-500/50 bg-amber-500/10 text-amber-400 hover:bg-amber-500 hover:text-black text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300"
+                    >
+                      Add To Order
+                    </button>
+                  </div>
+                )}
               </div>
 
               <button
-                type="button"
-                onClick={generateSommelierPairing}
-                disabled={aiThinking}
-                className="w-full py-3.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-wider transition flex items-center justify-center gap-2"
+                onClick={() => setAiModal(false)}
+                className="mt-6 w-full py-3 rounded-full text-[10px] font-bold tracking-widest uppercase text-neutral-500 hover:text-white transition-colors"
               >
-                {aiThinking ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
-                {aiThinking ? "Consulting AI Cellar Archives..." : "Generate AI Wine Recommendation"}
+                Close Assistant
               </button>
-
-              {aiSuggestion && !aiThinking && (
-                <div className="rounded-2xl border border-purple-500/30 bg-purple-950/30 p-5 space-y-4 animate-fade-up">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-purple-500 text-white px-2.5 py-0.5 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]">
-                      Perfect Match (99.4%)
-                    </span>
-                    <span className="text-amber-400 font-bold text-sm">₹{aiSuggestion.price.toLocaleString("en-IN")}</span>
-                  </div>
-
-                  <div className="flex gap-4 items-center">
-                    <div className="w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-neutral-950 border border-purple-500/30 relative">
-                      <img src={aiSuggestion.image} alt={aiSuggestion.name} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="text-sm font-serif font-bold text-white leading-tight">{aiSuggestion.name} ({aiSuggestion.vintage})</h4>
-                      <p className="text-[11px] text-purple-300 font-medium mt-1">{aiSuggestion.region} · {aiSuggestion.alcoholPct} ABV</p>
-                      <p className="text-[11px] text-neutral-300 mt-2 leading-relaxed italic line-clamp-3">&quot;{aiSuggestion.tastingNotes}&quot;</p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => { handleAddToCart(aiSuggestion); setAiModal(false); }}
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black text-xs font-bold uppercase tracking-wider hover:scale-[1.02] shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all duration-300"
-                  >
-                    Add Recommended Bottle to Order
-                  </button>
-                </div>
-              )}
             </div>
-
-            <button
-              onClick={() => setAiModal(false)}
-              className="mt-5 w-full py-3 rounded-full border border-neutral-700 text-xs font-bold text-neutral-300 hover:bg-neutral-800 transition"
-            >
-              Close Sommelier Assistant
-            </button>
           </div>
-        </div>
-      )}
+        )}
 
-      {/* ── HERO BANNER ───────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto mb-10 text-center relative">
-        <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-bold uppercase tracking-[0.2em] mb-4">
-          <GlassWater className="w-3.5 h-3.5" />
-          <span>Private Underground Cellar Collection</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-serif text-white tracking-tight leading-tight">
-          Curated Vintages &amp; <span className="text-amber-400 italic">Grand Crus.</span>
-        </h1>
-        <p className="mt-3 text-neutral-400 text-xs sm:text-base max-w-xl mx-auto">
-          Explore our temperature-controlled cellar featuring rare French Grand Crus, Super Tuscans, and Vintage Champagnes.
-        </p>
+        {/* ── HERO BANNER ───────────────────────────────────────────────── */}
+        <div className="mb-20 text-center relative pt-8">
+          <div className="inline-flex items-center gap-2 px-5 py-2 rounded-full bg-gradient-to-r from-amber-500/10 to-amber-500/5 border border-amber-500/20 text-amber-400 text-[10px] font-black uppercase tracking-[0.3em] mb-8 backdrop-blur-md shadow-[0_0_30px_rgba(245,158,11,0.1)]">
+            <GlassWater className="w-3.5 h-3.5" />
+            <span>Underground Reserve</span>
+          </div>
+          
+          <h1 className="text-5xl sm:text-7xl font-serif text-white tracking-tight leading-[1.1] mb-6 drop-shadow-2xl">
+            The Master <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-600 italic">Sommelier's Cellar.</span>
+          </h1>
+          
+          <p className="text-neutral-400 text-sm sm:text-base max-w-2xl mx-auto font-light leading-relaxed mb-10">
+            Explore our temperature-controlled vault featuring exceptionally rare French Grand Crus, 
+            storied Super Tuscans, and limited-allocation Vintage Champagnes.
+          </p>
 
-        <div className="mt-6 flex justify-center">
           <button
             type="button"
             onClick={() => setAiModal(true)}
-            className="inline-flex items-center gap-2 px-6 py-3.5 rounded-full bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold uppercase tracking-widest shadow-xl shadow-purple-600/30 transition"
+            className="group relative inline-flex items-center gap-3 px-8 py-4 rounded-full bg-white text-black text-xs font-black uppercase tracking-[0.2em] hover:scale-105 transition-all duration-300 shadow-[0_0_40px_rgba(255,255,255,0.15)]"
           >
-            <Bot className="w-4 h-4" />
-            <span>Launch Virtual Sommelier AI</span>
+            <Bot className="w-4 h-4 text-purple-600 group-hover:animate-pulse" />
+            <span>Consult AI Sommelier</span>
+            <div className="absolute inset-0 rounded-full border border-white/40 scale-105 opacity-0 group-hover:scale-110 group-hover:opacity-100 transition-all duration-500"></div>
           </button>
         </div>
-      </div>
 
-      {/* ── FILTER CHIPS ──────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto mb-8 flex items-center justify-center gap-2.5 flex-wrap">
-        {["All", "Red", "White", "Champagne", "Rose", "Dessert"].map((type) => (
-          <button
-            key={type}
-            onClick={() => setFilterType(type)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition ${filterType === type
-              ? "bg-amber-500 text-black shadow-md"
-              : "bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white"
+        {/* ── FILTER CHIPS ──────────────────────────────────────────────── */}
+        <div className="mb-16 flex items-center justify-center gap-3 flex-wrap">
+          {["All", "Red", "White", "Champagne", "Rose", "Dessert"].map((type) => (
+            <button
+              key={type}
+              onClick={() => setFilterType(type)}
+              className={`px-6 py-2.5 rounded-full text-[11px] font-bold uppercase tracking-widest transition-all duration-300 ${
+                filterType === type
+                  ? "bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] scale-105"
+                  : "bg-white/5 border border-white/10 text-neutral-400 hover:text-white hover:border-white/30 hover:bg-white/10"
               }`}
-          >
-            {type}
-          </button>
-        ))}
-      </div>
+            >
+              {type}
+            </button>
+          ))}
+        </div>
 
-      {/* ── WINE CARDS GRID ────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredWines.map((wine) => (
-          <div
-            key={wine.id}
-            className="rounded-3xl border border-neutral-800 bg-neutral-900/90 flex flex-col justify-between overflow-hidden hover:border-amber-500/40 transition shadow-2xl group"
-          >
-            {/* Image Section */}
-            <div className="relative h-64 w-full overflow-hidden bg-neutral-950 flex items-center justify-center p-6">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 via-neutral-950 to-neutral-950 pointer-events-none"></div>
-              {wine.badge && (
-                <div className="absolute top-4 left-4 z-10">
-                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider bg-purple-500/90 backdrop-blur-sm text-white border border-purple-500 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-                    {wine.badge}
+        {/* ── WINE CARDS GRID ────────────────────────────────────────────── */}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredWines.map((wine, i) => (
+            <div
+              key={wine.id}
+              className="group relative rounded-[2rem] border border-white/10 bg-white/[0.02] backdrop-blur-xl flex flex-col overflow-hidden hover:border-amber-500/30 hover:-translate-y-2 transition-all duration-500 shadow-2xl hover:shadow-[0_20px_40px_-15px_rgba(245,158,11,0.15)]"
+              style={{ animationDelay: `${i * 100}ms` }}
+            >
+              {/* Image Section with Advanced Lighting */}
+              <div className="relative h-72 w-full overflow-hidden flex items-center justify-center p-8">
+                {/* Glowing orb behind bottle */}
+                <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-700">
+                   <div className="w-32 h-32 bg-amber-500/20 blur-[60px] rounded-full" />
+                </div>
+                
+                {wine.badge && (
+                  <div className="absolute top-5 left-5 z-20">
+                    <span className="inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.2em] bg-neutral-900/80 backdrop-blur-md text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-full shadow-lg">
+                      <Award className="w-3 h-3" /> {wine.badge}
+                    </span>
+                  </div>
+                )}
+                
+                <img
+                  src={wine.image}
+                  alt={wine.name}
+                  className="relative z-10 h-full w-auto max-w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.9)] group-hover:drop-shadow-[0_20px_35px_rgba(0,0,0,1)] group-hover:scale-105 transition-all duration-700 ease-out"
+                />
+                
+                {/* Vignette */}
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0a0a0a] via-transparent to-transparent z-10 pointer-events-none"></div>
+              </div>
+
+              {/* Content Section */}
+              <div className="p-8 space-y-4 flex-1 flex flex-col relative z-20 bg-gradient-to-b from-[#0a0a0a] to-[#0a0a0a]">
+                
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-mono tracking-widest text-neutral-400 border border-white/10 px-2 py-0.5 rounded">
+                      {wine.vintage}
+                    </span>
+                    <span className="text-[10px] font-mono text-neutral-500">{wine.alcoholPct}</span>
+                  </div>
+                  <span className="flex items-center gap-1.5 text-[11px] font-bold text-amber-400">
+                    <Star className="w-3.5 h-3.5 fill-amber-400" />
+                    {wine.rating}
                   </span>
                 </div>
-              )}
-              {/* Premium bottle presentation using object-contain and drop shadow */}
-              <img
-                src={wine.image}
-                alt={wine.name}
-                className="relative z-0 h-full w-auto max-w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-700 ease-out opacity-90 group-hover:opacity-100 mix-blend-screen"
-                style={{ filter: "drop-shadow(0px 10px 15px rgba(0,0,0,0.9))" }}
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/95 via-neutral-900/10 to-transparent pointer-events-none"></div>
-            </div>
 
-            <div className="p-6 space-y-3 flex-1 flex flex-col">
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-widest bg-neutral-950 border border-neutral-800 text-amber-400 px-2.5 py-1 rounded-full">
-                  {wine.vintage} Vintage · {wine.alcoholPct} ABV
-                </span>
-                <span className="flex items-center gap-1 text-xs font-bold text-amber-400">
-                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                  {wine.rating}
-                </span>
+                <h3 className="text-xl font-serif font-bold text-white leading-tight group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-white group-hover:to-amber-200 transition-all duration-300">
+                  {wine.name}
+                </h3>
+                
+                <p className="text-[11px] font-bold uppercase tracking-widest text-neutral-500">{wine.region}</p>
+                
+                <p className="text-xs text-neutral-400 leading-relaxed italic flex-1 font-serif">
+                  &quot;{wine.tastingNotes}&quot;
+                </p>
+
+                <div className="pt-5 border-t border-white/5 mt-4">
+                  <p className="text-[10px] uppercase tracking-widest text-neutral-600 font-bold mb-1.5">Sommelier Pairing</p>
+                  <p className="text-xs text-amber-200/80 font-medium">✨ {wine.pairing}</p>
+                </div>
               </div>
 
-              <h3 className="text-lg font-serif font-bold text-white leading-tight">{wine.name}</h3>
-              <p className="text-xs text-neutral-400">{wine.region}</p>
-              <p className="text-xs text-neutral-300 leading-relaxed italic flex-1">&quot;{wine.tastingNotes}&quot;</p>
+              {/* Action Bar */}
+              <div className="p-4 m-4 mt-0 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-between group-hover:bg-amber-500/5 group-hover:border-amber-500/20 transition-all duration-500 relative z-20">
+                <div className="pl-2">
+                  <p className="text-[9px] text-neutral-500 uppercase tracking-widest font-black mb-0.5">Cellar Price</p>
+                  <p className="text-lg font-serif font-bold text-white">₹{wine.price.toLocaleString("en-IN")}</p>
+                </div>
 
-              <div className="pt-3 border-t border-neutral-800 text-xs mt-2">
-                <p className="text-neutral-400 font-semibold">Recommended Dish Pairing:</p>
-                <p className="text-amber-300 font-medium mt-1">🍷 {wine.pairing}</p>
+                <button
+                  type="button"
+                  onClick={() => handleAddToCart(wine)}
+                  className={`px-5 py-3 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-300 flex items-center gap-2 ${
+                    addedId === wine.id 
+                    ? "bg-emerald-500 text-white shadow-[0_0_20px_rgba(16,185,129,0.3)]" 
+                    : "bg-white text-black hover:bg-amber-500 shadow-lg"
+                  }`}
+                >
+                  {addedId === wine.id ? (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" /> <span>Added</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-4 h-4" /> <span>Add To Order</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
-
-            <div className="px-6 pb-6 pt-4 border-t border-neutral-800 flex items-center justify-between bg-neutral-950/30">
-              <div>
-                <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold">Bottle Price</p>
-                <p className="text-xl font-bold text-amber-400">₹{wine.price.toLocaleString("en-IN")}</p>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleAddToCart(wine)}
-                className="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
-              >
-                <ShoppingBag className="w-3.5 h-3.5" />
-                <span>{addedId === wine.id ? "Added!" : "Add to Order"}</span>
-              </button>
-            </div>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </section>
   );

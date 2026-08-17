@@ -24,15 +24,24 @@ export default function CartDrawer() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  
   const [paymentMethod, setPaymentMethod] = useState<"Cash" | "Card" | "UPI">("UPI");
   const [checkoutStep, setCheckoutStep] = useState<"summary" | "payment_details">("summary");
   const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success">("idle");
+  
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
+  const [couponError, setCouponError] = useState("");
+  const [validatingCoupon, setValidatingCoupon] = useState(false);
+  
+  const [tableNumber, setTableNumber] = useState<string | null>(null);
 
   // Lock body scroll when drawer is open
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = "hidden";
       setCheckoutStep("summary"); // Reset step when opening
+      setTableNumber(localStorage.getItem("tableSessionNumber"));
     } else {
       document.body.style.overflow = "";
     }
@@ -56,6 +65,37 @@ export default function CartDrawer() {
         .finally(() => setLoadingOrders(false));
     }
   }, [isCartOpen, user, activeTab]);
+
+  const handleApplyCoupon = async () => {
+    if (!couponCode.trim()) return;
+    setValidatingCoupon(true);
+    setCouponError("");
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code: couponCode.trim(), subtotal }),
+      });
+      const data = await res.json();
+      if (res.ok && data.valid) {
+        setAppliedCoupon(data.coupon);
+      } else {
+        setCouponError(data.msg || "Invalid coupon code");
+        setAppliedCoupon(null);
+      }
+    } catch (err) {
+      setCouponError("Failed to validate coupon");
+      setAppliedCoupon(null);
+    } finally {
+      setValidatingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+  };
 
   const handleProceed = () => {
     if (paymentMethod === "Cash") {
@@ -83,9 +123,22 @@ export default function CartDrawer() {
     setPlacingOrder(true);
     setOrderSuccess(null);
 
-    const gstTax = subtotal * 0.08;
-    const deliveryCharge = 100;
-    const grandTotal = subtotal + gstTax + deliveryCharge;
+    const isDineIn = !!tableNumber;
+
+    let discount = 0;
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === 'percent') {
+        discount = (subtotal * appliedCoupon.value) / 100;
+        if (appliedCoupon.maxDiscount > 0 && discount > appliedCoupon.maxDiscount) discount = appliedCoupon.maxDiscount;
+      } else {
+        discount = Math.min(appliedCoupon.value, subtotal);
+      }
+    }
+
+    const taxable = Math.max(0, subtotal - discount);
+    const gstTax = taxable * 0.08;
+    const deliveryCharge = isDineIn ? 0 : 100;
+    const grandTotal = taxable + gstTax + deliveryCharge;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -106,12 +159,13 @@ export default function CartDrawer() {
             name: user?.name || "Guest",
             email: user?.email || "guest@example.com",
             phone: "0000000000",
-            address: "Pickup",
-            pincode: "100001"
+            address: isDineIn ? `Table ${tableNumber}` : "Pickup",
+            pincode: isDineIn ? "DINEIN" : "100001"
           },
           paymentMethod: paymentMethod,
-          deliveryFee: 100,
+          deliveryFee: deliveryCharge,
           totalAmount: grandTotal,
+          couponCode: appliedCoupon?.code,
         }),
       });
 
@@ -122,6 +176,7 @@ export default function CartDrawer() {
         setCheckoutStep("summary");
         setPaymentStatus("idle");
         setActiveTab("orders");
+        handleRemoveCoupon();
       } else {
         // Fallback for guest checkout or offline simulation
         setOrderSuccess(`VEL-${Math.floor(100000 + Math.random() * 900000)}`);
@@ -129,6 +184,7 @@ export default function CartDrawer() {
         setCheckoutStep("summary");
         setPaymentStatus("idle");
         setActiveTab("orders");
+        handleRemoveCoupon();
       }
     } catch {
       setOrderSuccess(`VEL-${Math.floor(100000 + Math.random() * 900000)}`);
@@ -136,6 +192,7 @@ export default function CartDrawer() {
       setCheckoutStep("summary");
       setPaymentStatus("idle");
       setActiveTab("orders");
+      handleRemoveCoupon();
     } finally {
       setPlacingOrder(false);
     }
@@ -143,9 +200,21 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const gstTax = subtotal * 0.08;
-  const deliveryCharge = 100;
-  const grandTotal = subtotal + gstTax + deliveryCharge;
+  const isDineIn = !!tableNumber;
+  let discount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.discountType === 'percent') {
+      discount = (subtotal * appliedCoupon.value) / 100;
+      if (appliedCoupon.maxDiscount > 0 && discount > appliedCoupon.maxDiscount) discount = appliedCoupon.maxDiscount;
+    } else {
+      discount = Math.min(appliedCoupon.value, subtotal);
+    }
+  }
+
+  const taxable = Math.max(0, subtotal - discount);
+  const gstTax = taxable * 0.08;
+  const deliveryCharge = isDineIn ? 0 : 100;
+  const grandTotal = taxable + gstTax + deliveryCharge;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -213,12 +282,13 @@ export default function CartDrawer() {
           {activeTab === "cart" && (
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
               {orderSuccess && (
-                <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 space-y-1 animate-fade-up">
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Order Placed Successfully!
-                  </div>
-                  <p className="text-xs text-emerald-200/80">Order Ref: {orderSuccess}</p>
-                </div>
+               <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 space-y-1 animate-fade-up">
+                 <div className="flex items-center gap-2 font-bold text-sm">
+                   <CheckCircle2 className="w-4 h-4 text-emerald-400" /> Order Placed Successfully!
+                 </div>
+                 <p className="text-xs text-emerald-200/80">Order Ref: {orderSuccess}</p>
+                 {isDineIn && <p className="text-[10px] text-emerald-400 font-bold mt-2 uppercase tracking-widest">Being prepared for Table {tableNumber}</p>}
+               </div>
               )}
 
               {items.length === 0 ? (
@@ -351,13 +421,53 @@ export default function CartDrawer() {
                   <span>Subtotal</span>
                   <span className="font-mono">₹{subtotal.toFixed(2)}</span>
                 </div>
+                
+                {/* Coupon Area */}
+                <div className="py-2">
+                  {!appliedCoupon ? (
+                    <div className="flex gap-2">
+                      <input
+                        type="text"
+                        placeholder="Enter Promo Code"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value.toUpperCase())}
+                        className="flex-1 bg-neutral-900 border border-neutral-800 rounded-lg px-3 py-1.5 text-xs text-white outline-none focus:border-amber-500 transition-colors uppercase"
+                      />
+                      <button
+                        onClick={handleApplyCoupon}
+                        disabled={validatingCoupon || !couponCode.trim()}
+                        className="px-4 py-1.5 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-lg font-bold disabled:opacity-50 transition"
+                      >
+                        {validatingCoupon ? "..." : "Apply"}
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/30 rounded-lg px-3 py-2">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400 font-bold uppercase tracking-widest">{appliedCoupon.code}</span>
+                      </div>
+                      <button onClick={handleRemoveCoupon} className="text-neutral-500 hover:text-red-400 transition-colors">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                  {couponError && <p className="text-red-400 text-[10px] mt-1">{couponError}</p>}
+                </div>
+                
+                {discount > 0 && (
+                  <div className="flex justify-between text-emerald-400 font-bold">
+                    <span>Discount ({appliedCoupon?.code})</span>
+                    <span className="font-mono">-₹{discount.toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="flex justify-between text-neutral-400">
                   <span>Estimated GST (8%)</span>
                   <span className="font-mono">₹{gstTax.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
-                  <span>Delivery Charge</span>
-                  <span className="font-mono">₹{deliveryCharge.toFixed(2)}</span>
+                  <span>{isDineIn ? `Service to Table ${tableNumber}` : "Delivery Charge"}</span>
+                  <span className="font-mono">{isDineIn ? "Free" : `₹${deliveryCharge.toFixed(2)}`}</span>
                 </div>
                 <div className="flex justify-between font-bold text-sm text-white pt-2 border-t border-neutral-800">
                   <span>Grand Total</span>
@@ -485,5 +595,3 @@ export default function CartDrawer() {
     </div>
   );
 }
-
-

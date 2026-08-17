@@ -12,11 +12,11 @@ import {
 import API_BASE_URL from "@/lib/api";
 import { useLanguage } from "@/lib/LanguageContext";
 
-const TIME_SLOTS = [
+const BASE_TIME_SLOTS = [
   { time: "12:00 PM", status: "available" },
   { time: "12:30 PM", status: "available" },
   { time: "1:00 PM", status: "available" },
-  { time: "1:30 PM", status: "full" },
+  { time: "1:30 PM", status: "available" },
   { time: "2:00 PM", status: "available" },
   { time: "6:00 PM", status: "available" },
   { time: "6:30 PM", status: "available" },
@@ -91,7 +91,41 @@ export default function ReservePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
+  const getDynamicTimeSlots = () => {
+    const today = new Date();
+    const selectedDate = new Date(form.date);
+    const isToday = selectedDate.toDateString() === today.toDateString();
+    
+    // Create a date object for comparison that sets time to 00:00
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const isPastDate = selectedDate < todayStart;
 
+    return BASE_TIME_SLOTS.map((slot) => {
+      let isPastTime = false;
+      if (isPastDate) {
+        isPastTime = true;
+      } else if (isToday) {
+        const [timePart, modifier] = slot.time.split(" ");
+        let [hours, minutes] = timePart.split(":").map(Number);
+        if (modifier === "PM" && hours !== 12) hours += 12;
+        if (modifier === "AM" && hours === 12) hours = 0;
+        
+        const slotDate = new Date();
+        slotDate.setHours(hours, minutes, 0, 0);
+        
+        if (slotDate < new Date()) {
+          isPastTime = true;
+        }
+      }
+      return {
+        ...slot,
+        status: isPastTime ? "passed" : slot.status
+      };
+    });
+  };
+
+  const dynamicTimeSlots = getDynamicTimeSlots();
 
   const rawPreOrderTotal = useMemo(() => {
     return selectedPreOrders.reduce((sum, id) => {
@@ -522,6 +556,7 @@ export default function ReservePage() {
                 <input
                   type="date"
                   required
+                  min={new Date().toISOString().split("T")[0]}
                   value={form.date}
                   onChange={(e) => setForm({ ...form, date: e.target.value })}
                   className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-3.5 py-3 text-xs text-white outline-none focus:border-amber-500"
@@ -546,15 +581,18 @@ export default function ReservePage() {
             <div>
               <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Time Slot</label>
               <div className="grid grid-cols-3 gap-2 max-h-44 overflow-y-auto pr-1">
-                {TIME_SLOTS.map((slot) => {
+                {dynamicTimeSlots.map((slot) => {
                   const isSel = form.time === slot.time;
                   const isFull = slot.status === "full";
+                  const isPassed = slot.status === "passed";
 
                   return (
                     <button
                       key={slot.time}
                       type="button"
+                      disabled={isPassed}
                       onClick={() => {
+                        if (isPassed) return;
                         if (isFull) {
                           setWaitlistSlot(slot.time);
                           setWaitlistModal(true);
@@ -563,14 +601,16 @@ export default function ReservePage() {
                         }
                       }}
                       className={`py-2.5 rounded-xl text-[11px] font-bold border transition ${
-                        isFull
+                        isPassed
+                          ? "bg-neutral-900 border-neutral-800 text-neutral-600 opacity-50 cursor-not-allowed"
+                          : isFull
                           ? "bg-neutral-950 border-red-500/30 text-red-400 opacity-70"
                           : isSel
                           ? "bg-amber-500 text-black border-amber-400 shadow-md"
                           : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-amber-500/50"
                       }`}
                     >
-                      {slot.time} {isFull ? "(Waitlist)" : ""}
+                      {slot.time} {isFull ? "(Waitlist)" : isPassed ? "(Passed)" : ""}
                     </button>
                   );
                 })}
