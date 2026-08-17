@@ -5,10 +5,11 @@ import API_BASE_URL from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 
 export default function SignUp() {
-  const [form, setForm] = useState({ name: "", email: "", password: "" , repassword: ""});
+  const [form, setForm] = useState({ name: "", email: "", password: "", repassword: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(false);
+  const [isPending, setIsPending] = useState(false);
   const [sentEmail, setSentEmail] = useState("");
   const { login } = useAuth();
 
@@ -24,9 +25,14 @@ export default function SignUp() {
       });
       const data = await res.json();
       if (res.ok) {
-        login(data.token, data.user);
-        setSentEmail(form.email);
-        setDone(true);
+        if (data.msg === 'registration_pending') {
+          setSentEmail(form.email);
+          setIsPending(true);
+        } else {
+          login(data.token, data.user);
+          setSentEmail(form.email);
+          setDone(true);
+        }
       } else {
         setError(data.msg || "Registration failed.");
       }
@@ -36,6 +42,36 @@ export default function SignUp() {
       setLoading(false);
     }
   };
+
+  if (isPending) {
+    return (
+      <section className="mx-auto max-w-xl px-6 py-24">
+        <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 p-10 text-center">
+          <div className="w-16 h-16 mx-auto rounded-full bg-amber-500/15 flex items-center justify-center">
+            <svg className="w-8 h-8 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <h1 className="mt-6 text-3xl font-serif text-white">Pending Approval</h1>
+          <p className="mt-3 text-neutral-400 leading-relaxed">
+            Your registration was successful, but your account requires administrator approval before you can log in.
+          </p>
+          <p className="mt-4 text-sm text-neutral-500">
+            We will notify you at <span className="text-amber-400 font-medium">{sentEmail}</span> once your account has been approved.
+          </p>
+          <div className="mt-8 flex justify-center">
+            <Link
+              href="/"
+              className="rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   if (done) {
     return (

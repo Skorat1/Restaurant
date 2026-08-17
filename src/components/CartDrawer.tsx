@@ -413,6 +413,10 @@ export default function CartDrawer() {
                   <div>
                     <p className="text-xs text-neutral-400">Scan with any UPI app</p>
                     <p className="text-lg font-serif font-bold text-amber-400 mt-1">₹{grandTotal.toFixed(2)}</p>
+                    <div className="mt-3 py-2 px-4 rounded-xl bg-neutral-950 border border-neutral-800 inline-block">
+                      <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-0.5">UPI ID</p>
+                      <p className="text-sm font-mono text-white">velora@ybl</p>
+                    </div>
                   </div>
                 </div>
               )}
