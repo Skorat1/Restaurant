@@ -27,20 +27,7 @@ const TIME_SLOTS = [
   { time: "9:00 PM", status: "available" },
 ];
 
-const TABLES = [
-  { id: "T1", code: "T1 - Quiet Window Pair", zone: "Main Salon", seats: 2, view: "City Skyline", status: "available", icon: "🪟" },
-  { id: "T2", code: "T2 - Window Alcove", zone: "Main Salon", seats: 2, view: "City Skyline", status: "reserved", icon: "🪟" },
-  { id: "T3", code: "T3 - Salon Family Round", zone: "Main Salon", seats: 4, view: "Jazz Stage", status: "available", icon: "🎷" },
-  { id: "T4", code: "T4 - Grand Salon Center", zone: "Main Salon", seats: 6, view: "Crystal Chandelier", status: "available", icon: "💎" },
-  { id: "T5", code: "T5 - Chef's Tasting Counter 1", zone: "Chef's Table", seats: 2, view: "Live Kitchen", status: "available", icon: "👨‍🍳" },
-  { id: "T6", code: "T6 - Chef's Tasting Counter 2", zone: "Chef's Table", seats: 2, view: "Live Kitchen", status: "occupied", icon: "👨‍🍳" },
-  { id: "T7", code: "T7 - VIP Skylight Booth 1", zone: "VIP Terrace", seats: 4, view: "Glass Ceiling & Moon", status: "available", icon: "🌌" },
-  { id: "T8", code: "T8 - VIP Skylight Booth 2", zone: "VIP Terrace", seats: 6, view: "Glass Ceiling & Moon", status: "reserved", icon: "🌌" },
-  { id: "T9", code: "T9 - VIP Private Dining Vault", zone: "VIP Terrace", seats: 8, view: "Wine Cellar Glass", status: "available", icon: "👑" },
-  { id: "T10", code: "T10 - Garden Alfresco 1", zone: "Garden Patio", seats: 2, view: "Rose Garden", status: "available", icon: "🌿" },
-  { id: "T11", code: "T11 - Garden Lantern Booth", zone: "Garden Patio", seats: 4, view: "Fountain", status: "available", icon: "🏮" },
-  { id: "T12", code: "T12 - Garden Fireside", zone: "Garden Patio", seats: 6, view: "Fire Pit", status: "reserved", icon: "🔥" },
-];
+
 
 const PRE_ORDER_ITEMS = [
   { id: "po-1", name: "Dom Pérignon Vintage 2013 Champagne", price: 24500, category: "Wine", icon: "🍾" },
@@ -72,8 +59,7 @@ const PROMO_CODES: Record<string, { discount: number; label: string }> = {
 export default function ReservePage() {
   const { t } = useLanguage();
 
-  const [selectedZone, setSelectedZone] = useState<string>("All");
-  const [selectedTable, setSelectedTable] = useState("T7");
+
   const [selectedPreOrders, setSelectedPreOrders] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
   const [specialRequests, setSpecialRequests] = useState("");
@@ -105,12 +91,7 @@ export default function ReservePage() {
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
 
-  const selectedTableObj = TABLES.find((t) => t.id === selectedTable) || TABLES[0];
 
-  const filteredTables = useMemo(() => {
-    if (selectedZone === "All") return TABLES;
-    return TABLES.filter((t) => t.zone === selectedZone);
-  }, [selectedZone]);
 
   const rawPreOrderTotal = useMemo(() => {
     return selectedPreOrders.reduce((sum, id) => {
@@ -150,7 +131,7 @@ export default function ReservePage() {
     setSubmitting(true);
 
     const refCode = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
-    const fullNotes = `Table: ${selectedTableObj.code} (${selectedTableObj.zone}) | Occasion: ${form.occasion} | PreOrders: ${selectedPreOrders.join(", ") || "None"} | Dietary: ${selectedDietary.join(", ") || "None"} | Promo: ${appliedPromo || "None"} | Special: ${specialRequests || "None"}`;
+    const fullNotes = `Occasion: ${form.occasion} | PreOrders: ${selectedPreOrders.join(", ") || "None"} | Dietary: ${selectedDietary.join(", ") || "None"} | Promo: ${appliedPromo || "None"} | Special: ${specialRequests || "None"}`;
 
     const preOrderObjs = selectedPreOrders.map((id) => {
       const item = PRE_ORDER_ITEMS.find((p) => p.id === id);
@@ -169,7 +150,7 @@ export default function ReservePage() {
           guests: form.guests,
           notes: fullNotes,
           occasion: form.occasion,
-          tableId: selectedTableObj.id,
+
           dietary: selectedDietary,
           preOrders: preOrderObjs,
           promoCode: appliedPromo,
@@ -239,15 +220,15 @@ export default function ReservePage() {
             <div className="flex items-center justify-between border-b border-amber-500/20 pb-4 mb-6">
               <div className="flex items-center gap-2.5">
                 <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center">
-                  <Crown className="w-5 h-5" />
+                  <Clock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-white tracking-wide">VIP Dining Access Pass</h3>
-                  <p className="text-[11px] text-amber-400/80 font-mono">Confirmed &amp; Dispatched to Email</p>
+                  <h3 className="font-serif text-lg font-bold text-white tracking-wide">Reservation Request Received</h3>
+                  <p className="text-[11px] text-amber-400/80 font-mono">Pending Admin Confirmation</p>
                 </div>
               </div>
-              <span className="text-xs font-mono font-bold bg-amber-500 text-black px-3 py-1 rounded-full uppercase tracking-wider">
-                VIP Confirmed
+              <span className="text-xs font-mono font-bold bg-neutral-800 text-amber-400 px-3 py-1 rounded-full border border-amber-500/30 uppercase tracking-wider">
+                Pending
               </span>
             </div>
 
@@ -273,8 +254,8 @@ export default function ReservePage() {
                   <span className="font-bold text-white truncate block">{form.name || "VIP Guest"}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-neutral-500 block">TABLE &amp; ZONE</span>
-                  <span className="font-bold text-amber-300 truncate block">{selectedTableObj.code}</span>
+                  <span className="text-[10px] text-neutral-500 block">GUESTS</span>
+                  <span className="font-bold text-amber-300 truncate block">{form.guests} People</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-neutral-500 block">DATE &amp; TIME</span>
@@ -320,29 +301,24 @@ export default function ReservePage() {
                 </div>
               )}
 
-              {/* Real QR Code Display */}
-              <div className="pt-2 flex items-center justify-between bg-neutral-900 p-3 rounded-xl border border-neutral-800">
-                <div className="flex items-center gap-3">
-                  <div className="w-16 h-16 bg-white rounded-lg p-1 flex items-center justify-center shrink-0 border border-amber-500/30">
-                    {qrCodeUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={qrCodeUrl} alt="Reservation QR Code" className="w-full h-full object-contain" />
-                    ) : (
-                      <QrCode className="w-12 h-12 text-black" />
-                    )}
+              {/* Pending Confirmation Notice */}
+              <div className="pt-2 flex items-center justify-between bg-neutral-900 p-4 rounded-xl border border-neutral-800">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 bg-neutral-800 rounded-full flex items-center justify-center shrink-0 border border-amber-500/30">
+                    <MessageSquare className="w-6 h-6 text-amber-400" />
                   </div>
                   <div>
-                    <span className="text-[10px] font-mono text-neutral-400 block">DIGITAL ENTRY PASS</span>
-                    <span className="text-xs font-bold text-amber-300">Scan at Concierge Desk</span>
-                    <span className="text-[10px] text-emerald-400 block mt-0.5 font-mono">QR Code Attached to Email</span>
+                    <span className="text-[11px] font-mono text-neutral-400 block mb-1">WHAT'S NEXT?</span>
+                    <span className="text-xs text-neutral-300 leading-tight block">
+                      Our concierge is reviewing your request. Once approved, you will receive an official Dining Pass with your QR Code via email.
+                    </span>
                   </div>
                 </div>
-                <ShieldCheck className="w-6 h-6 text-emerald-400 shrink-0" />
               </div>
             </div>
 
             <p className="text-[11px] text-neutral-400 text-center mt-4">
-              Confirmation pass &amp; QR code dispatched to <span className="text-amber-300 font-mono">{form.email}</span>
+              We will notify <span className="text-amber-300 font-mono">{form.email}</span> once confirmed.
             </p>
 
             <div className="mt-6 flex gap-3">
@@ -453,95 +429,7 @@ export default function ReservePage() {
         {/* ── LEFT COLUMN: SEATING MAP, DIETARY & ADDONS ── */}
         <div className="space-y-8">
 
-          {/* INTERACTIVE TABLE FLOOR MAP */}
-          <div className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-6 sm:p-8 space-y-6 shadow-2xl">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-4">
-              <div>
-                <h2 className="text-xl font-serif text-white flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-amber-400" />
-                  Interactive Floor Plan Seating
-                </h2>
-                <p className="text-xs text-neutral-400 mt-1">Select zone and table position for your dining experience</p>
-              </div>
 
-              {/* Status Legend */}
-              <div className="flex items-center gap-4 text-xs font-medium">
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-emerald-500" /> Available</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-amber-500" /> Selected</span>
-                <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-neutral-700" /> Reserved</span>
-              </div>
-            </div>
-
-            {/* Zone Filter Tabs */}
-            <div className="flex flex-wrap gap-2">
-              {["All", "Main Salon", "Chef's Table", "VIP Terrace", "Garden Patio"].map((zone) => (
-                <button
-                  key={zone}
-                  type="button"
-                  onClick={() => setSelectedZone(zone)}
-                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold border transition ${
-                    selectedZone === zone
-                      ? "bg-amber-500 text-black border-amber-400 shadow-md"
-                      : "bg-neutral-950 border-neutral-800 text-neutral-400 hover:text-white"
-                  }`}
-                >
-                  {zone}
-                </button>
-              ))}
-            </div>
-
-            {/* Grid Floor Map Layout */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-3 bg-neutral-950/90 p-3 sm:p-6 rounded-2xl border border-neutral-800/80 relative">
-              {filteredTables.map((t) => {
-                const isSelected = selectedTable === t.id;
-                const isAvailable = t.status === "available";
-
-                return (
-                  <button
-                    key={t.id}
-                    type="button"
-                    disabled={!isAvailable}
-                    onClick={() => setSelectedTable(t.id)}
-                    className={`p-4 rounded-2xl border text-left transition relative flex flex-col justify-between h-28 ${
-                      isSelected
-                        ? "bg-amber-500/20 border-amber-500 ring-2 ring-amber-500/30 text-white shadow-lg"
-                        : isAvailable
-                        ? "bg-neutral-900 border-neutral-800 text-neutral-300 hover:border-amber-500/50 hover:bg-neutral-850"
-                        : "bg-neutral-950/60 border-neutral-900 text-neutral-600 cursor-not-allowed opacity-50"
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg">{t.icon}</span>
-                      <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
-                        isSelected ? "bg-amber-500 text-black" : isAvailable ? "bg-emerald-500/20 text-emerald-300" : "bg-neutral-800 text-neutral-500"
-                      }`}>
-                        {isSelected ? "Selected" : isAvailable ? "Free" : "Taken"}
-                      </span>
-                    </div>
-
-                    <div>
-                      <p className="text-xs font-bold font-mono text-white truncate">{t.id} · {t.seats} Seats</p>
-                      <p className="text-[10px] text-neutral-400 truncate">{t.zone}</p>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Selected Table Summary */}
-            <div className="p-4 rounded-2xl border border-amber-500/30 bg-amber-500/10 flex items-center justify-between text-xs">
-              <div className="flex items-center gap-3">
-                <span className="text-2xl">{selectedTableObj.icon}</span>
-                <div>
-                  <p className="font-bold text-white">{selectedTableObj.code}</p>
-                  <p className="text-neutral-300 text-[11px]">View: {selectedTableObj.view} &nbsp;·&nbsp; Capacity: {selectedTableObj.seats} Guests</p>
-                </div>
-              </div>
-              <span className="text-amber-400 font-bold uppercase tracking-wider text-[11px] bg-neutral-950 px-3 py-1.5 rounded-xl border border-amber-500/20">
-                Selected
-              </span>
-            </div>
-          </div>
 
           {/* DIETARY PREFERENCES & ALLERGIES SELECTOR */}
           <div className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-6 sm:p-8 space-y-4 shadow-2xl">

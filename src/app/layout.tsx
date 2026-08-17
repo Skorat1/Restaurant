@@ -5,6 +5,7 @@ import InaugurationRibbon from "@/components/InaugurationRibbon";
 import { AuthProvider } from "@/lib/AuthContext";
 import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
+import PageWrapper from "@/components/PageWrapper";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import API_BASE_URL from "@/lib/api";
 
@@ -98,29 +99,29 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 >
                   Skip to main content
                 </a>
-                <InaugurationRibbon />
-                <Header />
-                <main id="main-content" className="pt-20 sm:pt-28 min-h-screen">
+                <PageWrapper
+                  footer={
+                    <footer className="border-t border-neutral-900 bg-neutral-950 py-6 sm:py-10 text-sm text-neutral-400" role="contentinfo">
+                      <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
+                        <div className="space-y-1">
+                          <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>
+                          <p className="text-neutral-400 text-xs">23, Boat Club Road, Pune · +91 20 4890 7700</p>
+                        </div>
+                        <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-xs font-semibold uppercase tracking-wider">
+                          <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Privacy</a>
+                          <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Terms</a>
+                          <a href="/contact" className="text-neutral-400 hover:text-amber-400 transition">Contact</a>
+                        </nav>
+                        <p className="text-neutral-500 text-xs">© 2026 VELORA. All rights reserved.</p>
+                      </div>
+                    </footer>
+                  }
+                >
                   {children}
-                </main>
-                <CartDrawer />
+                </PageWrapper>
               </CartProvider>
           </LanguageProvider>
         </AuthProvider>
-        <footer className="border-t border-neutral-900 bg-neutral-950 py-6 sm:py-10 text-sm text-neutral-400" role="contentinfo">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
-            <div className="space-y-1">
-              <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>
-              <p className="text-neutral-400 text-xs">23, Boat Club Road, Pune · +91 20 4890 7700</p>
-            </div>
-            <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-xs font-semibold uppercase tracking-wider">
-              <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Privacy</a>
-              <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Terms</a>
-              <a href="/contact" className="text-neutral-400 hover:text-amber-400 transition">Contact</a>
-            </nav>
-            <p className="text-neutral-500 text-xs">© 2026 VELORA. All rights reserved.</p>
-          </div>
-        </footer>
       </body>
     </html>
   );

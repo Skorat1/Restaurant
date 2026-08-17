@@ -16,6 +16,10 @@ export function resolveImg(src: string): string {
     return `${API_BASE_URL}${encoded}`;
   }
 
+  if (cleanPath.startsWith("/images/")) {
+    return src; // Local static asset
+  }
+
   if (cleanPath.startsWith("/admin/")) {
     // If uploaded filename was prefixed with /admin/
     const filename = cleanPath.replace("/admin/", "");

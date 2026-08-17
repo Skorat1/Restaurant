@@ -18,6 +18,7 @@ interface WineItem {
   tastingNotes: string;
   pairing: string;
   badge?: string;
+  image: string;
 }
 
 const WINES: WineItem[] = [
@@ -34,6 +35,7 @@ const WINES: WineItem[] = [
     tastingNotes: "Blackcurrant, cassis, violet florals, structured tannins with velvet finish.",
     pairing: "Prime Wagyu Tenderloin & Truffle Reduction",
     badge: "Master Sommelier Pick",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkOdOKF8QZ7o2h9UTI2T-s895nBIZf_J0z4kaZcoaYCXUiRClFqAj1ljY&s=10",
   },
   {
     id: "wine-2",
@@ -48,6 +50,7 @@ const WINES: WineItem[] = [
     tastingNotes: "Crisp white peach, toasted brioche, subtle smoke with fine persistent bubbles.",
     pairing: "Fresh Oysters & Caviar Pearls",
     badge: "Exclusive Vintage",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRkWJTLnns2ao3V_jSPEY8dCPJQ6UBAqUBAex2get-esRIfX15RGnz4A4Q&s=10",
   },
   {
     id: "wine-3",
@@ -61,6 +64,7 @@ const WINES: WineItem[] = [
     body: "Full",
     tastingNotes: "Ripe dark cherry, cocoa, wild herbs, leather and cedar spice.",
     pairing: "Osso Buco & Wild Mushroom Risotto",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRmZZUkk7nsg7UIhaGEhTdt3UCETVXh5AZfUy43wZXjIg&s=10",
   },
   {
     id: "wine-4",
@@ -75,6 +79,7 @@ const WINES: WineItem[] = [
     tastingNotes: "Meyer lemon, crushed flint minerality, hazelnut and white blossom.",
     pairing: "Pan-Seared Sea Bass & Citrus Beurre Blanc",
     badge: "Rare Allocation",
+    image: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQPER7OdJcr54wVZ9UIbIBA1J-c-SfhpMx5-M9p4uIHfw&s=10",
   },
   {
     id: "wine-5",
@@ -88,6 +93,7 @@ const WINES: WineItem[] = [
     body: "Full",
     tastingNotes: "Honeyed apricot, candied orange peel, saffron and luscious balanced acidity.",
     pairing: "Foie Gras Terrine & Roquefort Cheese",
+    image: "https://images.unsplash.com/photo-1553361371-9b22f78e8b1d?auto=format&fit=crop&q=80&w=600",
   },
   {
     id: "wine-6",
@@ -101,6 +107,7 @@ const WINES: WineItem[] = [
     body: "Light",
     tastingNotes: "Wild strawberry, grapefruit zest, white pepper and delicate salinity.",
     pairing: "Grilled Lobster Tail & Garden Salads",
+    image: "https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcQlUWAa6iSx-G4JjIXQt4LBC_huAcl9eSAlScGN62270_dV81_j",
   },
 ];
 
@@ -130,7 +137,7 @@ export default function CellarPage() {
       itemId: wine.id,
       name: `${wine.name} (${wine.vintage})`,
       price: wine.price,
-      image: "",
+      image: wine.image,
     }, 1);
     setAddedId(wine.id);
     setTimeout(() => setAddedId(null), 2000);
@@ -193,22 +200,30 @@ export default function CellarPage() {
               </button>
 
               {aiSuggestion && !aiThinking && (
-                <div className="rounded-2xl border border-purple-500/30 bg-purple-950/30 p-5 space-y-3 animate-fade-up">
+                <div className="rounded-2xl border border-purple-500/30 bg-purple-950/30 p-5 space-y-4 animate-fade-up">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-purple-500 text-white px-2.5 py-0.5 rounded-full">
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-purple-500 text-white px-2.5 py-0.5 rounded-full shadow-[0_0_10px_rgba(168,85,247,0.5)]">
                       Perfect Match (99.4%)
                     </span>
-                    <span className="text-amber-400 font-bold text-xs">₹{aiSuggestion.price * 80}</span>
+                    <span className="text-amber-400 font-bold text-sm">₹{aiSuggestion.price.toLocaleString("en-IN")}</span>
                   </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-white">{aiSuggestion.name} ({aiSuggestion.vintage})</h4>
-                    <p className="text-xs text-purple-300 font-medium">{aiSuggestion.region} · {aiSuggestion.alcoholPct} ABV</p>
-                    <p className="text-xs text-neutral-300 mt-2 leading-relaxed">&quot;{aiSuggestion.tastingNotes}&quot;</p>
+
+                  <div className="flex gap-4 items-center">
+                    <div className="w-20 h-28 shrink-0 rounded-xl overflow-hidden bg-neutral-950 border border-purple-500/30 relative">
+                      <img src={aiSuggestion.image} alt={aiSuggestion.name} className="w-full h-full object-cover" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                    </div>
+                    <div className="flex-1">
+                      <h4 className="text-sm font-serif font-bold text-white leading-tight">{aiSuggestion.name} ({aiSuggestion.vintage})</h4>
+                      <p className="text-[11px] text-purple-300 font-medium mt-1">{aiSuggestion.region} · {aiSuggestion.alcoholPct} ABV</p>
+                      <p className="text-[11px] text-neutral-300 mt-2 leading-relaxed italic line-clamp-3">&quot;{aiSuggestion.tastingNotes}&quot;</p>
+                    </div>
                   </div>
+
                   <button
                     type="button"
                     onClick={() => { handleAddToCart(aiSuggestion); setAiModal(false); }}
-                    className="w-full py-2.5 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition"
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black text-xs font-bold uppercase tracking-wider hover:scale-[1.02] shadow-[0_0_15px_rgba(245,158,11,0.3)] transition-all duration-300"
                   >
                     Add Recommended Bottle to Order
                   </button>
@@ -257,11 +272,10 @@ export default function CellarPage() {
           <button
             key={type}
             onClick={() => setFilterType(type)}
-            className={`px-4 py-2 rounded-xl text-xs font-bold transition ${
-              filterType === type
-                ? "bg-amber-500 text-black shadow-md"
-                : "bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white"
-            }`}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition ${filterType === type
+              ? "bg-amber-500 text-black shadow-md"
+              : "bg-neutral-900 border border-neutral-800 text-neutral-300 hover:text-white"
+              }`}
           >
             {type}
           </button>
@@ -273,10 +287,30 @@ export default function CellarPage() {
         {filteredWines.map((wine) => (
           <div
             key={wine.id}
-            className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-6 flex flex-col justify-between space-y-4 hover:border-amber-500/40 transition shadow-2xl"
+            className="rounded-3xl border border-neutral-800 bg-neutral-900/90 flex flex-col justify-between overflow-hidden hover:border-amber-500/40 transition shadow-2xl group"
           >
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
+            {/* Image Section */}
+            <div className="relative h-64 w-full overflow-hidden bg-neutral-950 flex items-center justify-center p-6">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 via-neutral-950 to-neutral-950 pointer-events-none"></div>
+              {wine.badge && (
+                <div className="absolute top-4 left-4 z-10">
+                  <span className="inline-block text-[10px] font-bold uppercase tracking-wider bg-purple-500/90 backdrop-blur-sm text-white border border-purple-500 px-3 py-1 rounded-full shadow-[0_0_15px_rgba(168,85,247,0.4)]">
+                    {wine.badge}
+                  </span>
+                </div>
+              )}
+              {/* Premium bottle presentation using object-contain and drop shadow */}
+              <img
+                src={wine.image}
+                alt={wine.name}
+                className="relative z-0 h-full w-auto max-w-full object-contain drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)] group-hover:drop-shadow-[0_0_25px_rgba(245,158,11,0.3)] group-hover:scale-110 group-hover:rotate-2 transition-all duration-700 ease-out opacity-90 group-hover:opacity-100 mix-blend-screen"
+                style={{ filter: "drop-shadow(0px 10px 15px rgba(0,0,0,0.9))" }}
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900/95 via-neutral-900/10 to-transparent pointer-events-none"></div>
+            </div>
+
+            <div className="p-6 space-y-3 flex-1 flex flex-col">
+              <div className="flex items-center justify-between mb-1">
                 <span className="text-[10px] font-bold uppercase tracking-widest bg-neutral-950 border border-neutral-800 text-amber-400 px-2.5 py-1 rounded-full">
                   {wine.vintage} Vintage · {wine.alcoholPct} ABV
                 </span>
@@ -286,26 +320,20 @@ export default function CellarPage() {
                 </span>
               </div>
 
-              {wine.badge && (
-                <span className="inline-block text-[10px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-300 border border-purple-500/30 px-2.5 py-0.5 rounded-full">
-                  {wine.badge}
-                </span>
-              )}
-
-              <h3 className="text-lg font-serif font-bold text-white">{wine.name}</h3>
+              <h3 className="text-lg font-serif font-bold text-white leading-tight">{wine.name}</h3>
               <p className="text-xs text-neutral-400">{wine.region}</p>
-              <p className="text-xs text-neutral-300 leading-relaxed italic">&quot;{wine.tastingNotes}&quot;</p>
+              <p className="text-xs text-neutral-300 leading-relaxed italic flex-1">&quot;{wine.tastingNotes}&quot;</p>
 
-              <div className="pt-2 border-t border-neutral-800 text-xs">
+              <div className="pt-3 border-t border-neutral-800 text-xs mt-2">
                 <p className="text-neutral-400 font-semibold">Recommended Dish Pairing:</p>
-                <p className="text-amber-300 font-medium mt-0.5">🍷 {wine.pairing}</p>
+                <p className="text-amber-300 font-medium mt-1">🍷 {wine.pairing}</p>
               </div>
             </div>
 
-            <div className="pt-4 border-t border-neutral-800 flex items-center justify-between">
+            <div className="px-6 pb-6 pt-4 border-t border-neutral-800 flex items-center justify-between bg-neutral-950/30">
               <div>
                 <p className="text-[10px] text-neutral-500 uppercase tracking-wider font-semibold">Bottle Price</p>
-                <p className="text-xl font-bold text-amber-400">₹{(wine.price * 80).toLocaleString("en-IN")}</p>
+                <p className="text-xl font-bold text-amber-400">₹{wine.price.toLocaleString("en-IN")}</p>
               </div>
 
               <button

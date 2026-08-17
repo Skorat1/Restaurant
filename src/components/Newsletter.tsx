@@ -60,7 +60,7 @@ export default function Newsletter() {
       <div className="max-w-2xl mx-auto text-center space-y-6 relative z-10">
         <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-bold uppercase tracking-widest">
           <Sparkles className="w-4 h-4 text-amber-400" />
-          Join The VIP Étoile Club
+          Join The VIP VELORA Club
         </div>
 
         <h2 className="text-3xl sm:text-4xl font-serif text-white font-bold tracking-tight">
@@ -124,18 +124,17 @@ export default function Newsletter() {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-black" />
-                  <span>Claim VIP Pass &amp; Join</span>
+                  <span> &amp; Join</span>
                 </>
               )}
             </button>
           </div>
 
           {statusMsg.type && (
-            <div className={`p-4 rounded-2xl border text-xs font-medium flex items-center gap-3 animate-fade-up ${
-              statusMsg.type === "success"
+            <div className={`p-4 rounded-2xl border text-xs font-medium flex items-center gap-3 animate-fade-up ${statusMsg.type === "success"
                 ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300"
                 : "bg-red-500/10 border-red-500/30 text-red-300"
-            }`}>
+              }`}>
               {statusMsg.type === "success" ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
               ) : (

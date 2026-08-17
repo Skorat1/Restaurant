@@ -113,7 +113,7 @@ const SIGNATURE_DISHES = [
     pairing: "2018 Barolo Monfortino Riserva",
     rating: 4.90,
     reviews: 112,
-    img: "https://images.unsplash.com/photo-1621996346565-e3d5d6281270?auto=format&fit=crop&w=800&q=80",
+    img: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTTDA-tAexC8nFu3q5g3cH2nHlsRi0wg1Lp_5LMkuQcjplY0ZGT9SoEewc&s=10",
   },
 ];
 

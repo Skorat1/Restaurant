@@ -175,23 +175,31 @@ export default function MenuPage() {
             <p className="text-sm uppercase tracking-[0.4em] text-amber-400">Order Again</p>
             <p className="text-sm text-neutral-400">Based on your past favorites.</p>
           </div>
-          <div className="grid grid-flow-col auto-cols-[minmax(220px,1fr)] gap-4 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="grid grid-flow-col auto-cols-[minmax(240px,1fr)] gap-5 overflow-x-auto pb-4 scrollbar-hide pt-2">
             {suggestions.map((item) => (
-              <div key={item._id} className="shrink-0 w-full max-w-[240px] rounded-[1.75rem] border border-neutral-800 bg-neutral-950/95 p-5 shadow-lg shadow-black/10 transition hover:-translate-y-1 hover:border-amber-500/30">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-semibold text-white truncate">{item.name}</p>
-                    <p className="text-[11px] uppercase tracking-[0.18em] text-neutral-500 mt-1">{item.category}</p>
+              <div key={item._id} className="group shrink-0 w-full max-w-[260px] flex flex-col rounded-[2rem] border border-neutral-800/60 bg-neutral-900/50 backdrop-blur-xl p-2 shadow-2xl shadow-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40 hover:bg-neutral-900">
+                <div className="relative w-full h-32 rounded-[1.5rem] overflow-hidden bg-neutral-950 mb-3">
+                  {resolveImg(item.image) && (
+                    <img src={resolveImg(item.image)} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 group-hover:scale-110" />
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-300 shadow-black drop-shadow-md">{item.category}</span>
+                    <span className="rounded-xl bg-black/60 border border-white/10 backdrop-blur-md px-2.5 py-1 text-xs font-black text-amber-400 shadow-lg drop-shadow-md">
+                      ₹{item.price}
+                    </span>
                   </div>
-                  <span className="rounded-full bg-amber-500 px-2.5 py-1 text-[11px] font-semibold text-black">${item.price}</span>
                 </div>
-                <button
-                  onClick={() => handleAddToCart(item)}
-                  disabled={!item.available}
-                  className="mt-5 w-full rounded-full bg-amber-500 px-4 py-2 text-xs font-semibold text-black transition hover:bg-amber-400 disabled:opacity-40"
-                >
-                  {addedId === item._id ? "Added ✓" : "Add to Cart"}
-                </button>
+                <div className="px-3 pb-3 flex flex-col flex-1 justify-between">
+                  <p className="text-base font-serif font-semibold text-white line-clamp-1 group-hover:text-amber-400 transition-colors mb-4">{item.name}</p>
+                  <button
+                    onClick={() => handleAddToCart(item)}
+                    disabled={!item.available}
+                    className="w-full rounded-xl bg-amber-500/10 border border-amber-500/20 px-4 py-2 text-xs font-bold text-amber-500 transition-all duration-300 hover:bg-amber-500 hover:text-black hover:shadow-[0_0_15px_rgba(245,158,11,0.3)] disabled:opacity-40"
+                  >
+                    {addedId === item._id ? "Added ✓" : "Add to Cart"}
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -309,11 +317,11 @@ export default function MenuPage() {
           menu.map((item) => (
             <article
               key={item._id}
-              className="group rounded-[2rem] border border-neutral-800/90 bg-neutral-950/95 overflow-hidden shadow-2xl shadow-black/20 transition duration-300 hover:-translate-y-1 hover:border-amber-500/30 hover:bg-neutral-900"
+              className="group flex flex-col rounded-[2.5rem] border border-neutral-800/60 bg-neutral-900/40 backdrop-blur-xl overflow-hidden shadow-2xl shadow-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40 hover:shadow-[0_20px_40px_rgba(0,0,0,0.6)]"
               aria-label={item.name}
             >
               {/* Image */}
-              <div className="relative w-full h-52 overflow-hidden bg-neutral-800">
+              <div className="relative w-full h-64 overflow-hidden bg-neutral-950">
                 {resolveImg(item.image) ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
@@ -321,85 +329,99 @@ export default function MenuPage() {
                     alt={item.name}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover transition duration-500 ease-in-out group-hover:scale-105"
+                    className="w-full h-full object-cover opacity-90 transition-all duration-700 ease-out group-hover:scale-110 group-hover:opacity-100"
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center text-5xl">🍽️</div>
+                  <div className="w-full h-full flex items-center justify-center text-6xl opacity-30">🍽️</div>
                 )}
-                <div className="absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/80 to-transparent" />
-                {item.premium && (
-                  <div className="absolute top-4 left-4 flex flex-col gap-1.5">
-                    <span className="rounded-full bg-amber-500 px-3 py-1 text-[10px] font-bold text-black uppercase tracking-wide flex items-center gap-1">
-                      <span>👑</span> Chef&apos;s Recommendation
-                    </span>
-                    <span className="rounded-full bg-purple-500/90 backdrop-blur-sm px-3 py-1 text-[10px] font-bold text-white flex items-center gap-1">
-                      <span>🍷</span> Sommelier Pairing
-                    </span>
-                  </div>
-                )}
+
+                {/* Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-90" />
+                <div className="absolute inset-0 bg-amber-500/10 mix-blend-overlay opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+
+                {/* Top Badges */}
+                <div className="absolute top-5 left-5 flex flex-col gap-2">
+                  {item.premium && (
+                    <>
+                      <span className="rounded-full bg-gradient-to-r from-amber-400 to-amber-600 px-3.5 py-1.5 text-[10px] font-black text-black uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_20px_rgba(245,158,11,0.5)]">
+                        <span>👑</span> Chef&apos;s Rec
+                      </span>
+                      <span className="rounded-full bg-purple-600/80 backdrop-blur-md px-3.5 py-1.5 text-[10px] font-black text-white uppercase tracking-widest flex items-center gap-1.5 shadow-[0_0_20px_rgba(147,51,234,0.4)] border border-purple-400/30">
+                        <span>🍷</span> Sommelier
+                      </span>
+                    </>
+                  )}
+                </div>
+
                 {!item.available && (
-                  <span className="absolute top-4 right-4 rounded-full bg-red-500/90 px-3 py-1 text-[10px] font-semibold text-white">Out of Stock</span>
+                  <span className="absolute top-5 right-5 rounded-full bg-red-500/90 backdrop-blur-md px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg border border-red-400/30">Sold Out</span>
                 )}
-                <span className="absolute bottom-4 right-4 rounded-full bg-black/70 px-3 py-1 text-sm font-semibold text-amber-400 backdrop-blur-sm">
-                  ${item.price}
-                </span>
+
+                {/* Price tag */}
+                <div className="absolute bottom-5 right-5">
+                  <span className="inline-flex items-center justify-center rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl px-5 py-2 text-xl font-black text-amber-400 shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-amber-500/50 group-hover:bg-black/70">
+                    ₹{item.price}
+                  </span>
+                </div>
               </div>
 
-              <div className="p-4 sm:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4">
-                  <div className="flex-1 min-w-0">
-                    <h2 className="text-xl font-semibold text-white line-clamp-2">{item.name}</h2>
+              <div className="p-6 sm:p-8 flex flex-col flex-1 justify-between">
+                <div className="flex flex-col gap-3">
+                  <div>
+                    <h2 className="text-2xl font-serif font-semibold text-white line-clamp-2 group-hover:text-amber-400 transition-colors duration-300">{item.name}</h2>
                     {item.premium && (
-                      <p className="mt-1 text-[11px] text-purple-300 font-medium flex items-center gap-1">
+                      <p className="mt-2 text-xs text-purple-300/80 font-semibold flex items-center gap-1.5 tracking-wide">
                         🍷 <span>Suggested pairing: Château Margaux Grand Cru</span>
                       </p>
                     )}
-                    <p className="mt-2 text-sm leading-6 text-neutral-400 line-clamp-3">{item.description}</p>
-
-                    {item.dietary && item.dietary.length > 0 && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {item.dietary.map((tag) => (
-                          <span key={tag} className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] text-emerald-300 font-medium">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    <button
-                      onClick={() => openReviews(item)}
-                      className="mt-4 inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-amber-300 transition"
-                      aria-label={`View reviews for ${item.name}`}
-                    >
-                      {item.rating ? (
-                        <>
-                          <Stars value={item.rating} />
-                          <span className="text-amber-400 font-medium">{item.rating}</span>
-                          <span className="text-neutral-500">({item.reviewCount})</span>
-                        </>
-                      ) : (
-                        <span className="text-neutral-500">★ No reviews yet</span>
-                      )}
-                    </button>
+                    <p className="mt-3 text-sm leading-relaxed text-neutral-400/90 line-clamp-3">{item.description}</p>
                   </div>
 
-                  <div className="shrink-0 flex flex-row sm:flex-col items-center sm:items-end gap-2 sm:gap-3">
+                  {item.dietary && item.dietary.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {item.dietary.map((tag) => (
+                        <span key={tag} className="rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] font-semibold text-emerald-400 tracking-wide shadow-sm">
+                          {tag}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex items-center justify-between pt-5 border-t border-white/5 mt-5">
+                  <button
+                    onClick={() => openReviews(item)}
+                    className="inline-flex items-center gap-2 text-sm text-neutral-400 hover:text-amber-400 transition-colors group/reviews"
+                    aria-label={`View reviews for ${item.name}`}
+                  >
+                    {item.rating ? (
+                      <div className="flex items-center gap-1.5">
+                        <Stars value={item.rating} />
+                        <span className="text-white font-semibold group-hover/reviews:text-amber-400 transition-colors">{item.rating}</span>
+                        <span className="text-neutral-500 text-xs font-medium">({item.reviewCount})</span>
+                      </div>
+                    ) : (
+                      <span className="text-neutral-500 text-xs font-bold uppercase tracking-wider group-hover/reviews:text-amber-400 transition-colors">★ No reviews</span>
+                    )}
+                  </button>
+
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={() => openReviews(item)}
+                      className="hidden sm:inline-flex rounded-full border border-neutral-700/80 bg-neutral-800/30 px-5 py-2.5 text-xs font-bold text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all duration-300 hover:border-neutral-600"
+                    >
+                      Reviews
+                    </button>
                     <button
                       onClick={() => handleAddToCart(item)}
                       disabled={!item.available}
                       aria-label={`Add ${item.name} to cart`}
-                      className={`rounded-full px-5 py-2 text-sm font-semibold transition ${addedId === item._id
-                        ? "bg-emerald-500 text-black"
-                        : "bg-amber-500 text-black hover:bg-amber-400"
-                        } disabled:opacity-40 disabled:cursor-not-allowed`}
+                      className={`relative overflow-hidden rounded-full px-6 py-2.5 text-sm font-black transition-all duration-300 ${addedId === item._id
+                        ? "bg-emerald-500 text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]"
+                        : "bg-amber-500 text-black shadow-[0_0_20px_rgba(245,158,11,0.2)] hover:bg-amber-400 hover:shadow-[0_0_25px_rgba(245,158,11,0.4)] hover:-translate-y-0.5"
+                        } disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none`}
                     >
                       {addedId === item._id ? "Added ✓" : "Add to Cart"}
-                    </button>
-                    <button
-                      onClick={() => openReviews(item)}
-                      className="rounded-full border border-neutral-700 px-5 py-2 text-sm font-medium text-neutral-300 hover:bg-neutral-800 transition"
-                    >
-                      Reviews
                     </button>
                   </div>
                 </div>

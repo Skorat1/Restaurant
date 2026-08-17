@@ -207,8 +207,9 @@ export default function AdminReviews() {
       ) : (
         <div className="space-y-4">
           {paginatedReviews.map((review) => (
-            <div key={review._id} className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 transition hover:border-neutral-700 shadow-xl space-y-4">
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-4">
+            <div key={review._id} className="rounded-3xl border border-neutral-800 bg-neutral-900/60 backdrop-blur-xl p-5 sm:p-6 transition-all hover:border-amber-500/40 shadow-xl space-y-4 relative overflow-hidden group">
+              <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/5 rounded-full blur-3xl pointer-events-none transition-transform group-hover:scale-125"></div>
+              <div className="relative z-10 flex flex-col lg:flex-row lg:items-start justify-between gap-4">
                 
                 <div className="flex-1 min-w-0 space-y-2">
                   <div className="flex items-center gap-3 flex-wrap">
@@ -248,7 +249,7 @@ export default function AdminReviews() {
                       defaultValue={review.adminReply}
                       id={`reply-${review._id}`}
                       placeholder="Write a public staff reply…"
-                      className="flex-1 rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-2 text-xs text-white outline-none focus:border-amber-500 transition"
+                      className="flex-1 rounded-2xl border border-neutral-800 bg-neutral-950/50 px-4 py-2 text-xs text-white outline-none focus:border-amber-500 transition-colors"
                     />
                     <button
                       onClick={() => {
@@ -256,7 +257,7 @@ export default function AdminReviews() {
                         updateReview(review._id, { adminReply: input.value });
                       }}
                       disabled={working === review._id}
-                      className="rounded-2xl bg-amber-500 px-4 py-2 text-xs font-bold text-black hover:bg-amber-400 transition shrink-0"
+                      className="rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-black uppercase tracking-wider text-black hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_15px_rgba(245,158,11,0.3)] shrink-0 disabled:opacity-50"
                     >
                       Save Response
                     </button>
@@ -264,29 +265,29 @@ export default function AdminReviews() {
                 </div>
 
                 {/* 1-Click Moderation Actions */}
-                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end">
+                <div className="flex items-center gap-2 shrink-0 flex-wrap justify-end border-t lg:border-t-0 border-neutral-800/60 pt-4 lg:pt-0 w-full lg:w-auto">
                   {review.status !== "Approved" && (
                     <button
                       onClick={() => updateReview(review._id, { status: "Approved" })}
                       disabled={working === review._id}
-                      className="px-4 py-2 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-bold hover:bg-emerald-500/25 transition"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-bold hover:bg-emerald-500 hover:text-black transition shadow-sm"
                     >
-                      Approve Review
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Approve
                     </button>
                   )}
                   {review.status !== "Rejected" && (
                     <button
                       onClick={() => updateReview(review._id, { status: "Rejected" })}
                       disabled={working === review._id}
-                      className="px-4 py-2 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-bold hover:bg-red-500/25 transition"
+                      className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-neutral-900 border border-neutral-800 text-neutral-400 text-xs font-bold hover:bg-rose-500/10 hover:border-rose-500/30 hover:text-rose-400 transition shadow-sm"
                     >
-                      Reject Review
+                      <XCircle className="w-3.5 h-3.5" /> Reject
                     </button>
                   )}
                   <button
                     onClick={() => deleteReview(review._id)}
                     disabled={working === review._id}
-                    className="p-2 rounded-xl border border-neutral-800 bg-neutral-950 text-neutral-400 hover:text-red-400 transition"
+                    className="p-2.5 rounded-xl border border-red-500/20 bg-red-500/5 text-red-400 hover:bg-red-500/20 hover:border-red-500/40 transition disabled:opacity-40 shadow-sm"
                     title="Delete Review"
                   >
                     <Trash2 className="w-4 h-4" />
@@ -326,5 +327,3 @@ export default function AdminReviews() {
     </div>
   );
 }
-
-

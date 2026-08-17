@@ -17,18 +17,15 @@ const PRIMARY_NAV = [
   { href: "/", label: "HOME" },
   { href: "/about", label: "ABOUT" },
   { href: "/menu", label: "MENU" },
-  { href: "/cellar", label: "EVENTS & CELLAR" },
+  { href: "/cellar", label: "CELLAR" },
   { href: "/contact", label: "CONTACT" },
+
 ];
 
-// ── Secondary nav shown inside "More ▾" dropdown ─────────────────────────────
-const MORE_NAV = [
-  { href: "/membership", label: "VIP Membership", icon: Crown },
-];
+
 
 export default function Header() {
-  const [open, setOpen] = useState(false);          // mobile menu
-  const [moreOpen, setMoreOpen] = useState(false);  // "More" desktop dropdown
+  const [open, setOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [langOpen, setLangOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -36,11 +33,10 @@ export default function Header() {
 
   const pathname = usePathname();
   const router = useRouter();
-  const { user, logout } = useAuth();
+  const { user, loading, logout } = useAuth();
   const { count, toggleCart } = useCart();
   const { language, setLanguage } = useLanguage();
 
-  const moreRef = useRef<HTMLDivElement>(null);
   const profileRef = useRef<HTMLDivElement>(null);
   const langRef = useRef<HTMLDivElement>(null);
 
@@ -75,7 +71,6 @@ export default function Header() {
   // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (moreRef.current && !moreRef.current.contains(e.target as Node)) setMoreOpen(false);
       if (profileRef.current && !profileRef.current.contains(e.target as Node)) setProfileOpen(false);
       if (langRef.current && !langRef.current.contains(e.target as Node)) setLangOpen(false);
     };
@@ -93,14 +88,12 @@ export default function Header() {
     ? user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
     : "?";
 
-  const isMoreActive = MORE_NAV.some((l) => pathname === l.href);
-
   return (
     <header className="fixed top-0 w-full z-50 transition-all duration-300">
       <div
-        className={`transition-all duration-300 border-b ${scrolled
-          ? "backdrop-blur-2xl bg-neutral-950/90 shadow-2xl shadow-black/80 border-amber-500/20 py-1.5"
-          : "backdrop-blur-md bg-neutral-950/50 border-white/10 py-3"
+        className={`transition-all duration-500 border-b ${scrolled
+          ? "backdrop-blur-3xl bg-neutral-950/80 shadow-[0_10px_30px_rgba(0,0,0,0.8)] border-amber-500/20 py-2"
+          : "backdrop-blur-lg bg-neutral-950/30 border-white/5 py-4"
           }`}
       >
         <nav className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-20 flex items-center justify-between gap-4">
@@ -110,14 +103,14 @@ export default function Header() {
             href="/"
             className="shrink-0 flex items-center gap-2.5 group"
           >
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-amber-400 to-amber-300 flex items-center justify-center text-neutral-950 font-serif font-extrabold text-xl shadow-lg shadow-amber-500/30 group-hover:scale-105 group-hover:shadow-amber-500/50 transition-all duration-300 ring-2 ring-amber-400/40">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-amber-500 via-amber-300 to-amber-600 flex items-center justify-center text-neutral-950 font-serif font-black text-xl shadow-[0_0_20px_rgba(245,158,11,0.4)] group-hover:scale-110 group-hover:shadow-[0_0_25px_rgba(245,158,11,0.6)] transition-all duration-500 ring-2 ring-amber-400/30">
               V
             </div>
             <div className="flex flex-col">
-              <span className="text-xl sm:text-2xl font-serif tracking-[0.2em] text-amber-400 font-extrabold group-hover:text-amber-300 transition leading-none drop-shadow">
+              <span className="text-xl sm:text-2xl font-serif tracking-[0.25em] bg-gradient-to-r from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent font-black group-hover:from-amber-100 group-hover:to-amber-400 transition-all duration-500 leading-none drop-shadow-lg">
                 VELORA
               </span>
-              <span className="text-[9px] uppercase tracking-[0.3em] text-neutral-300 font-sans font-bold mt-1">
+              <span className="text-[9px] uppercase tracking-[0.4em] text-neutral-400 font-sans font-bold mt-1.5 group-hover:text-amber-200/80 transition-colors duration-500">
                 HAUTE CUISINE
               </span>
             </div>
@@ -131,50 +124,17 @@ export default function Header() {
                 <Link
                   key={href}
                   href={href}
-                  className={`relative py-1.5 transition-colors duration-200 ${isActive
-                    ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                    : "text-neutral-300 hover:text-amber-400"
+                  className={`relative py-2 px-1 transition-all duration-300 group/nav ${isActive
+                    ? "text-amber-400 font-black"
+                    : "text-neutral-400 hover:text-amber-300"
                     }`}
                 >
                   {label}
+                  {/* Glowing Underline Effect */}
+                  <span className={`absolute -bottom-1 left-0 w-full h-[2px] bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.8)] transition-all duration-300 ${isActive ? "scale-x-100 opacity-100" : "scale-x-0 opacity-0 group-hover/nav:scale-x-100 group-hover/nav:opacity-50"}`} />
                 </Link>
               );
             })}
-
-            {/* More ∨ Dropdown */}
-            <div className="relative" ref={moreRef}>
-              <button
-                onClick={() => setMoreOpen(!moreOpen)}
-                className={`flex items-center gap-1 py-1.5 transition-colors duration-200 ${isMoreActive
-                  ? "text-amber-400 font-extrabold after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-gradient-to-r after:from-amber-400 after:to-amber-500 after:shadow-[0_0_8px_rgba(251,191,36,0.8)]"
-                  : "text-neutral-300 hover:text-amber-400"
-                  }`}
-              >
-                <span>MORE</span>
-                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180 text-amber-400" : ""}`} />
-              </button>
-
-              {moreOpen && (
-                <div className="absolute top-full left-1/2 -translate-x-1/2 mt-3 w-60 rounded-2xl border border-amber-500/30 bg-neutral-950/98 backdrop-blur-2xl shadow-2xl shadow-black/70 overflow-hidden z-50 animate-fade-up">
-                  <div className="py-2">
-                    {MORE_NAV.map(({ href, label, icon: Icon }) => (
-                      <Link
-                        key={href}
-                        href={href}
-                        onClick={() => setMoreOpen(false)}
-                        className={`flex items-center gap-3 px-4 py-2.5 text-xs font-semibold transition ${pathname === href
-                          ? "text-amber-400 bg-amber-500/15 font-bold"
-                          : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
-                          }`}
-                      >
-                        <Icon className="w-4 h-4 shrink-0 text-amber-400" />
-                        {label}
-                      </Link>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* ── Desktop Right Controls & User Actions ── */}
@@ -233,14 +193,17 @@ export default function Header() {
             {/* Reserve Table High-Impact CTA */}
             <Link
               href="/reserve"
-              className="relative group inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs font-extrabold uppercase tracking-widest bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 hover:scale-105 transition-all duration-300 border border-amber-300/40"
+              className="relative overflow-hidden group inline-flex items-center gap-2 px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.3)] hover:shadow-[0_0_30px_rgba(245,158,11,0.6)] hover:-translate-y-0.5 transition-all duration-300 border border-amber-300/50"
             >
-              <Calendar className="w-4 h-4 text-black group-hover:rotate-12 transition-transform" />
-              <span>RESERVE TABLE</span>
+              <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out" />
+              <Calendar className="w-4 h-4 text-black group-hover:rotate-12 transition-transform relative z-10" />
+              <span className="relative z-10">RESERVE TABLE</span>
             </Link>
 
             {/* Authentication Triggers / Profile Menu */}
-            {mounted && user ? (
+            {!mounted || loading ? (
+              <div className="w-24 h-9 rounded-full bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
+            ) : user ? (
               <div className="relative" ref={profileRef}>
                 <button
                   onClick={() => setProfileOpen(!profileOpen)}
@@ -405,7 +368,9 @@ export default function Header() {
           <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-5">
 
             {/* User Profile Banner (if logged in) */}
-            {mounted && user && (
+            {!mounted || loading ? (
+              <div className="w-full h-16 rounded-2xl bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
+            ) : user ? (
               <div className="p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-neutral-900/80 to-neutral-900/90 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
                   {initials}
@@ -422,7 +387,7 @@ export default function Header() {
                   View
                 </Link>
               </div>
-            )}
+            ) : null}
 
             {/* Primary Navigation */}
             <div>
@@ -448,29 +413,6 @@ export default function Header() {
               </div>
             </div>
 
-            {/* More Experiences */}
-            <div className="pt-2 border-t border-neutral-800">
-              <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-neutral-400">More Experiences</p>
-              <div className="space-y-1">
-                {MORE_NAV.map(({ href, label, icon: Icon }) => {
-                  const isActive = pathname === href;
-                  return (
-                    <Link
-                      key={href}
-                      href={href}
-                      onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 min-h-[42px] px-4 py-2 rounded-xl text-xs font-semibold transition-all duration-200 active:scale-[0.97] ${isActive
-                        ? "bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold"
-                        : "text-neutral-300 hover:bg-neutral-900/60 hover:text-white"
-                        }`}
-                    >
-                      <Icon className="w-4 h-4 text-amber-400/80 shrink-0" />
-                      <span className="truncate">{label}</span>
-                    </Link>
-                  );
-                })}
-              </div>
-            </div>
 
             {/* Language Switcher */}
             <div className="pt-2 border-t border-neutral-800">
@@ -511,7 +453,9 @@ export default function Header() {
               Reserve Table
             </Link>
 
-            {mounted && user ? (
+            {!mounted || loading ? (
+              <div className="w-full min-h-[40px] rounded-xl bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
+            ) : user ? (
               <button
                 onClick={() => {
                   handleLogout();

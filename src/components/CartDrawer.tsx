@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Clock, CheckCircle2, Package, Sparkles } from "lucide-react";
+import { ShoppingBag, X, Plus, Minus, Trash2, ArrowRight, Clock, CheckCircle2, Package, Sparkles, QrCode, CreditCard, ChevronLeft } from "lucide-react";
 import { useCart } from "@/components/CartContext";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
@@ -10,7 +10,7 @@ import { resolveImg } from "@/lib/image";
 
 interface Order {
   _id: string;
-  items: Array<{ name: string; quantity: number; price: number }>;
+  items: Array<{ name: string; quantity: number; price: number; image?: string }>;
   totalAmount: number;
   status: "pending" | "confirmed" | "preparing" | "out_for_delivery" | "delivered" | "cancelled";
   createdAt: string;
@@ -24,11 +24,15 @@ export default function CartDrawer() {
   const [loadingOrders, setLoadingOrders] = useState(false);
   const [placingOrder, setPlacingOrder] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState<string | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"Cash" | "Card" | "UPI">("UPI");
+  const [checkoutStep, setCheckoutStep] = useState<"summary" | "payment_details">("summary");
+  const [paymentStatus, setPaymentStatus] = useState<"idle" | "processing" | "success">("idle");
 
   // Lock body scroll when drawer is open
   useEffect(() => {
     if (isCartOpen) {
       document.body.style.overflow = "hidden";
+      setCheckoutStep("summary"); // Reset step when opening
     } else {
       document.body.style.overflow = "";
     }
@@ -53,10 +57,35 @@ export default function CartDrawer() {
     }
   }, [isCartOpen, user, activeTab]);
 
-  const handleCheckout = async () => {
+  const handleProceed = () => {
+    if (paymentMethod === "Cash") {
+      // If Cash, just place order directly
+      handlePlaceOrder();
+    } else {
+      setCheckoutStep("payment_details");
+      setPaymentStatus("idle");
+    }
+  };
+
+  const handlePaymentVerification = async () => {
+    setPaymentStatus("processing");
+    // Simulate a banking/payment gateway delay
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    setPaymentStatus("success");
+    // Wait for the success animation to show
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    // Finally place the order
+    handlePlaceOrder();
+  };
+
+  const handlePlaceOrder = async () => {
     if (items.length === 0) return;
     setPlacingOrder(true);
     setOrderSuccess(null);
+
+    const gstTax = subtotal * 0.08;
+    const deliveryCharge = 100;
+    const grandTotal = subtotal + gstTax + deliveryCharge;
 
     try {
       const res = await fetch(`${API_BASE_URL}/api/orders`, {
@@ -71,8 +100,18 @@ export default function CartDrawer() {
             name: i.name,
             quantity: i.quantity,
             price: i.price,
+            image: i.image,
           })),
-          totalAmount: subtotal * 1.05,
+          customer: {
+            name: user?.name || "Guest",
+            email: user?.email || "guest@example.com",
+            phone: "0000000000",
+            address: "Pickup",
+            pincode: "100001"
+          },
+          paymentMethod: paymentMethod,
+          deliveryFee: 100,
+          totalAmount: grandTotal,
         }),
       });
 
@@ -80,16 +119,22 @@ export default function CartDrawer() {
         const data = await res.json();
         setOrderSuccess(data._id || "Order Placed Successfully!");
         clearCart();
+        setCheckoutStep("summary");
+        setPaymentStatus("idle");
         setActiveTab("orders");
       } else {
         // Fallback for guest checkout or offline simulation
         setOrderSuccess(`VEL-${Math.floor(100000 + Math.random() * 900000)}`);
         clearCart();
+        setCheckoutStep("summary");
+        setPaymentStatus("idle");
         setActiveTab("orders");
       }
     } catch {
       setOrderSuccess(`VEL-${Math.floor(100000 + Math.random() * 900000)}`);
       clearCart();
+      setCheckoutStep("summary");
+      setPaymentStatus("idle");
       setActiveTab("orders");
     } finally {
       setPlacingOrder(false);
@@ -98,8 +143,9 @@ export default function CartDrawer() {
 
   if (!isCartOpen) return null;
 
-  const gstTax = subtotal * 0.05;
-  const grandTotal = subtotal + gstTax;
+  const gstTax = subtotal * 0.08;
+  const deliveryCharge = 100;
+  const grandTotal = subtotal + gstTax + deliveryCharge;
 
   const getStatusBadge = (status: string) => {
     switch (status) {
@@ -148,23 +194,15 @@ export default function CartDrawer() {
           {/* Tab Switcher */}
           <div className="grid grid-cols-2 p-3 bg-neutral-900/60 border-b border-neutral-800/80 gap-2">
             <button
-              onClick={() => setActiveTab("cart")}
-              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
-                activeTab === "cart"
-                  ? "bg-amber-500 text-black shadow-md"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              onClick={() => { setActiveTab("cart"); setCheckoutStep("summary"); }}
+              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeTab === "cart" ? "bg-amber-500 text-black shadow-md" : "text-neutral-400 hover:text-white"}`}
             >
               <ShoppingBag className="w-3.5 h-3.5" />
               Cart Items ({count})
             </button>
             <button
-              onClick={() => setActiveTab("orders")}
-              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${
-                activeTab === "orders"
-                  ? "bg-amber-500 text-black shadow-md"
-                  : "text-neutral-400 hover:text-white"
-              }`}
+              onClick={() => { setActiveTab("orders"); setCheckoutStep("summary"); }}
+              className={`py-2 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2 ${activeTab === "orders" ? "bg-amber-500 text-black shadow-md" : "text-neutral-400 hover:text-white"}`}
             >
               <Package className="w-3.5 h-3.5" />
               Placed Orders
@@ -275,10 +313,22 @@ export default function CartDrawer() {
                         {o.status.replace(/_/g, " ")}
                       </span>
                     </div>
-                    <div className="space-y-1 border-t border-neutral-800/80 pt-2 text-xs">
+                    <div className="space-y-3 border-t border-neutral-800/80 pt-3 text-xs">
                       {o.items?.map((i, idx) => (
-                        <div key={idx} className="flex justify-between text-neutral-300">
-                          <span>{i.quantity}x {i.name}</span>
+                        <div key={idx} className="flex items-center justify-between text-neutral-300">
+                          <div className="flex items-center gap-3">
+                            {i.image && (
+                              <div className="relative w-8 h-8 rounded-lg overflow-hidden border border-neutral-800 shrink-0">
+                                <Image
+                                  src={resolveImg(i.image)}
+                                  alt={i.name}
+                                  fill
+                                  className="object-cover"
+                                />
+                              </div>
+                            )}
+                            <span>{i.quantity}x {i.name}</span>
+                          </div>
                           <span className="font-mono text-amber-400">₹{i.price * i.quantity}</span>
                         </div>
                       ))}
@@ -293,17 +343,21 @@ export default function CartDrawer() {
             </div>
           )}
 
-          {/* Footer Checkout Summary */}
-          {activeTab === "cart" && items.length > 0 && (
-            <div className="p-6 border-t border-neutral-800 bg-neutral-950 space-y-4">
+          {/* Footer Checkout Summary & Payment Flow */}
+          {activeTab === "cart" && items.length > 0 && checkoutStep === "summary" && (
+            <div className="p-6 border-t border-neutral-800 bg-neutral-950 space-y-4 animate-fade-in">
               <div className="space-y-1.5 text-xs text-neutral-300">
                 <div className="flex justify-between">
                   <span>Subtotal</span>
                   <span className="font-mono">₹{subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-neutral-400">
-                  <span>Estimated GST (5%)</span>
+                  <span>Estimated GST (8%)</span>
                   <span className="font-mono">₹{gstTax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-neutral-400">
+                  <span>Delivery Charge</span>
+                  <span className="font-mono">₹{deliveryCharge.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between font-bold text-sm text-white pt-2 border-t border-neutral-800">
                   <span>Grand Total</span>
@@ -311,13 +365,113 @@ export default function CartDrawer() {
                 </div>
               </div>
 
+              {/* Payment Method Selector */}
+              <div className="space-y-2 pt-2 border-t border-neutral-800">
+                <p className="text-[10px] uppercase tracking-widest font-bold text-neutral-500">Select Payment Method</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {["UPI", "Card", "Cash"].map((method) => (
+                    <button
+                      key={method}
+                      onClick={() => setPaymentMethod(method as any)}
+                      className={`py-2 rounded-xl text-xs font-bold transition border ${paymentMethod === method ? "bg-amber-500/10 border-amber-500/50 text-amber-400" : "bg-neutral-900 border-neutral-800 text-neutral-400 hover:text-white"}`}
+                    >
+                      {method}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <button
-                onClick={handleCheckout}
+                onClick={handleProceed}
                 disabled={placingOrder}
                 className="w-full py-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:scale-[1.02] active:scale-98 transition flex items-center justify-center gap-2"
               >
-                <span>{placingOrder ? "Processing Order..." : "Confirm & Place Order"}</span>
+                <span>{paymentMethod === "Cash" ? "Confirm & Place Order" : "Proceed to Pay"}</span>
                 <ArrowRight className="w-4 h-4 text-black" />
+              </button>
+            </div>
+          )}
+
+          {/* Payment Details Step (UPI / Card) */}
+          {activeTab === "cart" && items.length > 0 && checkoutStep === "payment_details" && (
+            <div className="p-6 border-t border-neutral-800 bg-neutral-950 space-y-5 animate-fade-in">
+              <div className="flex items-center gap-3">
+                <button 
+                  onClick={() => setCheckoutStep("summary")}
+                  className="p-1.5 rounded-lg bg-neutral-800 text-neutral-400 hover:text-white transition"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <h3 className="font-bold text-white text-sm">Complete Payment</h3>
+              </div>
+
+              {paymentMethod === "UPI" && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 text-center space-y-4">
+                  <div className="w-32 h-32 mx-auto bg-white rounded-xl flex items-center justify-center">
+                    <QrCode className="w-24 h-24 text-black" />
+                  </div>
+                  <div>
+                    <p className="text-xs text-neutral-400">Scan with any UPI app</p>
+                    <p className="text-lg font-serif font-bold text-amber-400 mt-1">₹{grandTotal.toFixed(2)}</p>
+                  </div>
+                </div>
+              )}
+
+              {paymentMethod === "Card" && (
+                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-5 space-y-4">
+                  <div className="flex justify-between items-center text-xs">
+                    <span className="text-neutral-400">Amount Due</span>
+                    <span className="font-bold text-amber-400 text-sm">₹{grandTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <label className="text-[10px] uppercase font-bold text-neutral-500">Card Number</label>
+                      <div className="relative">
+                        <CreditCard className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <input type="text" placeholder="XXXX XXXX XXXX XXXX" className="w-full pl-9 pr-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white outline-none focus:border-amber-500" />
+                      </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase font-bold text-neutral-500">Expiry</label>
+                        <input type="text" placeholder="MM/YY" className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white outline-none focus:border-amber-500" />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[10px] uppercase font-bold text-neutral-500">CVV</label>
+                        <input type="text" placeholder="XXX" className="w-full px-3 py-2 bg-neutral-950 border border-neutral-800 rounded-xl text-xs text-white outline-none focus:border-amber-500" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <button
+                onClick={handlePaymentVerification}
+                disabled={paymentStatus !== "idle" || placingOrder}
+                className={`w-full py-4 rounded-2xl font-extrabold text-xs uppercase tracking-widest shadow-xl transition flex items-center justify-center gap-2 ${
+                  paymentStatus === "success" 
+                    ? "bg-emerald-500 text-black shadow-emerald-500/20"
+                    : "bg-gradient-to-r from-amber-400 to-amber-600 text-black shadow-amber-500/20 hover:scale-[1.02] active:scale-98"
+                }`}
+              >
+                {paymentStatus === "idle" && (
+                  <>
+                    <span>Verify & Place Order</span>
+                    <CheckCircle2 className="w-4 h-4 text-black" />
+                  </>
+                )}
+                {paymentStatus === "processing" && (
+                  <>
+                    <span>Processing Payment...</span>
+                    <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  </>
+                )}
+                {paymentStatus === "success" && (
+                  <>
+                    <span>Payment Successful!</span>
+                    <CheckCircle2 className="w-4 h-4 text-black" />
+                  </>
+                )}
               </button>
             </div>
           )}
@@ -327,3 +481,5 @@ export default function CartDrawer() {
     </div>
   );
 }
+
+

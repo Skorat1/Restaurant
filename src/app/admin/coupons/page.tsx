@@ -1,4 +1,4 @@
-"use client";
+      "use client";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
@@ -166,8 +166,8 @@ export default function AdminCoupons() {
     }
   };
 
-  const inputCls = "w-full rounded-xl border border-neutral-800 bg-neutral-950 px-4 py-2.5 text-sm text-white outline-none focus:border-amber-500";
-  const labelCls = "block text-xs uppercase tracking-wide text-neutral-400 mb-1.5";
+  const inputCls = "w-full rounded-xl border border-neutral-800 bg-neutral-950/50 backdrop-blur-xl px-5 py-3 text-sm text-white outline-none focus:border-amber-500 focus:bg-neutral-900 transition-all shadow-inner";
+  const labelCls = "block text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-2";
 
   const isExpired = (c: Coupon) => c.expiresAt && new Date(c.expiresAt) < new Date();
 
@@ -180,16 +180,20 @@ export default function AdminCoupons() {
   }
 
   return (
-    <div>
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-8">
+    <div className="space-y-6 pb-12">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5 mb-8">
         <div>
-          <span className="text-sm uppercase tracking-[0.3em] text-amber-400">Admin</span>
-          <h1 className="mt-2 text-3xl font-serif text-white">Promotions & Coupons</h1>
-          <p className="mt-2 text-neutral-400">Create discount codes and special offers.</p>
+          <span className="text-xs uppercase tracking-widest text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
+            Marketing Engine
+          </span>
+          <h1 className="mt-2 text-3xl font-serif text-white font-bold">Promotions & Coupons</h1>
+          <p className="mt-1 text-neutral-400 text-xs sm:text-sm">
+            Create discount codes and manage special promotional offers.
+          </p>
         </div>
         <button
           onClick={openAdd}
-          className="inline-flex items-center gap-2 justify-center rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition shrink-0"
+          className="inline-flex items-center gap-2 justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-6 py-3 text-sm font-bold text-black hover:scale-[1.02] transition-transform shadow-[0_0_20px_rgba(245,158,11,0.3)] shrink-0"
         >
           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
@@ -206,9 +210,13 @@ export default function AdminCoupons() {
 
       {/* Form */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="rounded-2xl border border-amber-500/30 bg-neutral-900/80 p-6 mb-8 space-y-4">
-          <h2 className="text-lg font-serif text-white">{editing ? "Edit Coupon" : "Create New Coupon"}</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <form onSubmit={handleSubmit} className="rounded-[2rem] border border-amber-500/30 bg-neutral-900/80 backdrop-blur-2xl p-8 mb-8 space-y-6 shadow-2xl relative overflow-hidden animate-fade-in">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-amber-500/10 blur-3xl pointer-events-none"></div>
+          <h2 className="text-2xl font-serif font-bold text-white relative z-10 flex items-center gap-3">
+            <span className="w-2 h-2 rounded-full bg-amber-500"></span>
+            {editing ? "Edit Coupon" : "Create New Coupon"}
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 relative z-10">
             <div>
               <label className={labelCls}>Coupon Code *</label>
               <input
@@ -304,16 +312,16 @@ export default function AdminCoupons() {
             </div>
           </div>
 
-          <label className="flex items-center gap-2 text-sm text-neutral-300 cursor-pointer">
-            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="accent-amber-500" />
-            Active
+          <label className="flex items-center gap-3 text-sm text-neutral-300 cursor-pointer font-medium relative z-10 mt-2">
+            <input type="checkbox" checked={form.active} onChange={(e) => setForm({ ...form, active: e.target.checked })} className="accent-amber-500 w-4 h-4" />
+            Activate coupon immediately
           </label>
 
-          <div className="flex gap-3">
-            <button type="submit" disabled={saving} className="rounded-full bg-amber-500 px-6 py-2.5 text-sm font-semibold text-black hover:bg-amber-400 transition disabled:opacity-50">
+          <div className="flex gap-4 relative z-10 pt-4">
+            <button type="submit" disabled={saving} className="rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 px-8 py-3 text-sm font-bold text-black hover:scale-[1.02] transition-all disabled:opacity-50 shadow-lg shadow-amber-500/20">
               {saving ? "Saving..." : editing ? "Save Changes" : "Create Coupon"}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="rounded-full border border-neutral-700 px-6 py-2.5 text-sm font-medium text-neutral-300 hover:bg-neutral-900 transition">
+            <button type="button" onClick={() => setShowForm(false)} className="rounded-xl border border-neutral-700 px-8 py-3 text-sm font-bold text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all">
               Cancel
             </button>
           </div>
@@ -322,57 +330,61 @@ export default function AdminCoupons() {
 
       {/* List */}
       {coupons.length === 0 ? (
-        <div className="rounded-2xl border border-neutral-800 bg-neutral-900/60 p-12 text-center text-neutral-400">
-          No coupons yet. Create your first promo code!
+        <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 p-12 text-center text-neutral-400 space-y-2">
+          <p className="text-sm font-semibold">No coupons yet.</p>
+          <p className="text-xs text-neutral-500">Create your first promo code to boost sales!</p>
         </div>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {coupons.map((c) => (
-            <div key={c._id} className={`rounded-2xl border bg-neutral-900/60 p-6 ${isExpired(c) ? "border-neutral-800 opacity-60" : "border-neutral-800"}`}>
-              <div className="flex items-start justify-between">
+            <div key={c._id} className={`rounded-[2rem] border bg-neutral-900/60 backdrop-blur-xl p-8 transition-all hover:-translate-y-1 hover:shadow-2xl relative overflow-hidden group ${isExpired(c) ? "border-neutral-800 opacity-60 grayscale-[0.5]" : "border-neutral-800 hover:border-amber-500/30"}`}>
+              <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 blur-2xl pointer-events-none group-hover:scale-150 transition-transform duration-700"></div>
+              
+              <div className="flex items-start justify-between relative z-10">
                 <div>
-                  <p className="text-lg font-bold text-amber-400 tracking-wide">{c.code}</p>
-                  <p className="text-xs text-neutral-500 mt-1">{c.description || "—"}</p>
+                  <p className="text-2xl font-mono font-bold text-amber-400 tracking-wider bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20 inline-block">{c.code}</p>
+                  <p className="text-xs text-neutral-400 mt-3 line-clamp-2">{c.description || "No description provided."}</p>
                 </div>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${
                   c.active && !isExpired(c)
-                    ? "bg-emerald-500/15 text-emerald-300"
-                    : "bg-neutral-800 text-neutral-500"
+                    ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
+                    : "bg-neutral-800/50 text-neutral-500 border border-neutral-700"
                 }`}>
                   {isExpired(c) ? "Expired" : c.active ? "Active" : "Inactive"}
                 </span>
               </div>
 
-              <div className="mt-4 text-3xl font-serif text-white">
-                {c.discountType === "percent" ? `${c.value}%` : `$${c.value}`}
-                <span className="text-sm text-neutral-500 font-sans ml-1">off</span>
+              <div className="mt-6 text-4xl font-serif font-bold text-white relative z-10">
+                {c.discountType === "percent" ? `${c.value}%` : `₹${c.value}`}
+                <span className="text-sm text-neutral-500 font-sans ml-2 font-medium tracking-wide uppercase">off</span>
               </div>
 
-              <div className="mt-3 space-y-1 text-xs text-neutral-500">
-                {c.minOrder > 0 && <p>Min order: ${c.minOrder.toFixed(2)}</p>}
-                {c.maxDiscount > 0 && <p>Max discount: ${c.maxDiscount.toFixed(2)}</p>}
-                <p>
-                  Used: {c.usedCount}{c.usageLimit > 0 ? ` / ${c.usageLimit}` : " (unlimited)"}
+              <div className="mt-5 space-y-2 text-xs text-neutral-400 font-medium relative z-10">
+                {c.minOrder > 0 && <p className="flex justify-between border-b border-neutral-800/50 pb-1"><span>Min order</span> <span className="text-white">₹{c.minOrder.toFixed(0)}</span></p>}
+                {c.maxDiscount > 0 && <p className="flex justify-between border-b border-neutral-800/50 pb-1"><span>Max discount</span> <span className="text-white">₹{c.maxDiscount.toFixed(0)}</span></p>}
+                <p className="flex justify-between border-b border-neutral-800/50 pb-1">
+                  <span>Usage</span> 
+                  <span className="text-white">{c.usedCount}{c.usageLimit > 0 ? ` / ${c.usageLimit}` : " / ∞"}</span>
                 </p>
-                {c.expiresAt && <p>Expires: {new Date(c.expiresAt).toLocaleDateString()}</p>}
+                {c.expiresAt && <p className="flex justify-between pt-1"><span>Expires</span> <span className="text-amber-400/80">{new Date(c.expiresAt).toLocaleDateString()}</span></p>}
               </div>
 
-              <div className="mt-5 flex gap-2">
+              <div className="mt-6 flex gap-3 relative z-10">
                 <button
                   onClick={() => toggleActive(c)}
-                  className="flex-1 rounded-full border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition"
+                  className="flex-1 rounded-xl border border-neutral-700 bg-neutral-900/50 px-3 py-2.5 text-xs font-bold text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all shadow-sm"
                 >
                   {c.active ? "Deactivate" : "Activate"}
                 </button>
                 <button
                   onClick={() => openEdit(c)}
-                  className="flex-1 rounded-full border border-neutral-700 px-3 py-1.5 text-xs font-medium text-neutral-300 hover:bg-neutral-800 transition"
+                  className="flex-1 rounded-xl border border-neutral-700 bg-neutral-900/50 px-3 py-2.5 text-xs font-bold text-neutral-300 hover:bg-neutral-800 hover:text-white transition-all shadow-sm"
                 >
                   Edit
                 </button>
                 <button
                   onClick={() => deleteCoupon(c._id)}
-                  className="rounded-full border border-neutral-700 px-3 py-1.5 text-xs font-medium text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition"
+                  className="rounded-xl border border-red-900/30 bg-red-500/5 px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-500/10 hover:border-red-500/30 transition-all shadow-sm"
                 >
                   Delete
                 </button>
