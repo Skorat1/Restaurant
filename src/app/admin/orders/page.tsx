@@ -6,7 +6,8 @@ import io from "socket.io-client";
 import {
   Search, ChevronLeft, ChevronRight, CheckCircle2,
   Clock, Truck, Package, XCircle, AlertCircle, ShoppingBag,
-  Plus, Printer, Calendar, Banknote, LayoutDashboard, Filter, Check
+  Plus, Printer, Calendar, Banknote, LayoutDashboard, Filter, Check,
+  CreditCard, Smartphone, DollarSign, SplitSquareHorizontal
 } from "lucide-react";
 
 interface OrderItem {
@@ -33,6 +34,7 @@ interface Order {
   status: string;
   notes?: string;
   createdAt: string;
+  payments?: { method: string; amount: number; txId?: string }[];
 }
 
 const STATUSES = ["Pending", "Confirmed", "Preparing", "Ready", "Out for Delivery", "Delivered", "Cancelled"];
@@ -50,6 +52,11 @@ export default function AdminOrders() {
   const itemsPerPage = 6;
   const [isLive, setIsLive] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Split Bill Modal State
+  const [billingOrder, setBillingOrder] = useState<Order | null>(null);
+  const [splitPayments, setSplitPayments] = useState<{method: string, amount: number}[]>([{method: 'Cash', amount: 0}]);
+
 
   useEffect(() => {
     // Initialize audio
@@ -125,6 +132,43 @@ export default function AdminOrders() {
       } else {
         const data = await res.json();
         alert(data.msg || "Failed to update status.");
+      }
+    } catch {
+      alert("Unable to reach the server.");
+    } finally {
+      setWorking("");
+    }
+  };
+
+  const handleSettleBill = async () => {
+    if (!billingOrder) return;
+    
+    const totalPaid = splitPayments.reduce((sum, p) => sum + Number(p.amount), 0);
+    if (Math.abs(totalPaid - billingOrder.total) > 0.1) {
+      alert(`Total paid ($${totalPaid.toFixed(2)}) does not match order total ($${billingOrder.total.toFixed(2)})`);
+      return;
+    }
+
+    setWorking(billingOrder._id);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/orders/${billingOrder._id}/status`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ 
+          status: "Delivered", // Auto deliver on settle
+          paymentStatus: "Paid",
+          paymentMethod: splitPayments.length > 1 ? "Mixed" : splitPayments[0].method,
+          payments: splitPayments 
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const updated = data.order ?? data;
+        setOrders((prev) => prev.map((o) => (o._id === billingOrder._id ? updated : o)));
+        setBillingOrder(null);
+      } else {
+        const data = await res.json();
+        alert(data.msg || "Failed to settle bill.");
       }
     } catch {
       alert("Unable to reach the server.");
@@ -424,14 +468,28 @@ export default function AdminOrders() {
           {paginatedOrders.map((order) => (
             <div key={order._id} className="rounded-3xl border border-neutral-800 bg-neutral-900/90 p-5 sm:p-6 transition hover:border-amber-500/40 shadow-xl space-y-4 relative">
               
-              {/* Print Button */}
-              <button 
-                onClick={() => printOrder(order)}
-                className="absolute top-5 right-5 p-2 rounded-full bg-neutral-800/80 text-neutral-400 hover:bg-neutral-700 hover:text-amber-400 transition"
-                title="Print KOT/Receipt"
-              >
-                <Printer className="w-4 h-4" />
-              </button>
+              {/* Actions Button Group */}
+              <div className="absolute top-5 right-5 flex gap-2">
+                {order.paymentStatus !== "Paid" && order.status !== "Cancelled" && (
+                  <button 
+                    onClick={() => {
+                      setBillingOrder(order);
+                      setSplitPayments([{ method: 'Cash', amount: order.total }]);
+                    }}
+                    className="p-2 rounded-full bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 transition"
+                    title="Settle / Split Bill"
+                  >
+                    <SplitSquareHorizontal className="w-4 h-4" />
+                  </button>
+                )}
+                <button 
+                  onClick={() => printOrder(order)}
+                  className="p-2 rounded-full bg-neutral-800/80 text-neutral-400 hover:bg-neutral-700 hover:text-amber-400 transition"
+                  title="Print KOT/Receipt"
+                >
+                  <Printer className="w-4 h-4" />
+                </button>
+              </div>
 
               {/* Top Row: Order Header */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-neutral-800/80 pb-4 pr-10">
@@ -559,6 +617,115 @@ export default function AdminOrders() {
           >
             <ChevronRight className="w-4 h-4" />
           </button>
+        </div>
+      )}
+
+      {/* ── SPLIT BILL MODAL ─────────────────────────────────────────────── */}
+      {billingOrder && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+          <div className="w-full max-w-lg bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-6 border-b border-neutral-800 flex items-center justify-between bg-neutral-950/50">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-500">
+                  <Banknote className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-bold text-white font-serif">Settle Bill</h3>
+                  <p className="text-xs text-neutral-400 font-mono">Order: {billingOrder.orderNumber}</p>
+                </div>
+              </div>
+              <button onClick={() => setBillingOrder(null)} className="p-2 rounded-full bg-neutral-800 text-neutral-400 hover:text-white transition">
+                <XCircle className="w-5 h-5" />
+              </button>
+            </div>
+            
+            <div className="p-6 overflow-y-auto space-y-6">
+              <div className="flex justify-between items-center p-4 rounded-2xl bg-neutral-950 border border-neutral-800">
+                <span className="text-neutral-400 font-bold uppercase tracking-wider text-xs">Total Amount Due</span>
+                <span className="text-2xl font-bold font-serif text-white">${billingOrder.total.toFixed(2)}</span>
+              </div>
+              
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <h4 className="text-sm font-bold text-white">Payment Methods</h4>
+                  <button 
+                    onClick={() => {
+                      const remaining = Math.max(0, billingOrder.total - splitPayments.reduce((s, p) => s + Number(p.amount), 0));
+                      setSplitPayments([...splitPayments, { method: 'Card', amount: remaining }]);
+                    }}
+                    className="text-xs font-bold text-amber-500 hover:text-amber-400 flex items-center gap-1"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> Add Split
+                  </button>
+                </div>
+                
+                {splitPayments.map((payment, index) => (
+                  <div key={index} className="flex gap-3 items-center">
+                    <select 
+                      value={payment.method}
+                      onChange={(e) => {
+                        const newPayments = [...splitPayments];
+                        newPayments[index].method = e.target.value;
+                        setSplitPayments(newPayments);
+                      }}
+                      className="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white outline-none focus:border-amber-500"
+                    >
+                      <option value="Cash">Cash</option>
+                      <option value="Card">Card</option>
+                      <option value="UPI">UPI</option>
+                      <option value="Gift Card">Gift Card</option>
+                    </select>
+                    
+                    <div className="relative w-1/3">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-500 font-bold">$</span>
+                      <input 
+                        type="number"
+                        value={payment.amount || ""}
+                        onChange={(e) => {
+                          const newPayments = [...splitPayments];
+                          newPayments[index].amount = Number(e.target.value);
+                          setSplitPayments(newPayments);
+                        }}
+                        className="w-full bg-neutral-950 border border-neutral-800 rounded-xl pl-8 pr-4 py-3 text-sm font-mono text-white outline-none focus:border-amber-500"
+                      />
+                    </div>
+                    
+                    {splitPayments.length > 1 && (
+                      <button 
+                        onClick={() => {
+                          setSplitPayments(splitPayments.filter((_, i) => i !== index));
+                        }}
+                        className="p-3 text-red-500 hover:bg-red-500/10 rounded-xl transition"
+                      >
+                        <XCircle className="w-5 h-5" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              </div>
+              
+              <div className="p-4 rounded-2xl bg-amber-500/5 border border-amber-500/20">
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-neutral-400">Total Allocated:</span>
+                  <span className="font-mono text-amber-500 font-bold">${splitPayments.reduce((s, p) => s + Number(p.amount), 0).toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm mt-1">
+                  <span className="text-neutral-400">Remaining Balance:</span>
+                  <span className="font-mono text-white font-bold">${Math.max(0, billingOrder.total - splitPayments.reduce((s, p) => s + Number(p.amount), 0)).toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            
+            <div className="p-6 border-t border-neutral-800 bg-neutral-950/50">
+              <button
+                onClick={handleSettleBill}
+                disabled={working === billingOrder._id}
+                className="w-full py-4 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-emerald-950 font-black text-sm uppercase tracking-widest transition disabled:opacity-50"
+              >
+                {working === billingOrder._id ? "Processing..." : "Confirm & Settle"}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

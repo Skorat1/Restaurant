@@ -41,6 +41,7 @@ const NAV_GROUPS: NavGroup[] = [
     title: "Management & Content",
     roles: ["admin", "owner", "manager"],
     items: [
+      { href: "/admin/inventory", label: "Inventory", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
       { 
         href: "/admin/menu", 
         label: "Menu", 
@@ -61,8 +62,9 @@ const NAV_GROUPS: NavGroup[] = [
     title: "Analytics & People",
     roles: ["admin", "owner", "manager"],
     items: [
-      { href: "/admin/analytics", label: "Analytics", icon: "M3 3v18h18M18 9l-5 5-4-4-5 5" },
-      { href: "/admin/users", label: "Users", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+      { href: "/admin/analytics", label: "Analytics", icon: "M21 21H3M21 15v6M17 9v12M13 3v18M9 12v9M5 6v15" },
+      { href: "/admin/crm", label: "CRM & Marketing", icon: "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" },
+      { href: "/admin/users", label: "Users", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
       { href: "/admin/activity", label: "Activity", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
     ]
   }

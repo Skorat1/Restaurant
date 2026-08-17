@@ -15,13 +15,16 @@ import {
   PieChart,
   Pie,
   Cell,
+  LineChart,
+  Line,
 } from "recharts";
-import { TrendingUp, ShoppingBag, DollarSign, Activity, Download, CalendarDays, PieChart as PieChartIcon, Clock } from "lucide-react";
+import { TrendingUp, ShoppingBag, DollarSign, Activity, Download, CalendarDays, PieChart as PieChartIcon, Clock, BrainCircuit } from "lucide-react";
 
 type AnalyticsData = {
   revenueOverTime: { _id: string; revenue: number; orders: number }[];
   topItems: { _id: string; quantitySold: number; revenueGenerated: number }[];
   peakHours: { _id: number; count: number }[];
+  forecasts?: { date: string; predictedRevenue: number }[];
 };
 
 const PIE_COLORS = ["#f59e0b", "#3b82f6", "#10b981", "#ef4444", "#8b5cf6", "#ec4899"];
@@ -49,6 +52,20 @@ export default function AnalyticsPage() {
         });
         if (!res.ok) throw new Error("Failed to load analytics");
         const json = await res.json();
+        
+        // Fetch forecast separately or combine
+        try {
+          const forecastRes = await fetch(`${API_BASE_URL}/api/analytics/forecast`, {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          if (forecastRes.ok) {
+            const forecastJson = await forecastRes.json();
+            json.forecasts = forecastJson.forecasts;
+          }
+        } catch (e) {
+          console.error("Failed to load forecasts", e);
+        }
+
         setData(json);
       } catch (err: any) {
         setError(err.message);
@@ -431,6 +448,44 @@ export default function AnalyticsPage() {
         </div>
 
       </div>
+
+      {/* AI Sales Forecast */}
+      {data.forecasts && (
+        <div className="bg-neutral-900/70 backdrop-blur-3xl p-8 rounded-[2rem] border border-neutral-800/80 shadow-[0_8px_30px_rgb(0,0,0,0.5)] relative overflow-hidden group">
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-purple-500/5 rounded-full blur-[100px] transition-transform duration-1000 group-hover:scale-125 pointer-events-none -z-10"></div>
+          
+          <div className="flex items-center justify-between mb-8 relative z-10">
+            <div>
+              <h2 className="text-lg font-serif font-bold text-white flex items-center gap-3">
+                <span className="w-2.5 h-2.5 rounded-full bg-purple-500 shadow-[0_0_10px_#a855f7]"></span>
+                AI Sales Forecast
+              </h2>
+              <p className="text-xs text-neutral-400 mt-1">Predicted revenue for the next 7 days based on historical trends</p>
+            </div>
+            <div className="p-2 rounded-lg bg-neutral-800 text-purple-400 border border-purple-500/30">
+              <BrainCircuit className="w-4 h-4" />
+            </div>
+          </div>
+
+          <div className="h-80 w-full relative z-10">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={data.forecasts} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff" strokeOpacity={0.03} vertical={false} />
+                <XAxis dataKey="date" stroke="#525252" tick={{ fill: "#a3a3a3", fontSize: 11, fontWeight: 500 }} tickLine={false} axisLine={false} dy={10} 
+                  tickFormatter={(val) => new Date(val).toLocaleDateString(undefined, {weekday: 'short', day: 'numeric'})} />
+                <YAxis stroke="#525252" tick={{ fill: "#a3a3a3", fontSize: 11, fontWeight: 500 }} tickLine={false} axisLine={false} tickFormatter={(value) => `₹${(value/1000).toFixed(0)}k`} dx={-10} />
+                <Tooltip
+                  contentStyle={{ backgroundColor: "rgba(10,10,10,0.9)", backdropFilter: "blur(10px)", border: "1px solid rgba(168,85,247,0.2)", borderRadius: "16px", boxShadow: "0 20px 40px -10px rgba(0,0,0,0.7)" }}
+                  itemStyle={{ color: "#a855f7", fontWeight: "bold", fontSize: "14px" }}
+                  labelStyle={{ color: "#a3a3a3", marginBottom: "8px", fontSize: "12px", textTransform: "uppercase", letterSpacing: "1px" }}
+                  formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Predicted Revenue"]}
+                />
+                <Line type="monotone" dataKey="predictedRevenue" stroke="#a855f7" strokeWidth={4} strokeDasharray="5 5" dot={{ r: 6, fill: "#a855f7", stroke: "#000", strokeWidth: 3 }} activeDot={{ r: 8, fill: "#a855f7", stroke: "#000", strokeWidth: 3 }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
