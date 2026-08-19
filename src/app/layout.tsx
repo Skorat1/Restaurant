@@ -6,6 +6,7 @@ import { AuthProvider } from "@/lib/AuthContext";
 import { CartProvider } from "@/components/CartContext";
 import CartDrawer from "@/components/CartDrawer";
 import PageWrapper from "@/components/PageWrapper";
+import ChatWidget from "@/components/ChatWidget";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import API_BASE_URL from "@/lib/api";
 
@@ -119,6 +120,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 >
                   {children}
                 </PageWrapper>
+                <ChatWidget />
               </CartProvider>
           </LanguageProvider>
         </AuthProvider>

@@ -140,40 +140,6 @@ export default function Header() {
           {/* ── Desktop Right Controls & User Actions ── */}
           <div className="hidden lg:flex items-center gap-3.5">
 
-            {/* Language Selector (EN ∨) */}
-            <div className="relative" ref={langRef}>
-              <button
-                type="button"
-                onClick={() => setLangOpen(!langOpen)}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-neutral-700/80 bg-neutral-900/60 text-xs font-semibold text-neutral-300 hover:bg-neutral-800 hover:text-amber-400 hover:border-amber-500/40 transition-all uppercase tracking-wider shadow-sm group"
-                title="Change Language"
-              >
-                <Globe className="w-3.5 h-3.5 text-amber-400 group-hover:rotate-12 transition-transform" />
-                <span>{language.toUpperCase()}</span>
-                <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${langOpen ? "rotate-180 text-amber-400" : ""}`} />
-              </button>
-
-              {langOpen && (
-                <div className="absolute top-full right-0 mt-2 w-36 rounded-2xl border border-amber-500/30 bg-neutral-950/98 backdrop-blur-2xl shadow-2xl shadow-black/70 overflow-hidden py-1.5 z-50">
-                  {[
-                    { code: "en" as Language, name: "English" },
-                    { code: "gu" as Language, name: "ગુજરાતી" },
-                    { code: "hi" as Language, name: "हिन्दी" },
-                  ].map((l) => (
-                    <button
-                      key={l.code}
-                      type="button"
-                      onClick={() => { setLanguage(l.code); setLangOpen(false); }}
-                      className={`flex items-center justify-between w-full px-4 py-2 text-xs font-semibold transition ${language === l.code ? "text-amber-400 bg-amber-500/10 font-bold" : "text-neutral-300 hover:bg-neutral-900 hover:text-white"
-                        }`}
-                    >
-                      <span>{l.name}</span>
-                      {language === l.code && <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
 
             {/* Cart Indicator */}
             <button
@@ -414,31 +380,6 @@ export default function Header() {
             </div>
 
 
-            {/* Language Switcher */}
-            <div className="pt-2 border-t border-neutral-800">
-              <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-neutral-400 flex items-center gap-1.5">
-                <Globe className="w-3.5 h-3.5 text-amber-400" /> Language
-              </p>
-              <div className="flex gap-2">
-                {[
-                  { code: "en" as Language, name: "English" },
-                  { code: "gu" as Language, name: "ગુજરાતી" },
-                  { code: "hi" as Language, name: "हिन्दी" },
-                ].map((l) => (
-                  <button
-                    key={l.code}
-                    type="button"
-                    onClick={() => setLanguage(l.code)}
-                    className={`flex-1 min-h-[36px] px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all duration-200 active:scale-95 ${language === l.code
-                      ? "bg-amber-500 text-black shadow-sm font-extrabold"
-                      : "bg-neutral-900 text-neutral-300 border border-neutral-800 hover:border-neutral-700"
-                      }`}
-                  >
-                    {l.name}
-                  </button>
-                ))}
-              </div>
-            </div>
 
           </div>
 

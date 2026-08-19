@@ -36,6 +36,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/orders", label: "Orders", icon: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0", badge: "pendingOrders" },
       { href: "/admin/reservations", label: "Reservations", icon: "M3 4h18M3 4v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4M3 4l3 4h12l3-4M8 12h8M8 16h5", badge: "pendingReservations" },
       { href: "/admin/tables", label: "Tables", icon: "M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm4 0v12m8-12v12" },
+      { href: "/admin/chat", label: "Live Support", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
     ]
   },
   {
