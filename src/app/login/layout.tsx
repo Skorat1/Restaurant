@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 export const metadata: Metadata = {
   title: "VIP Sign In | Member Access",
-  description: "Sign in to your VELORA account to access reservations, VIP rewards, and personalized dining preferences.",
+  description: "Sign in to your VELORA account to access reservations and VIP rewards.",
   openGraph: {
     title: "VIP Sign In | VELORA",
     description: "Access your VELORA member portal and exclusive dining rewards.",

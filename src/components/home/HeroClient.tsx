@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Award, Utensils, ArrowRight, Calendar, Eye, ShieldCheck, Star, Clock, Search, CheckCircle2, ChevronDown } from "lucide-react";
+import { Award, Utensils, ArrowRight, Calendar, Eye, ShieldCheck, Star, Clock } from "lucide-react";
 import VirtualTourModal from "./VirtualTourModal";
 
 export default function Hero() {
@@ -9,10 +9,9 @@ export default function Hero() {
   const [tourModal, setTourModal] = useState(false);
 
   // Quick Table Finder State
-  const [quickGuests, setQuickGuests] = useState("2");
-  const [quickDate, setQuickDate] = useState("2026-08-10");
-  const [quickTime, setQuickTime] = useState("20:00");
-  const [quickArea, setQuickArea] = useState("Main Dining Salon");
+  const [reserveDate, setReserveDate] = useState("");
+  const [reserveTime, setReserveTime] = useState("7:30 PM");
+  const [reserveGuests, setReserveGuests] = useState(2);
 
   // Live Table Status Mock
   const [tablesLeft, setTablesLeft] = useState(4);
@@ -28,10 +27,9 @@ export default function Hero() {
     <>
       <VirtualTourModal isOpen={tourModal} onClose={() => setTourModal(false)} />
       
-      <div className="grid lg:grid-cols-12 gap-12 items-center relative z-10 w-full animate-fade-up">
+      <div className="flex flex-col md:flex-row gap-12 items-center relative z-10 w-full animate-fade-up">
         {/* Left Hero Content */}
-        <div className="lg:col-span-7 space-y-8">
-
+        <div className="w-full max-w-3xl space-y-8">
           {/* Status & Michelin Badges */}
           <div className="flex items-center gap-3 flex-wrap">
             <span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/20 border border-emerald-500/50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest text-emerald-300 backdrop-blur-md shadow-lg shadow-emerald-950/40 badge-pulse">
@@ -113,122 +111,6 @@ export default function Hero() {
                 <span className="text-[10px] text-neutral-400">Complimentary Service</span>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* HIGH PROMINENCE TABLE RESERVATION SEARCH CARD FRAME */}
-        <div className="lg:col-span-5 relative mt-8 lg:mt-0">
-          <div className="relative rounded-3xl p-6 sm:p-8 border-2 border-amber-500/60 bg-neutral-950/95 shadow-[0_0_60px_rgba(245,158,11,0.25)] backdrop-blur-2xl ring-1 ring-amber-400/30 transition-all duration-300 h-full flex flex-col justify-between">
-            {/* Ambient Corner Glow */}
-            <div className="absolute -top-10 -right-10 w-40 h-40 bg-amber-500/20 blur-3xl pointer-events-none rounded-full" />
-
-            <div>
-              <div className="flex items-center justify-between mb-6 flex-wrap gap-2">
-                <div className="flex items-center gap-3">
-                  <span className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 flex items-center justify-center font-bold text-xs">
-                    📍
-                  </span>
-                  <div>
-                    <h2 className="text-sm font-serif font-bold text-white uppercase tracking-widest flex items-center gap-2 flex-wrap">
-                      <span>Instant Table Finder</span>
-                      <span className="text-[10px] uppercase font-mono tracking-wider text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/30">
-                        Live Status
-                      </span>
-                    </h2>
-                    <p className="text-xs text-neutral-400 font-light mt-1">Select your party size, date, time &amp; preferred dining ambience</p>
-                  </div>
-                </div>
-
-                <span className="text-[11px] text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1 rounded-full mt-2">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> No Booking Fees
-                </span>
-              </div>
-
-              <div className="space-y-4">
-                {/* Guests */}
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
-                    Party Size
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={quickGuests}
-                      onChange={(e) => setQuickGuests(e.target.value)}
-                      className="w-full bg-neutral-900 border border-amber-500/30 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-amber-400 outline-none appearance-none cursor-pointer"
-                    >
-                      <option value="1">1 Guest (Solo Dining)</option>
-                      <option value="2">2 Guests (Couple)</option>
-                      <option value="4">4 Guests (Group)</option>
-                      <option value="6">6 Guests (Family)</option>
-                      <option value="8">8+ Guests (Private Party)</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-amber-400 absolute right-4 top-3.5 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Date */}
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
-                    Date
-                  </label>
-                  <input
-                    type="date"
-                    value={quickDate}
-                    onChange={(e) => setQuickDate(e.target.value)}
-                    className="w-full bg-neutral-900 border border-amber-500/30 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-amber-400 outline-none cursor-pointer"
-                  />
-                </div>
-
-                {/* Time */}
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
-                    Preferred Time
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={quickTime}
-                      onChange={(e) => setQuickTime(e.target.value)}
-                      className="w-full bg-neutral-900 border border-amber-500/30 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-amber-400 outline-none appearance-none cursor-pointer"
-                    >
-                      <option value="19:00">7:00 PM (Dinner)</option>
-                      <option value="20:00">8:00 PM (Prime Hour)</option>
-                      <option value="21:00">9:00 PM (Late Night)</option>
-                      <option value="13:00">1:00 PM (Lunch Soirée)</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-amber-400 absolute right-4 top-3.5 pointer-events-none" />
-                  </div>
-                </div>
-
-                {/* Seating Area */}
-                <div>
-                  <label className="text-[11px] uppercase tracking-wider text-neutral-300 block mb-1.5 font-bold">
-                    Ambience Zone
-                  </label>
-                  <div className="relative">
-                    <select
-                      value={quickArea}
-                      onChange={(e) => setQuickArea(e.target.value)}
-                      className="w-full bg-neutral-900 border border-amber-500/30 rounded-xl px-4 py-3 text-xs font-bold text-white focus:border-amber-400 outline-none appearance-none cursor-pointer"
-                    >
-                      <option value="Main Dining Salon">Main Salon</option>
-                      <option value="VIP Skylight Terrace">Skylight Terrace</option>
-                      <option value="Garden Patio">Garden Patio</option>
-                      <option value="Grand Wine Vault">Grand Wine Vault</option>
-                    </select>
-                    <ChevronDown className="w-4 h-4 text-amber-400 absolute right-4 top-3.5 pointer-events-none" />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Find Table CTA */}
-            <Link
-              href={`/reserve?guests=${quickGuests}&date=${quickDate}&time=${quickTime}&area=${encodeURIComponent(quickArea)}`}
-              className="mt-6 w-full flex items-center justify-center bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold px-8 py-4 rounded-xl uppercase tracking-widest text-xs shadow-xl shadow-amber-500/30 hover:scale-105 active:scale-95 transition-all duration-300 border border-amber-300/40"
-            >
-              <Search className="w-4 h-4 mr-2" />
-              Find Available Table
-            </Link>
           </div>
         </div>
       </div>

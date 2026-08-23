@@ -319,7 +319,12 @@ export default function Home() {
         </div>
 
         <div className="grid md:grid-cols-3 gap-6">
-          {UPCOMING_EVENTS.map((evt) => (
+          {UPCOMING_EVENTS.filter(evt => {
+            const eventDate = new Date(evt.date);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            return eventDate >= today;
+          }).map((evt) => (
             <div key={evt.title} className="card-glass rounded-3xl p-6 space-y-4 flex flex-col justify-between border-neutral-800/80 hover:border-amber-500/40">
               <div className="space-y-3">
                 <div className="flex items-center justify-between">

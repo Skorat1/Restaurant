@@ -8,20 +8,13 @@ import {
   Utensils, CheckCircle2, Gift, GlassWater,
   LogOut, Save, Share2, Copy, Bell, Star,
   Plus, Trash2, Eye, EyeOff, TrendingUp, Package,
-  CalendarDays, Camera, Home, Briefcase, ChevronRight
+  CalendarDays, Camera, Home, Briefcase, ChevronRight, ChevronDown
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/components/CartContext";
 import API_BASE_URL from "@/lib/api";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
 
-const DIETARY_OPTIONS = [
-  "Vegetarian", "Vegan", "Gluten-Free", "Nut Allergy", "Dairy-Free", "Halal"
-];
-
-const PREFERRED_SEATS = [
-  "Main Salon", "VIP Skylight Booth", "Quiet Window Seat", "Garden Patio", "Chef's Table"
-];
 
 const AVATAR_ICONS = [
   { id: "crown", icon: Crown, label: "VIP Crown" },
@@ -31,18 +24,7 @@ const AVATAR_ICONS = [
   { id: "sparkles", icon: Sparkles, label: "Golden Luxe" },
 ];
 
-const REWARD_PERKS = [
-  { id: "perk-1", title: "Complimentary Champagne Flute", points: 450, code: "PERK-CHAMPAGNE-2026", desc: "Enjoy a glass of Dom Pérignon Brut on arrival." },
-  { id: "perk-2", title: "Pastry Chef Dessert Tasting", points: 700, code: "PERK-DESSERT-TASTING", desc: "Signature Soufflé & Artisanal Chocolate Course." },
-  { id: "perk-3", title: "VIP Sommelier Cellar Tour", points: 1200, code: "PERK-CELLAR-ACCESS", desc: "Private 30-min guided tasting in our underground cellar." },
-];
 
-const POINTS_HISTORY = [
-  { id: "ph-1", label: "Order #ORD-20260804-3821 Placed", points: +142, date: "Aug 4, 2026", type: "earn" },
-  { id: "ph-2", label: "Table Reservation – VIP Skylight", points: +50, date: "Aug 2, 2026", type: "earn" },
-  { id: "ph-3", label: "Champagne Perk Redeemed", points: -450, date: "Jul 28, 2026", type: "spend" },
-  { id: "ph-4", label: "Friend Referral Bonus", points: +250, date: "Jul 20, 2026", type: "earn" },
-];
 
 const INITIAL_ADDRESSES = [
   { id: "addr-1", label: "Home", line: "23, Boat Club Road", city: "Pune, MH", pincode: "411001", isPrimary: true },
@@ -77,22 +59,9 @@ export default function ProfilePage() {
   const [addingAddress, setAddingAddress] = useState(false);
   const [newAddr, setNewAddr] = useState({ label: "Home", line: "", city: "Pune, MH", pincode: "" });
 
-  // Points & Rewards State
-  const [userPoints, setUserPoints] = useState(1450);
-  const [showPointsHistory, setShowPointsHistory] = useState(false);
-  const [redeemTarget, setRedeemTarget] = useState<typeof REWARD_PERKS[0] | null>(null);
-  const [redeemedCode, setRedeemedCode] = useState("");
-
-  // Preferences State
-  const [selectedSeat, setSelectedSeat] = useState("VIP Skylight Booth");
-  const [selectedDietary, setSelectedDietary] = useState<string[]>(["Gluten-Free", "Nut Allergy"]);
-  const [notifications, setNotifications] = useState({
-    smsAlerts: true,
-    emailReceipts: true,
-    wineReleases: true,
-  });
-
   // UI Status State
+  const [activeTab, setActiveTab] = useState("overview"); // overview | personal | addresses | avatar
+  const [showPersonalDetails, setShowPersonalDetails] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
@@ -140,11 +109,6 @@ export default function ProfilePage() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const toggleDietary = (tag: string) => {
-    setSelectedDietary((prev) =>
-      prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
-    );
-  };
 
   // Referral Link Copy
   const referralCode = `ETOILE-${(user?.name || "VIP").split(" ")[0].toUpperCase()}-2026`;
@@ -154,22 +118,7 @@ export default function ProfilePage() {
     setTimeout(() => setCopiedReferral(false), 2500);
   };
 
-  // Redeem Confirmation Handler
-  const openRedeemModal = (perk: typeof REWARD_PERKS[0]) => {
-    if (userPoints < perk.points) {
-      setError(`Insufficient points. You need ${perk.points} pts (current: ${userPoints} pts).`);
-      return;
-    }
-    setRedeemTarget(perk);
-  };
 
-  const confirmRedeem = () => {
-    if (!redeemTarget) return;
-    setUserPoints((prev) => prev - redeemTarget.points);
-    setRedeemedCode(`Redeemed "${redeemTarget.title}"! Promo Code: ${redeemTarget.code}`);
-    setMessage(`🎉 Perk unlocked! Use promo code ${redeemTarget.code} at checkout.`);
-    setRedeemTarget(null);
-  };
 
   // Address Handlers
   const setPrimaryAddress = (id: string) => {
@@ -269,52 +218,6 @@ export default function ProfilePage() {
   return (
     <section className="min-h-screen bg-neutral-950 text-neutral-100 py-10 px-4 sm:px-8 overflow-x-hidden">
 
-      {/* ── REDEEM CONFIRMATION MODAL ───────────────────────────────────── */}
-      {redeemTarget && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-md rounded-3xl border border-amber-500/40 bg-neutral-900 p-6 sm:p-8 shadow-2xl shadow-black/80 animate-fade-up">
-            <div className="flex items-center gap-3.5 mb-5">
-              <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center shrink-0">
-                <Gift className="w-6 h-6 text-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-base font-serif font-bold text-white">Confirm Perk Redemption</h3>
-                <p className="text-xs text-neutral-400">Exclusive VIP Reward Redemption</p>
-              </div>
-            </div>
-
-            <div className="rounded-2xl border border-neutral-800 bg-neutral-950/90 p-5 mb-6 space-y-2">
-              <p className="text-sm font-bold text-white">{redeemTarget.title}</p>
-              <p className="text-xs text-neutral-300 leading-relaxed">{redeemTarget.desc}</p>
-              <div className="pt-2 border-t border-neutral-800 flex items-center justify-between text-xs font-semibold">
-                <span className="text-neutral-400">Deduction:</span>
-                <span className="text-amber-400 font-bold">{redeemTarget.points} Reward Points</span>
-              </div>
-              <div className="flex items-center justify-between text-xs font-semibold">
-                <span className="text-neutral-400">Remaining Balance:</span>
-                <span className="text-emerald-400 font-bold">{userPoints - redeemTarget.points} Points</span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setRedeemTarget(null)}
-                className="flex-1 py-3.5 rounded-full border border-neutral-700 text-xs font-bold text-neutral-300 hover:bg-neutral-800 transition"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={confirmRedeem}
-                className="flex-1 py-3.5 rounded-full bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
-              >
-                Confirm &amp; Redeem
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* ── HEADER TITLE & TOP ACTIONS ───────────────────────────────── */}
       <div className="max-w-7xl mx-auto mb-8">
@@ -328,23 +231,8 @@ export default function ProfilePage() {
               My Profile &amp; Preferences
             </h1>
             <p className="mt-2 text-neutral-400 text-xs sm:text-sm max-w-xl">
-              Customize your dining preferences, manage delivery addresses, track VIP points, and review recent activities.
+              Manage delivery addresses, track VIP points, and review recent activities.
             </p>
-          </div>
-
-          <div className="flex items-center gap-3 self-start md:self-auto">
-            <Link
-              href="/reserve"
-              className="px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider bg-amber-500 text-black hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
-            >
-            </Link>
-            <button
-              onClick={() => { logout(); router.push("/"); }}
-              className="inline-flex items-center justify-center gap-2 rounded-full border border-red-500/30 bg-red-500/10 px-5 py-2.5 text-xs font-bold text-red-300 hover:bg-red-500/20 transition"
-            >
-              <LogOut className="w-4 h-4" />
-              <span>Sign Out</span>
-            </button>
           </div>
         </div>
       </div>
@@ -389,26 +277,16 @@ export default function ProfilePage() {
               <div>
                 <div className="flex items-center gap-2.5 flex-wrap">
                   <h2 className="text-2xl sm:text-3xl font-serif font-bold text-white">{user?.name}</h2>
-                  <span className="text-[10px] font-bold uppercase tracking-widest bg-amber-500 text-black px-3 py-1 rounded-full shadow-md">
-                    {user?.role === "admin" ? "Master Admin" : "Étoile Gold Member"}
-                  </span>
+                  {user?.role === "admin" && (
+                    <span className="text-[10px] font-bold uppercase tracking-widest bg-amber-500 text-black px-3 py-1 rounded-full shadow-md">
+                      Master Admin
+                    </span>
+                  )}
                 </div>
                 <p className="text-xs sm:text-sm text-neutral-300 mt-1">{user?.email}</p>
 
                 {/* Points counter */}
                 <div className="mt-3 flex items-center gap-3 flex-wrap">
-                  <button
-                    type="button"
-                    onClick={() => setShowPointsHistory(!showPointsHistory)}
-                    className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-neutral-950/80 border border-amber-500/40 text-amber-300 text-xs font-bold hover:border-amber-400 transition"
-                  >
-                    <Sparkles className="w-4 h-4 text-amber-400" />
-                    <span>{userPoints} VIP Reward Points</span>
-                    <span className="text-[10px] text-amber-400/80 underline font-normal">
-                      {showPointsHistory ? "Hide History" : "Points History"}
-                    </span>
-                  </button>
-
                   {customPhotoUrl && (
                     <button
                       type="button"
@@ -447,66 +325,100 @@ export default function ProfilePage() {
               </Link>
             </div>
           </div>
-
-          {/* Points History Panel */}
-          {showPointsHistory && (
-            <div className="mt-6 pt-6 border-t border-neutral-800/90 animate-fade-up">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-xs font-bold uppercase tracking-widest text-amber-400">Points History Log</p>
-                <span className="text-[11px] text-neutral-400">Total Earned: +442 pts</span>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-2.5">
-                {POINTS_HISTORY.map((h) => (
-                  <div key={h.id} className="flex items-center justify-between bg-neutral-950/80 border border-neutral-800 rounded-xl px-4 py-3 text-xs">
-                    <div>
-                      <p className="text-white font-semibold">{h.label}</p>
-                      <p className="text-neutral-400 text-[11px] mt-0.5">{h.date}</p>
-                    </div>
-                    <span className={`font-bold text-sm ${h.type === "earn" ? "text-emerald-400" : "text-red-400"}`}>
-                      {h.type === "earn" ? "+" : ""}{h.points} pts
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Avatar Badge Icon Selector */}
-          <div className="mt-6 pt-6 border-t border-neutral-800/80 flex items-center gap-3 flex-wrap">
-            <span className="text-xs text-neutral-300 font-semibold">Avatar Badge Icon:</span>
-            {AVATAR_ICONS.map((a) => {
-              const IconComp = a.icon;
-              const isSelected = selectedAvatar === a.id && !customPhotoUrl;
-              return (
-                <button
-                  key={a.id}
-                  type="button"
-                  onClick={() => setSelectedAvatar(a.id)}
-                  className={`px-3 py-2 rounded-xl border transition flex items-center gap-2 text-xs font-medium ${isSelected
-                    ? "bg-amber-500 text-black border-amber-400 font-bold shadow-md"
-                    : "bg-neutral-950/80 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
-                    }`}
-                >
-                  <IconComp className="w-4 h-4" />
-                  <span>{a.label}</span>
-                </button>
-              );
-            })}
-          </div>
         </div>
 
-        {/* ── MAIN BALANCED 2-COLUMN RESPONSIVE GRID ─────────────────── */}
-        <div className="grid lg:grid-cols-2 gap-8 items-start">
+        {/* ── DASHBOARD LAYOUT (Sidebar + Main Content) ─────────────────── */}
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          {/* ── LEFT COLUMN (COLUMN 1): Personal Credentials, Addresses & Preferences ── */}
-          <div className="space-y-8">
+          {/* ── SIDEBAR (COLUMN 1) ─────────────────────────────────────── */}
+          <div className="w-full lg:w-64 shrink-0 space-y-2 lg:sticky lg:top-24">
+            <button onClick={() => setActiveTab("overview")} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 ${activeTab === "overview" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"}`}>
+              <TrendingUp className="w-4 h-4" /> Overview Dashboard
+            </button>
+            <button onClick={() => setActiveTab("personal")} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 ${activeTab === "personal" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"}`}>
+              <User className="w-4 h-4" /> Personal Details
+            </button>
+            <button onClick={() => setActiveTab("addresses")} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 ${activeTab === "addresses" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"}`}>
+              <MapPin className="w-4 h-4" /> Saved Addresses
+            </button>
+            <button onClick={() => setActiveTab("avatar")} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 ${activeTab === "avatar" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"}`}>
+              <Camera className="w-4 h-4" /> Avatar Settings
+            </button>
+            <button onClick={() => setActiveTab("referral")} className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center gap-3 ${activeTab === "referral" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"}`}>
+              <Share2 className="w-4 h-4" /> Referrals
+            </button>
+          </div>
 
+          {/* ── MAIN CONTENT (COLUMN 2) ────────────────────────────── */}
+          <div className="flex-1 min-h-[50vh] w-full">
+            
+            {activeTab === "overview" && (
+              <div className="space-y-6 animate-fade-up">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
+                    <p className="text-neutral-400 text-xs font-semibold mb-1">Total Reservations</p>
+                    <p className="text-2xl text-white font-bold font-serif">12</p>
+                  </div>
+                  <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
+                    <p className="text-neutral-400 text-xs font-semibold mb-1">Upcoming Bookings</p>
+                    <p className="text-2xl text-white font-bold font-serif">2</p>
+                  </div>
+                  <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
+                    <p className="text-neutral-400 text-xs font-semibold mb-1">Saved Addresses</p>
+                    <p className="text-2xl text-white font-bold font-serif">{addresses.length}</p>
+                  </div>
+                </div>
+                
+                {/* 4. Recent Activity Timeline Card */}
+                <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
+                    <h3 className="text-lg font-serif text-white flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-amber-400" /> Recent Activity Timeline
+                    </h3>
+                    <span className="text-xs text-neutral-400">Live History</span>
+                  </div>
+
+                  {/* Vertical Timeline Element */}
+                  <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-800">
+                    {recentTimeline.map(({ id, icon: Icon, title, detail, time, color }) => (
+                      <div key={id} className="relative flex items-start gap-4 group">
+                        {/* Timeline Node Dot */}
+                        <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${color} shadow-md`}>
+                          <Icon className="w-2.5 h-2.5" />
+                        </div>
+
+                        <div className="flex-1 bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-3.5 transition group-hover:border-neutral-700">
+                          <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
+                            <span>{title}</span>
+                            <span className="text-[10px] text-neutral-500 font-normal">{time}</span>
+                          </div>
+                          <p className="text-xs text-neutral-300">{detail}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="pt-2 text-right">
+                    <button type="button" onClick={openCart} className="text-xs font-bold text-amber-400 hover:text-amber-300 transition inline-flex items-center gap-1">
+                      View Full Order &amp; Reservation History <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {activeTab === "personal" && (
+              <div className="animate-fade-up">
             {/* 1. Personal Credentials Form */}
-            <form onSubmit={handleSubmit} className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
-              <h3 className="text-xl font-serif text-white flex items-center gap-2.5 border-b border-neutral-800 pb-4">
-                <User className="w-5 h-5 text-amber-400" />
-                Personal Credentials
-              </h3>
+            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
+              <div className="flex items-center justify-between border-b border-neutral-800 pb-4 mb-6">
+                <h3 className="text-xl font-serif text-white flex items-center gap-2.5">
+                  <User className="w-5 h-5 text-amber-400" />
+                  Personal Credentials
+                </h3>
+              </div>
+              
+                <form onSubmit={handleSubmit} className="space-y-5">
 
               {/* Full Name */}
               <div>
@@ -653,10 +565,14 @@ export default function ProfilePage() {
                   <span>{saving ? "Saving…" : "Save Profile"}</span>
                 </button>
               </div>
-            </form>
+                </form>
+            </div>
+            </div>
+            )}
 
-            {/* 2. Saved Delivery Addresses */}
-            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+            {activeTab === "addresses" && (
+            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl animate-fade-up">
+              {/* 2. Saved Delivery Addresses */}
               <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
                 <h3 className="text-lg font-serif text-white flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-amber-400" />
@@ -778,240 +694,67 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+            )}
 
-            {/* 3. Dining Preferences */}
-            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-6 shadow-xl">
-              <h3 className="text-xl font-serif text-white flex items-center gap-2.5 border-b border-neutral-800 pb-4">
-                <Utensils className="w-5 h-5 text-amber-400" /> Dining Preferences
-              </h3>
-
-              {/* Seating Atmosphere */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2.5">
-                  Preferred Table Seating Area
-                </label>
-                <div className="space-y-2">
-                  {PREFERRED_SEATS.map((seat) => (
-                    <div
-                      key={seat}
-                      onClick={() => setSelectedSeat(seat)}
-                      className={`p-3.5 rounded-xl border text-xs font-medium cursor-pointer transition flex items-center justify-between ${selectedSeat === seat
-                        ? "bg-amber-500/15 border-amber-500 text-amber-300 shadow-sm"
-                        : "bg-neutral-950 border-neutral-800 text-neutral-200 hover:border-neutral-700 hover:text-white"
-                        }`}
-                    >
-                      <span className="font-semibold">{seat}</span>
-                      {selectedSeat === seat && <CheckCircle2 className="w-4 h-4 text-amber-400 shrink-0" />}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* High-Contrast Dietary Restrictions */}
-              <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2.5">
-                  Saved Dietary Restrictions &amp; Allergies
-                </label>
-                <div className="flex flex-wrap gap-2.5">
-                  {DIETARY_OPTIONS.map((tag) => {
-                    const isSel = selectedDietary.includes(tag);
-                    return (
-                      <button
-                        key={tag}
-                        type="button"
-                        onClick={() => toggleDietary(tag)}
-                        className={`px-4 py-2 rounded-xl border text-xs font-semibold transition ${isSel
-                          ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-md"
-                          : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
-                          }`}
-                      >
-                        {isSel ? "✓ " : ""}{tag}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Notification Toggles */}
-              <div className="pt-4 border-t border-neutral-800 space-y-3">
-                <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-300 mb-2">
-                  <Bell className="w-3.5 h-3.5 inline mr-1.5 text-amber-400" />
-                  Notification Preferences
-                </label>
-                {[
-                  { key: "smsAlerts" as const, label: "SMS Waitlist & Seating Alerts" },
-                  { key: "emailReceipts" as const, label: "Email Order Receipts & Pass Confirmation" },
-                  { key: "wineReleases" as const, label: "Wine Cellar Exclusive Vintage Alerts" },
-                ].map(({ key, label }) => (
-                  <div
-                    key={key}
-                    onClick={() => setNotifications((n) => ({ ...n, [key]: !n[key] }))}
-                    className="flex items-center justify-between p-3.5 rounded-xl bg-neutral-950 border border-neutral-800 cursor-pointer text-xs hover:border-neutral-700 transition"
-                  >
-                    <span className="text-neutral-200 font-medium">{label}</span>
-                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold transition ${notifications[key]
-                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
-                      : "bg-neutral-800 text-neutral-400"
-                      }`}>
-                      {notifications[key] ? "ENABLED" : "DISABLED"}
-                    </span>
+            {activeTab === "avatar" && (
+              <div className="animate-fade-up">
+                <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-xl">
+                  <div className="flex items-center justify-between border-b border-neutral-800 pb-4 mb-6">
+                    <h3 className="text-xl font-serif text-white flex items-center gap-2.5">
+                      <Camera className="w-5 h-5 text-amber-400" />
+                      Avatar Settings
+                    </h3>
                   </div>
-                ))}
-              </div>
-            </div>
-
-          </div>
-
-          {/* ── RIGHT COLUMN (COLUMN 2): VIP Points, Rewards Store & Timeline ────── */}
-          <div className="space-y-8">
-
-            {/* 1. VIP Points Dashboard & Tier Level */}
-            <div className="bg-neutral-900/90 border border-amber-500/30 rounded-3xl p-6 sm:p-8 space-y-5 shadow-2xl">
-              <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-1 rounded-full">
-                    Étoile Rewards
-                  </span>
-                  <h3 className="text-xl font-serif text-white mt-1.5 flex items-center gap-2">
-                    <Crown className="w-5 h-5 text-amber-400" /> VIP Points Dashboard
-                  </h3>
-                </div>
-                <div className="text-right">
-                  <p className="text-2xl font-bold text-amber-400 font-serif">{userPoints} <span className="text-xs font-sans text-neutral-400 font-normal">pts</span></p>
-                  <p className="text-[10px] text-emerald-400 font-bold uppercase tracking-wider">Gold Status Member</p>
-                </div>
-              </div>
-
-              {/* Progress bar */}
-              <div className="space-y-2">
-                <div className="flex justify-between text-xs font-semibold">
-                  <span className="text-neutral-300">Gold Tier Progression</span>
-                  <span className="text-amber-400 font-mono">{userPoints} / 2,000 pts</span>
-                </div>
-                <div className="w-full h-3 rounded-full bg-neutral-950 border border-neutral-800 overflow-hidden relative p-0.5">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-amber-500 to-amber-300 shadow-md transition-all duration-700"
-                    style={{ width: `${Math.min(100, (userPoints / 2000) * 100)}%` }}
-                  />
-                </div>
-                <div className="flex justify-between text-[10px] font-semibold text-neutral-400 pt-0.5">
-                  <span>Silver (0 pts)</span>
-                  <span className="text-amber-400 font-bold">Gold Member (500 pts)</span>
-                  <span className="text-purple-300">Platinum (2,000+ pts)</span>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. VIP Points Store (Redeem Options with Golden Accent Buttons) */}
-            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
-              <div className="flex items-start justify-between gap-3 border-b border-neutral-800 pb-4">
-                <div>
-                  <h3 className="text-xl font-serif text-white flex items-center gap-2">
-                    <Gift className="w-5 h-5 text-amber-400" /> VIP Points Store
-                  </h3>
-                  <p className="text-xs text-neutral-400 mt-1">Redeem points for complimentary dining perks.</p>
-                </div>
-              </div>
-
-              {redeemedCode && (
-                <div className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-xs text-amber-300 font-bold flex items-center gap-2.5">
-                  <CheckCircle2 className="w-5 h-5 shrink-0 text-amber-400" />
-                  <span>{redeemedCode}</span>
-                </div>
-              )}
-
-              <div className="space-y-3">
-                {REWARD_PERKS.map((perk) => {
-                  const canAfford = userPoints >= perk.points;
-                  return (
-                    <div
-                      key={perk.id}
-                      className={`p-4 rounded-2xl border flex items-center justify-between gap-3 transition ${canAfford
-                        ? "border-neutral-800 bg-neutral-950/90 hover:border-amber-500/30"
-                        : "border-neutral-800/50 bg-neutral-950/40 opacity-60"
-                        }`}
-                    >
-                      <div>
-                        <h4 className="text-xs font-bold text-white">{perk.title}</h4>
-                        <p className="text-xs text-neutral-300 mt-0.5 leading-relaxed">{perk.desc}</p>
-                        <span className="text-[10px] font-bold text-amber-400 bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-full inline-block mt-2">
-                          {perk.points} Points Required
-                        </span>
-                      </div>
-
-                      {/* Golden Accent High-Contrast Redeem Button */}
-                      <button
-                        type="button"
-                        onClick={() => openRedeemModal(perk)}
-                        disabled={!canAfford}
-                        className="rounded-xl bg-amber-500 hover:bg-amber-400 text-black border border-amber-400 font-bold px-4 py-2.5 text-xs transition shrink-0 shadow-md shadow-amber-500/20 disabled:opacity-40 disabled:cursor-not-allowed"
-                      >
-                        Redeem
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* 3. Invite Friends & Earn Points (Flex Aligned Input & Button) */}
-            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
-              <h3 className="text-lg font-serif text-white flex items-center gap-2">
-                <Share2 className="w-5 h-5 text-amber-400" /> Invite Friends &amp; Earn 250 Points
-              </h3>
-              <p className="text-xs text-neutral-300 leading-relaxed">
-                Share your personal invitation link with family &amp; friends. Earn 250 VIP reward points when they complete their first dining reservation.
-              </p>
-
-              {/* Clean Single Flex Line Alignment */}
-              <div className="flex items-center gap-2.5 bg-neutral-950 border border-neutral-800 p-2.5 rounded-2xl w-full">
-                <span className="text-xs font-mono font-bold text-amber-400 px-3 flex-1 truncate">{referralCode}</span>
-                <button
-                  type="button"
-                  onClick={copyReferralLink}
-                  className="rounded-xl bg-amber-500 hover:bg-amber-400 text-black px-4 py-2.5 text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-md shadow-amber-500/20"
-                >
-                  <Copy className="w-3.5 h-3.5" />
-                  <span>{copiedReferral ? "Copied!" : "Copy Link"}</span>
-                </button>
-              </div>
-            </div>
-
-            {/* 4. Recent Activity Timeline Card */}
-            <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
-              <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
-                <h3 className="text-lg font-serif text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-amber-400" /> Recent Activity Timeline
-                </h3>
-                <span className="text-xs text-neutral-400">Live History</span>
-              </div>
-
-              {/* Vertical Timeline Element */}
-              <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-800">
-                {recentTimeline.map(({ id, icon: Icon, title, detail, time, color }) => (
-                  <div key={id} className="relative flex items-start gap-4 group">
-                    {/* Timeline Node Dot */}
-                    <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${color} shadow-md`}>
-                      <Icon className="w-2.5 h-2.5" />
-                    </div>
-
-                    <div className="flex-1 bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-3.5 transition group-hover:border-neutral-700">
-                      <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
-                        <span>{title}</span>
-                        <span className="text-[10px] text-neutral-500 font-normal">{time}</span>
-                      </div>
-                      <p className="text-xs text-neutral-300">{detail}</p>
-                    </div>
+                  <p className="text-xs text-neutral-300 font-semibold mb-4">Choose your Avatar Badge Icon:</p>
+                  <div className="flex items-center gap-3 flex-wrap">
+                    {AVATAR_ICONS.map((a) => {
+                      const IconComp = a.icon;
+                      const isSelected = selectedAvatar === a.id && !customPhotoUrl;
+                      return (
+                        <button
+                          key={a.id}
+                          type="button"
+                          onClick={() => setSelectedAvatar(a.id)}
+                          className={`px-4 py-3 rounded-xl border transition flex items-center gap-2 text-xs font-medium ${isSelected
+                            ? "bg-amber-500 text-black border-amber-400 font-bold shadow-md shadow-amber-500/20"
+                            : "bg-neutral-950/80 border-neutral-800 text-neutral-300 hover:border-neutral-700 hover:text-white"
+                            }`}
+                        >
+                          <IconComp className="w-4 h-4" />
+                          <span>{a.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
-                ))}
+                </div>
               </div>
+            )}
 
-              <div className="pt-2 text-right">
-                <button type="button" onClick={openCart} className="text-xs font-bold text-amber-400 hover:text-amber-300 transition inline-flex items-center gap-1">
-                  View Full Order &amp; Reservation History <ChevronRight className="w-3.5 h-3.5" />
-                </button>
+            {activeTab === "referral" && (
+              <div className="animate-fade-up">
+                {/* Invite Friends & Earn Points */}
+                <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
+                  <h3 className="text-lg font-serif text-white flex items-center gap-2">
+                    <Share2 className="w-5 h-5 text-amber-400" /> Invite Friends &amp; Earn 250 Points
+                  </h3>
+                  <p className="text-xs text-neutral-300 leading-relaxed">
+                    Share your personal invitation link with family &amp; friends. Earn 250 VIP reward points when they complete their first dining reservation.
+                  </p>
+                  
+                  <div className="flex items-center gap-2.5 bg-neutral-950 border border-neutral-800 p-2.5 rounded-2xl w-full">
+                    <span className="text-xs font-mono font-bold text-amber-400 px-3 flex-1 truncate">{referralCode}</span>
+                    <button
+                      type="button"
+                      onClick={copyReferralLink}
+                      className="rounded-xl bg-amber-500 hover:bg-amber-400 text-black px-4 py-2.5 text-xs font-bold transition flex items-center gap-1.5 shrink-0 shadow-md shadow-amber-500/20"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>{copiedReferral ? "Copied!" : "Copy Link"}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
           </div>
         </div>

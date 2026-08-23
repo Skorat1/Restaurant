@@ -47,7 +47,6 @@ const OCCASIONS = [
   { id: "Birthday", label: "Birthday", icon: Cake },
   { id: "Anniversary", label: "Anniversary", icon: Heart },
   { id: "Business Dinner", label: "Business", icon: Briefcase },
-  { id: "Romantic Date", label: "Romance", icon: Sparkles },
 ];
 
 const PROMO_CODES: Record<string, { discount: number; label: string }> = {
@@ -72,7 +71,7 @@ export default function ReservePage() {
     time: "7:30 PM",
     guests: 2,
     notes: "",
-    occasion: "Romantic Date",
+    occasion: "General",
   });
 
   // Promo Code State
