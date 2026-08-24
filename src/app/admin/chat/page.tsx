@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { io, Socket } from "socket.io-client";
 import { MessageCircle, Send, CheckCircle, Clock } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
@@ -25,7 +24,12 @@ export default function AdminChatPage() {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState("");
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
+  const activeSessionIdRef = useRef<string | null>(null);
+
+  useEffect(() => {
+    activeSessionIdRef.current = activeSessionId;
+  }, [activeSessionId]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Fetch active sessions
@@ -49,36 +53,56 @@ export default function AdminChatPage() {
     if (!loading && token) {
       fetchSessions();
 
-      const socket = io(API_BASE_URL, {
-        transports: ["websocket", "polling"],
-      });
-      socketRef.current = socket;
+      let socket: WebSocket | null = null;
+      let reconnectTimeout: NodeJS.Timeout;
 
-      socket.on("active_chats_updated", () => {
-        fetchSessions();
-      });
+      const connectWs = () => {
+        const wsUrl = API_BASE_URL.replace(/^http/, "ws");
+        socket = new WebSocket(wsUrl);
+        socketRef.current = socket;
 
-      socket.on("support_message", (message: Message) => {
-        // If we are currently viewing the session that got a message, 
-        // we might need to refresh sessions to get the latest message in the view
-        fetchSessions();
-      });
+        socket.onopen = () => {
+          if (activeSessionIdRef.current) {
+            socket?.send(JSON.stringify({ event: "admin_join_support", data: activeSessionIdRef.current }));
+          }
+        };
 
-      // Polling fallback every 5 seconds in case WebSocket disconnects or fails
+        socket.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            if (parsed.event === "active_chats_updated" || parsed.event === "support_message") {
+              fetchSessions();
+            }
+          } catch (err) {
+            console.error("WS Parse error", err);
+          }
+        };
+
+        socket.onclose = () => {
+          reconnectTimeout = setTimeout(connectWs, 3000);
+        };
+      };
+
+      connectWs();
+
       const intervalId = setInterval(() => {
         fetchSessions();
       }, 5000);
 
       return () => {
-        socket.disconnect();
+        clearTimeout(reconnectTimeout);
         clearInterval(intervalId);
+        if (socket) {
+          socket.onclose = null;
+          socket.close();
+        }
       };
     }
   }, [loading, token]);
 
   useEffect(() => {
-    if (activeSessionId && socketRef.current) {
-      socketRef.current.emit("admin_join_support", activeSessionId);
+    if (activeSessionId && socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ event: "admin_join_support", data: activeSessionId }));
     }
   }, [activeSessionId]);
 
@@ -107,11 +131,18 @@ export default function AdminChatPage() {
       )
     );
 
-    socketRef.current.emit("send_support_message", {
-      sessionId: activeSessionId,
-      sender: "admin",
-      text: newMessage,
-    });
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          event: "send_support_message",
+          data: {
+            sessionId: activeSessionId,
+            sender: "admin",
+            text: newMessage,
+          },
+        })
+      );
+    }
 
     setNewMessage("");
   };

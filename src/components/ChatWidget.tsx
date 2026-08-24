@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { MessageCircle, X, Send } from "lucide-react";
-import io, { Socket } from "socket.io-client";
 import API_BASE_URL from "@/lib/api";
 
 interface Message {
@@ -18,7 +17,7 @@ export default function ChatWidget() {
   const [customerName, setCustomerName] = useState("");
   const [isNameSet, setIsNameSet] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
-  const socketRef = useRef<Socket | null>(null);
+  const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Initialize session ID from localStorage or create new
@@ -35,38 +34,58 @@ export default function ChatWidget() {
 
   // Socket connection
   useEffect(() => {
-    if (isOpen && isNameSet && sessionId && !socketRef.current) {
-      const socket = io(API_BASE_URL, {
-        transports: ["websocket", "polling"],
-      });
-      socketRef.current = socket;
+    if (isOpen && isNameSet && sessionId) {
+      let socket: WebSocket | null = null;
+      let reconnectTimeout: NodeJS.Timeout;
 
-      socket.emit("join_support", { sessionId, customerName });
+      const connectWs = () => {
+        const wsUrl = API_BASE_URL.replace(/^http/, "ws");
+        socket = new WebSocket(wsUrl);
+        socketRef.current = socket;
 
-      socket.on("support_message", (message: Message) => {
-        setMessages((prev) => {
-          // Prevent duplicates if we already added it locally
-          const isDuplicate = prev.some(
-            (m) => m.text === message.text && m.timestamp === message.timestamp && m.sender === message.sender
-          );
-          if (isDuplicate) return prev;
-          return [...prev, message];
-        });
-      });
+        socket.onopen = () => {
+          socket?.send(JSON.stringify({ event: "join_support", data: { sessionId, customerName } }));
+        };
 
-      socket.on("chat_closed", () => {
-        setMessages((prev) => [
-          ...prev,
-          { sender: "admin", text: "This chat has been closed by the agent.", timestamp: new Date().toISOString() },
-        ]);
-        localStorage.removeItem("chatSessionId");
-        localStorage.removeItem("chatCustomerName");
-        socket.disconnect();
-        socketRef.current = null;
-      });
+        socket.onmessage = (event) => {
+          try {
+            const parsed = JSON.parse(event.data);
+            if (parsed.event === "support_message") {
+              const message: Message = parsed.data;
+              setMessages((prev) => {
+                const isDuplicate = prev.some(
+                  (m) => m.text === message.text && m.timestamp === message.timestamp && m.sender === message.sender
+                );
+                if (isDuplicate) return prev;
+                return [...prev, message];
+              });
+            } else if (parsed.event === "chat_closed") {
+              setMessages((prev) => [
+                ...prev,
+                { sender: "admin", text: "This chat has been closed by the agent.", timestamp: new Date().toISOString() },
+              ]);
+              localStorage.removeItem("chatSessionId");
+              localStorage.removeItem("chatCustomerName");
+              socket?.close();
+            }
+          } catch (err) {
+            console.error("WS parse error", err);
+          }
+        };
+
+        socket.onclose = () => {
+          reconnectTimeout = setTimeout(connectWs, 3000);
+        };
+      };
+
+      connectWs();
 
       return () => {
-        socket.disconnect();
+        clearTimeout(reconnectTimeout);
+        if (socket) {
+          socket.onclose = null;
+          socket.close();
+        }
         socketRef.current = null;
       };
     }
@@ -141,11 +160,18 @@ export default function ChatWidget() {
     // Optimistically add message
     setMessages((prev) => [...prev, message]);
     
-    socketRef.current.emit("send_support_message", {
-      sessionId,
-      sender: "customer",
-      text: newMessage,
-    });
+    if (socketRef.current?.readyState === WebSocket.OPEN) {
+      socketRef.current.send(
+        JSON.stringify({
+          event: "send_support_message",
+          data: {
+            sessionId,
+            sender: "customer",
+            text: newMessage,
+          },
+        })
+      );
+    }
     
     setNewMessage("");
   };
