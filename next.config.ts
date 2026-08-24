@@ -20,9 +20,13 @@ const connectOrigins = Array.from(
   new Set([
     "'self'",
     "http://localhost:5000",
+    "ws://localhost:5000",
     "https://my-next-js-restaurant-lnc6.vercel.app",
+    "wss://my-next-js-restaurant-lnc6.vercel.app",
     apiOrigin,
+    apiOrigin.replace("http://", "ws://").replace("https://", "wss://"),
     "https://*.vercel.app",
+    "wss://*.vercel.app",
     "https://api.razorpay.com",
     "https://lumberjack.razorpay.com",
     "https://checkout.razorpay.com",
