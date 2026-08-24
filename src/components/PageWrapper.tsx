@@ -23,9 +23,9 @@ export default function PageWrapper({
     <>
       <InaugurationRibbon />
       <Header />
-      <main id="main-content" className="pt-20 sm:pt-28 min-h-screen">
+      <div id="main-content" className={`${pathname === '/' ? '' : 'pt-20 sm:pt-28'} min-h-screen`}>
         {children}
-      </main>
+      </div>
       <CartDrawer />
       {footer}
     </>

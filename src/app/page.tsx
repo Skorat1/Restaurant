@@ -144,23 +144,24 @@ export default function Home() {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/20 blur-[160px] pointer-events-none rounded-full z-0" />
         <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-amber-600/15 blur-[160px] pointer-events-none rounded-full z-0" />
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full mt-20 lg:mt-10">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full pt-28 sm:pt-36 lg:pt-40">
           {/* Hero Content including Live Status and Table Finder */}
           <HeroClient />
         </div>
       </section>
 
       {/* ── REAL-TIME MEMBERSHIP BANNER ─────────────────────────────────── */}
-      <div className="-mt-12 relative z-20">
+      <div className="relative z-20">
         <MembershipBanner />
       </div>
 
-      {/* ── STATS STRIP ─────────────────────────────────────────────────── */}
-      <section className="border-y border-neutral-900 bg-neutral-950/90 py-14">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-8 text-center">
-          {STATS.map((s) => (
-            <div key={s.label} className="space-y-1.5 animate-fade-up">
-              <p className="text-2xl sm:text-4xl md:text-5xl font-serif font-bold text-amber-400 tracking-tight">{s.value}</p>
+      {/* ── STATS STRIP (Floating Glass Bar) ────────────────────────────── */}
+      <section className="relative z-30 max-w-7xl mx-auto px-4 sm:px-6 -mt-8 sm:-mt-16 mb-16">
+        <div className="bg-neutral-950/40 backdrop-blur-3xl border border-white/10 shadow-[0_30px_60px_rgba(0,0,0,0.6)] rounded-3xl py-10 px-6 sm:px-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center relative overflow-hidden group">
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-[150%] group-hover:translate-x-[150%] transition-transform duration-[1500ms] ease-in-out" />
+          {STATS.map((s, idx) => (
+            <div key={s.label} className={`space-y-2 relative z-10 transition-transform duration-300 hover:-translate-y-1 ${idx !== 0 ? 'md:border-l border-white/5' : ''}`}>
+              <p className="text-3xl sm:text-4xl md:text-5xl font-serif font-black bg-gradient-to-br from-amber-200 via-amber-400 to-amber-600 bg-clip-text text-transparent drop-shadow-lg">{s.value}</p>
               <p className="text-xs font-bold text-white uppercase tracking-widest">{s.label}</p>
               <p className="text-[11px] text-neutral-400 font-light">{s.sub}</p>
             </div>
@@ -171,55 +172,56 @@ export default function Home() {
       {/* ── SIGNATURE DISHES SHOWCASE WITH QUICK CART ────────────────────── */}
       <DishGallery />
 
-      {/* ── LUXURY EXPERIENCES WITH CLEAR PRICING & INCLUSIONS ───────────────── */}
+      {/* ── LUXURY EXPERIENCES (BENTO BOX) ───────────────────────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
         <div className="text-center space-y-3">
-          <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Curated Offerings</span>
+          <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-400">Curated Offerings</span>
           <h2 className="text-3xl sm:text-5xl font-serif text-white">Unrivaled Dining Experiences</h2>
           <p className="text-xs text-neutral-400 max-w-xl mx-auto font-light">
             All experiences detail complete inclusions, beverage options, and pricing breakdowns for complete clarity.
           </p>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {EXPERIENCES.map((exp) => {
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 auto-rows-[minmax(320px,auto)]">
+          {EXPERIENCES.map((exp, idx) => {
             const IconComp = exp.icon;
+            // First item spans 8 columns, second spans 4. Third spans 5, fourth spans 7.
+            const colSpan = idx === 0 ? "md:col-span-8" : idx === 1 ? "md:col-span-4" : idx === 2 ? "md:col-span-5" : "md:col-span-7";
             return (
               <div
                 key={exp.title}
-                className="card-glass rounded-3xl p-6 group flex flex-col justify-between border-neutral-800/80 hover:border-amber-500/50 relative overflow-hidden"
+                className={`card-glass rounded-3xl p-8 group flex flex-col justify-between border-white/5 hover:border-amber-500/50 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] relative overflow-hidden transition-all duration-500 ${colSpan}`}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${exp.bg} pointer-events-none`} />
+                {/* Background Hover Glow */}
+                <div className={`absolute inset-0 bg-gradient-to-br ${exp.bg} opacity-50 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none`} />
+                <div className="absolute -inset-x-full top-0 h-[1px] bg-gradient-to-r from-transparent via-amber-500/50 to-transparent group-hover:translate-x-full transition-transform duration-1000 ease-in-out" />
 
-                <div className="relative z-10 space-y-4">
+                <div className="relative z-10 space-y-6">
                   <div className="flex items-center justify-between">
-                    <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-black transition">
+                    <div className="w-14 h-14 rounded-2xl bg-black/40 backdrop-blur-md border border-white/10 flex items-center justify-center text-amber-400 group-hover:bg-amber-500 group-hover:text-black group-hover:scale-110 transition-all duration-500 shadow-xl">
                       <IconComp className="w-6 h-6" />
                     </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-300 px-3 py-1 rounded-full border border-amber-500/20">
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] bg-black/40 text-amber-300 px-4 py-1.5 rounded-full border border-amber-500/20 shadow-inner">
                       {exp.tag}
                     </span>
                   </div>
 
                   <div>
-                    <h3 className="text-xl font-serif font-bold text-white group-hover:text-amber-400 transition mb-1">
+                    <h3 className="text-2xl sm:text-3xl font-serif font-bold text-white group-hover:text-amber-400 transition-colors duration-300 mb-2 leading-tight">
                       {exp.title}
                     </h3>
-                    <p className="text-[11px] text-amber-400 font-serif font-bold">{exp.price}</p>
+                    <p className="text-xs text-amber-400 font-mono font-bold tracking-wider">{exp.price}</p>
                   </div>
 
-                  <p className="text-xs text-neutral-400 leading-relaxed font-light">
+                  <p className="text-sm text-neutral-400 leading-relaxed font-light">
                     {exp.desc}
                   </p>
 
-                  <div className="space-y-1.5 pt-2 border-t border-neutral-800/80">
-                    <p className="text-[10px] font-bold uppercase tracking-wider text-neutral-300 flex items-center gap-1">
-                      What&apos;s Included:
-                    </p>
-                    <ul className="space-y-1 text-[11px] text-neutral-300 font-light">
-                      {exp.inclusions.map((item, idx) => (
-                        <li key={idx} className="flex items-start gap-1.5">
-                          <span className="text-amber-400 font-bold">•</span>
+                  <div className="space-y-3 pt-4 border-t border-white/5">
+                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-300 font-light">
+                      {exp.inclusions.map((item, i) => (
+                        <li key={i} className="flex items-start gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-amber-500/70 mt-0.5 shrink-0" />
                           <span>{item}</span>
                         </li>
                       ))}
@@ -227,12 +229,13 @@ export default function Home() {
                   </div>
                 </div>
 
-                <div className="relative z-10 flex items-center justify-between border-t border-neutral-800/80 pt-4 mt-4 text-xs">
+                <div className="relative z-10 pt-6 mt-4 flex items-center justify-end">
                   <Link
                     href={exp.href}
-                    className="w-full py-2.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-center font-bold hover:bg-amber-500 hover:text-black transition"
+                    className="flex items-center gap-2 px-6 py-3 rounded-full bg-white/5 border border-white/10 text-white text-xs font-bold hover:bg-amber-500 hover:text-black hover:border-amber-500 transition-all duration-300 group/btn"
                   >
-                    Reserve Experience
+                    <span>Reserve Experience</span>
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </Link>
                 </div>
               </div>
@@ -241,144 +244,158 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── CHEF & HERITAGE STORY SECTION ────────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-6 py-8">
-        <div className="card-glass rounded-3xl p-8 sm:p-12 border-amber-500/30 grid lg:grid-cols-12 gap-12 items-center relative overflow-hidden">
+      {/* ── CHEF & HERITAGE STORY (Editorial Layout) ────────────────────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <div className="relative rounded-[2.5rem] bg-neutral-900 overflow-hidden shadow-2xl border border-white/5">
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20 mix-blend-overlay" />
+          
+          <div className="grid lg:grid-cols-12 gap-0 relative z-10">
+            {/* Left Image Section */}
+            <div className="lg:col-span-5 relative h-[500px] lg:h-[600px] group">
+              <div className="absolute inset-0 bg-amber-500/10 mix-blend-color z-10 group-hover:bg-transparent transition-colors duration-700" />
+              <Image
+                src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80"
+                alt="Executive Chef Antoine"
+                fill
+                className="object-cover transition-transform duration-[10s] group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-transparent to-transparent lg:bg-gradient-to-r lg:from-transparent lg:via-neutral-900/40 lg:to-neutral-900 z-20" />
+              
+              {/* Floating Quote Badge */}
+              <div className="absolute bottom-8 left-8 right-8 lg:right-auto lg:-right-16 p-6 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-[0_20px_50px_rgba(0,0,0,0.5)] z-30 transform lg:translate-y-12">
+                <p className="text-sm sm:text-base font-serif italic text-amber-100 leading-relaxed">&quot;Haute cuisine is not merely about taste — it is an emotional harmony of memory, passion, and perfection.&quot;</p>
+                <div className="mt-4 flex items-center gap-3">
+                  <div className="w-10 h-[1px] bg-amber-500" />
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-amber-500">Executive Chef Antoine Laurent</p>
+                </div>
+              </div>
+            </div>
 
-          <div className="lg:col-span-5 relative h-96 lg:h-[480px] rounded-2xl overflow-hidden border border-neutral-800">
-            <Image
-              src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80"
-              alt="Executive Chef Antoine"
-              fill
-              className="object-cover"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent" />
-            <div className="absolute bottom-6 left-6 right-6 p-4 rounded-xl bg-black/80 backdrop-blur-md border border-amber-500/30">
-              <p className="text-xs font-serif italic text-amber-200">&quot;Haute cuisine is not merely about taste — it is an emotional harmony of memory, passion, and perfection.&quot;</p>
-              <p className="text-[11px] font-bold text-white mt-2">— Executive Chef Antoine Laurent</p>
+            {/* Right Text Section */}
+            <div className="lg:col-span-7 p-8 sm:p-12 lg:p-20 flex flex-col justify-center space-y-8 bg-neutral-900">
+              <div className="space-y-4">
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-400">Culinary Heritage</span>
+                <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-white leading-[1.1]">The Pursuit of <br/><span className="text-gold-gradient italic">Gastronomic Perfection</span></h2>
+                <p className="text-sm sm:text-base text-neutral-400 leading-relaxed font-light max-w-xl">
+                  Founded on the principles of classic French technique and contemporary culinary innovation, VELORA brings world-class gastronomy to an intimate setting. Every ingredient is sourced directly from artisanal organic farms, local coastal fisheries, and historic wine estates.
+                </p>
+              </div>
+
+              <div className="grid sm:grid-cols-2 gap-x-8 gap-y-6 pt-4 border-t border-white/5">
+                {[
+                  { icon: CheckCircle2, title: "100% Biodynamic Organic Produce", desc: "Harvested daily from local partner farms" },
+                  { icon: CheckCircle2, title: "28-Day Dry Aging Vault", desc: "Custom Himalayan salt brick aging room" },
+                  { icon: CheckCircle2, title: "Zero-Waste Kitchen", desc: "100% sustainable culinary practices" },
+                  { icon: CheckCircle2, title: "French Pastry Laboratory", desc: "Artisanal chocolates & soufflés made fresh" },
+                ].map((item) => (
+                  <div key={item.title} className="space-y-1.5 group">
+                    <div className="flex items-center gap-2 text-white font-serif font-bold text-sm group-hover:text-amber-400 transition-colors">
+                      <item.icon className="w-4 h-4 text-amber-500" /> {item.title}
+                    </div>
+                    <p className="text-[11px] text-neutral-500 font-light pl-6">{item.desc}</p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-8">
+                <Link href="/about" className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-white text-black font-extrabold text-[11px] uppercase tracking-[0.2em] hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(245,158,11,0.4)] transition-all duration-300">
+                  Read Full Chef Story <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
             </div>
           </div>
-
-          <div className="lg:col-span-7 space-y-6">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Culinary Heritage</span>
-            <h2 className="text-3xl sm:text-5xl font-serif text-white">The Pursuit of Gastronomic Perfection</h2>
-            <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed font-light">
-              Founded on the principles of classic French technique and contemporary culinary innovation, VELORA brings world-class gastronomy to an intimate setting. Every ingredient is sourced directly from artisanal organic farms, local coastal fisheries, and historic wine estates.
-            </p>
-
-            <div className="grid sm:grid-cols-2 gap-4 pt-2">
-              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 space-y-1">
-                <div className="flex items-center gap-2 text-amber-400 font-serif font-bold text-sm">
-                  <CheckCircle2 className="w-4 h-4" /> 100% Biodynamic Organic Produce
-                </div>
-                <p className="text-[11px] text-neutral-400">Harvested daily from local partner farms</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 space-y-1">
-                <div className="flex items-center gap-2 text-amber-400 font-serif font-bold text-sm">
-                  <CheckCircle2 className="w-4 h-4" /> 28-Day Dry Aging Vault
-                </div>
-                <p className="text-[11px] text-neutral-400">Custom Himalayan salt brick aging room</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 space-y-1">
-                <div className="flex items-center gap-2 text-amber-400 font-serif font-bold text-sm">
-                  <CheckCircle2 className="w-4 h-4" /> Zero-Waste Kitchen
-                </div>
-                <p className="text-[11px] text-neutral-400">100% sustainable culinary practices</p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-neutral-950/80 border border-neutral-800 space-y-1">
-                <div className="flex items-center gap-2 text-amber-400 font-serif font-bold text-sm">
-                  <CheckCircle2 className="w-4 h-4" /> French Pastry Laboratory
-                </div>
-                <p className="text-[11px] text-neutral-400">Artisanal chocolates &amp; soufflés made fresh</p>
-              </div>
-            </div>
-
-            <div className="pt-4">
-              <Link href="/about" className="btn-primary text-xs py-3.5 px-8">
-                Read Full Chef Story
-              </Link>
-            </div>
-          </div>
-
         </div>
       </section>
 
-      {/* ── UPCOMING GALA EVENTS & SOIRÉES ────────────────────────────────── */}
+      {/* ── UPCOMING GALA EVENTS & SOIRÉES (Glowing Cards) ──────────────── */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/5 pb-6">
           <div className="space-y-3">
-            <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Limited Capacity</span>
+            <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-400">Limited Capacity</span>
             <h2 className="text-3xl sm:text-5xl font-serif text-white">Upcoming Special Events</h2>
           </div>
-          <Link href="/reserve" className="text-xs text-amber-400 font-bold uppercase tracking-wider hover:underline flex items-center gap-1">
-            Reserve Event Seats <ChevronRight className="w-4 h-4" />
+          <Link href="/reserve" className="group flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] text-amber-400 font-black uppercase tracking-[0.2em] hover:bg-amber-500 hover:text-black transition-all duration-300">
+            Reserve Event Seats <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-8">
           {UPCOMING_EVENTS.filter(evt => {
             const eventDate = new Date(evt.date);
             const today = new Date();
             today.setHours(0, 0, 0, 0);
             return eventDate >= today;
           }).map((evt) => (
-            <div key={evt.title} className="card-glass rounded-3xl p-6 space-y-4 flex flex-col justify-between border-neutral-800/80 hover:border-amber-500/40">
-              <div className="space-y-3">
+            <div key={evt.title} className="group relative rounded-3xl bg-neutral-900 border border-white/5 p-8 flex flex-col justify-between overflow-hidden shadow-2xl hover:shadow-[0_0_50px_rgba(245,158,11,0.15)] transition-all duration-500 hover:-translate-y-2">
+              <div className="absolute top-0 right-0 p-8 opacity-5 group-hover:opacity-10 transition-opacity duration-500">
+                <Crown className="w-32 h-32 text-amber-500 rotate-12" />
+              </div>
+              
+              <div className="relative z-10 space-y-6">
                 <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold uppercase tracking-widest bg-amber-500/10 text-amber-400 px-3 py-1 rounded-full border border-amber-500/20">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] bg-amber-500/10 text-amber-400 px-3 py-1.5 rounded-full border border-amber-500/20">
                     {evt.tag}
                   </span>
-                  <span className="text-[11px] font-bold text-emerald-400 font-mono">
-                    {evt.seatsLeft}
-                  </span>
+                  <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                    <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">{evt.seatsLeft}</span>
+                  </div>
                 </div>
 
-                <h3 className="text-xl font-serif font-bold text-white">{evt.title}</h3>
-                <p className="text-xs text-neutral-400 leading-relaxed font-light">{evt.desc}</p>
-              </div>
-
-              <div className="pt-4 border-t border-neutral-800/80 flex items-center justify-between">
                 <div>
-                  <p className="text-xs font-bold text-amber-300">{evt.date}</p>
-                  <p className="text-[10px] text-neutral-400">{evt.time}</p>
+                  <h3 className="text-2xl font-serif font-bold text-white group-hover:text-amber-400 transition-colors mb-3 leading-tight">{evt.title}</h3>
+                  <p className="text-sm text-neutral-400 leading-relaxed font-light">{evt.desc}</p>
                 </div>
-                <Link
-                  href={`/reserve?event=${encodeURIComponent(evt.title)}`}
-                  className="px-4 py-2 rounded-full bg-amber-500 text-black text-[11px] font-bold hover:bg-amber-400 transition"
-                >
-                  Book Event
-                </Link>
               </div>
+
+              <div className="relative z-10 pt-6 mt-6 border-t border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-neutral-950 flex flex-col items-center justify-center border border-white/10 shadow-inner">
+                    <span className="text-xs text-amber-500 font-bold leading-none">{evt.date.split(" ")[0].slice(0,3)}</span>
+                    <span className="text-sm text-white font-black leading-none mt-1">{evt.date.split(" ")[1].replace(',', '')}</span>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest">{evt.date.split(" ")[2]}</p>
+                    <p className="text-xs text-white font-bold">{evt.time}</p>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Overlay link to make entire card clickable optionally, or leave as is */}
+              <Link href={`/reserve?event=${encodeURIComponent(evt.title)}`} className="absolute inset-0 z-20">
+                <span className="sr-only">Book {evt.title}</span>
+              </Link>
             </div>
           ))}
         </div>
       </section>
 
-      {/* ── TESTIMONIALS & CRITICAL ACCLAIM ──────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
+      {/* ── TESTIMONIALS & CRITICAL ACCLAIM (Editorial Carousel style) ────── */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-12">
         <div className="text-center space-y-3">
-          <span className="text-xs uppercase tracking-[0.3em] font-bold text-amber-400">Critical Acclaim</span>
+          <span className="text-[10px] uppercase tracking-[0.4em] font-bold text-amber-400">Critical Acclaim</span>
           <h2 className="text-3xl sm:text-5xl font-serif text-white">Recognized Worldwide</h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
+        <div className="grid lg:grid-cols-3 gap-8">
           {TESTIMONIALS.map((item) => (
-            <div key={item.author} className="card-glass rounded-3xl p-8 space-y-6 flex flex-col justify-between border-neutral-800/80">
-              <div className="space-y-4">
-                <div className="flex gap-1 text-amber-400">
+            <div key={item.author} className="relative rounded-[2rem] bg-neutral-900 p-8 sm:p-10 flex flex-col justify-between border border-white/5 shadow-2xl group hover:-translate-y-2 transition-transform duration-500 overflow-hidden">
+              <div className="absolute -top-6 -right-6 text-[120px] font-serif text-white/5 group-hover:text-amber-500/10 transition-colors duration-500 leading-none select-none">
+                &quot;
+              </div>
+              
+              <div className="relative z-10 space-y-8">
+                <div className="flex gap-1.5">
                   {Array.from({ length: item.rating }).map((_, i) => (
-                    <Star key={i} className="w-4 h-4 fill-amber-400" />
+                    <Star key={i} className="w-5 h-5 fill-amber-500 text-amber-500 drop-shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
                   ))}
                 </div>
-                <p className="text-sm italic text-neutral-200 leading-relaxed font-serif">&quot;{item.quote}&quot;</p>
+                <p className="text-lg italic text-neutral-300 leading-relaxed font-serif">&quot;{item.quote}&quot;</p>
               </div>
 
-              <div className="pt-4 border-t border-neutral-800/80">
-                <p className="text-sm font-bold text-white">{item.author}</p>
-                <p className="text-xs text-amber-400 font-medium">{item.role}</p>
+              <div className="relative z-10 pt-8 mt-8 border-t border-white/5">
+                <p className="text-base font-bold text-white uppercase tracking-wider">{item.author}</p>
+                <p className="text-xs text-amber-500 font-bold tracking-widest mt-1 uppercase">{item.role}</p>
               </div>
             </div>
           ))}

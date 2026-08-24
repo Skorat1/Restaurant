@@ -27,8 +27,9 @@ export default function HeroBackground() {
           alt={`Hero Background ${idx + 1}`}
           fill
           priority={idx === 0}
-          className={`object-cover transition-opacity duration-2000 ${
-            idx === currentIndex ? "opacity-100" : "opacity-0"
+          style={{ transitionDuration: '6000ms' }}
+          className={`object-cover transition-all ease-out origin-center ${
+            idx === currentIndex ? "opacity-100 scale-110" : "opacity-0 scale-100"
           }`}
         />
       ))}

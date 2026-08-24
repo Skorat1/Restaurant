@@ -34,6 +34,7 @@ export default function AdminChatPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/chat/active`, {
         headers: { Authorization: `Bearer ${token}` },
+        cache: "no-store",
       });
       if (res.ok) {
         const data = await res.json();

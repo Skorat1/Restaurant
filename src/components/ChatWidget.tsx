@@ -77,7 +77,9 @@ export default function ChatWidget() {
     if (isOpen && isNameSet && sessionId && messages.length === 0) {
       const fetchHistory = async () => {
         try {
-          const res = await fetch(`${API_BASE_URL}/api/chat/${sessionId}`);
+          const res = await fetch(`${API_BASE_URL}/api/chat/${sessionId}`, {
+            cache: "no-store",
+          });
           if (res.ok) {
             const data = await res.json();
             if (data.status === "closed") {
