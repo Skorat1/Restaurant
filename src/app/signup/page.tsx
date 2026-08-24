@@ -3,6 +3,7 @@ import { useState } from "react";
 import Link from "next/link";
 import API_BASE_URL from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
+import { Button } from "@/components/ui/Button";
 
 export default function SignUp() {
   const [form, setForm] = useState({ name: "", email: "", password: "", repassword: "" });
@@ -61,12 +62,12 @@ export default function SignUp() {
             We will notify you at <span className="text-amber-400 font-medium">{sentEmail}</span> once your account has been approved.
           </p>
           <div className="mt-8 flex justify-center">
-            <Link
+            <Button
               href="/"
-              className="rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition"
+              className="rounded-full text-sm font-semibold"
             >
               Back to Home
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -97,18 +98,19 @@ export default function SignUp() {
             .
           </p>
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
+            <Button
               href="/dashboard"
-              className="rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition"
+              className="rounded-full text-sm font-semibold"
             >
               Go to Dashboard
-            </Link>
-            <Link
+            </Button>
+            <Button
+              variant="outline"
               href="/"
-              className="rounded-full border border-neutral-700 px-6 py-3 text-sm font-semibold text-neutral-200 hover:bg-neutral-900 transition"
+              className="rounded-full text-sm font-semibold border-neutral-700 text-neutral-200 hover:bg-neutral-900 hover:text-white"
             >
               Back to Home
-            </Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -140,9 +142,9 @@ export default function SignUp() {
             <input type="password" required onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500" />
           </div>
           {error && <p className="rounded-2xl bg-red-500/10 px-4 py-3 text-xs sm:text-sm text-red-200 font-medium">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full rounded-2xl bg-amber-500 px-6 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-black transition hover:bg-amber-400 disabled:opacity-50 shadow-lg shadow-amber-500/20">
+          <Button type="submit" disabled={loading} isLoading={loading} fullWidth size="lg" className="rounded-2xl text-xs sm:text-sm uppercase tracking-wider">
             {loading ? "Creating account…" : "Register"}
-          </button>
+          </Button>
           <p className="text-center text-xs sm:text-sm text-neutral-400">
             Already have an account?{" "}
             <Link href="/login" className="text-amber-400 font-semibold hover:underline">Sign in</Link>

@@ -6,6 +6,7 @@ import { Menu, X, ExternalLink, ShieldCheck, Plus, Store, ChevronRight, PanelLef
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
 import { io } from "socket.io-client";
+import { Button } from "@/components/ui/Button";
 
 interface NavSubItem {
   href: string;
@@ -414,10 +415,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           <div className="mt-8 pt-4 border-t border-neutral-800 flex flex-col gap-3">
             {/* Quick Actions (e.g. + New) */}
-            <button className={`flex items-center ${isCollapsed ? "justify-center p-2" : "gap-3 px-3 py-2.5"} rounded-xl text-sm font-bold transition-all ${isCinematic ? "bg-purple-600/20 text-purple-400 hover:bg-purple-600/30" : "bg-amber-500/20 text-amber-400 hover:bg-amber-500/30"}`} title={isCollapsed ? "Quick Actions" : ""}>
-              <Plus className="w-5 h-5 shrink-0" />
+            <Button
+              variant="secondary"
+              size={isCollapsed ? "icon" : "md"}
+              themeContext={theme}
+              className={isCollapsed ? "" : "justify-start"}
+              leftIcon={<Plus className="w-5 h-5 shrink-0" />}
+              title={isCollapsed ? "Quick Actions" : ""}
+            >
               {!isCollapsed && <span>Quick Add</span>}
-            </button>
+            </Button>
             
             {/* Store Status Toggle */}
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between px-3"} py-2 rounded-xl bg-neutral-900 border border-neutral-800`} title={isCollapsed ? (storeActive ? "Store Open" : "Store Closed") : ""}>

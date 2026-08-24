@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import API_BASE_URL from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
+import { Button } from "@/components/ui/Button";
 
 export default function Login() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -84,19 +85,21 @@ export default function Login() {
           )}
 
           <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <button
+            <Button
               onClick={resendVerification}
               disabled={resending}
-              className="rounded-full bg-amber-500 px-6 py-3 text-sm font-semibold text-black hover:bg-amber-400 transition disabled:opacity-50"
+              isLoading={resending}
+              className="rounded-full text-sm font-semibold"
             >
               {resending ? "Sending…" : "Resend Verification Email"}
-            </button>
-            <button
-              onClick={() => router.push("/")}
-              className="rounded-full border border-neutral-700 px-6 py-3 text-sm font-semibold text-neutral-200 hover:bg-neutral-900 transition"
+            </Button>
+            <Button
+              variant="outline"
+              href="/"
+              className="rounded-full text-sm font-semibold border-neutral-700 text-neutral-200 hover:bg-neutral-900 hover:text-white"
             >
               Continue to Home
-            </button>
+            </Button>
           </div>
         </div>
       </section>
@@ -124,9 +127,9 @@ export default function Login() {
             <input type="password" required value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} className="w-full rounded-2xl border border-neutral-800 bg-neutral-900 px-4 py-3 text-sm text-white outline-none focus:border-amber-500" />
           </div>
           {error && <p className="rounded-2xl bg-red-500/10 px-4 py-3 text-xs sm:text-sm text-red-200 font-medium">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full rounded-2xl bg-amber-500 px-6 py-3.5 text-xs sm:text-sm font-bold uppercase tracking-wider text-black transition hover:bg-amber-400 disabled:opacity-50 shadow-lg shadow-amber-500/20">
+          <Button type="submit" disabled={loading} isLoading={loading} fullWidth size="lg" className="rounded-2xl text-xs sm:text-sm uppercase tracking-wider">
             {loading ? "Signing in…" : "Sign In"}
-          </button>
+          </Button>
           <p className="text-center text-xs sm:text-sm text-neutral-400">
             Don&apos;t have an account?{" "}
             <Link href="/signup" className="text-amber-400 font-semibold hover:underline">Register</Link>

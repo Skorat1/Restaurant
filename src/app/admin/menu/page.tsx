@@ -5,6 +5,7 @@ import useSWR, { mutate } from "swr";
 import { Plus, Edit2, Trash2, Power, PowerOff, Image as ImageIcon, Star, Flame, Leaf, Loader2 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
+import { Button } from "@/components/ui/Button";
 
 interface MenuItem {
   _id: string;
@@ -170,12 +171,13 @@ export default function AdminMenu() {
           <h1 className="mt-2 text-3xl font-serif text-white font-bold">Gastronomy Collection</h1>
           <p className="mt-1 text-neutral-400 text-xs sm:text-sm">Manage dishes, prices, and availability.</p>
         </div>
-        <button 
+        <Button 
           onClick={openAddModal}
-          className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black px-5 py-3 rounded-xl font-bold uppercase tracking-wider text-xs transition shadow-[0_0_20px_rgba(245,158,11,0.2)]"
+          leftIcon={<Plus className="w-4 h-4" />}
+          className="uppercase tracking-wider text-xs"
         >
-          <Plus className="w-4 h-4" /> Add New Dish
-        </button>
+          Add New Dish
+        </Button>
       </div>
 
       {/* GRID */}
@@ -299,12 +301,12 @@ export default function AdminMenu() {
               </div>
 
               <div className="flex gap-4 pt-6 border-t border-neutral-800">
-                <button type="button" onClick={() => setModalOpen(false)} className="flex-1 py-3.5 rounded-xl border border-neutral-800 text-neutral-300 text-xs font-bold uppercase tracking-wider hover:bg-neutral-900 transition">
+                <Button variant="outline" type="button" onClick={() => setModalOpen(false)} fullWidth className="text-xs uppercase tracking-wider">
                   Cancel
-                </button>
-                <button type="submit" disabled={isSubmitting} className="flex-1 py-3.5 rounded-xl bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition flex items-center justify-center gap-2">
-                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : (editingItem ? "Update Dish" : "Save Dish")}
-                </button>
+                </Button>
+                <Button type="submit" isLoading={isSubmitting} fullWidth className="text-xs uppercase tracking-wider">
+                  {editingItem ? "Update Dish" : "Save Dish"}
+                </Button>
               </div>
             </form>
           </div>

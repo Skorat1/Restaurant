@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 import { useLanguage } from "@/lib/LanguageContext";
+import { Button } from "@/components/ui/Button";
 
 const BASE_TIME_SLOTS = [
   { time: "12:00 PM", status: "available" },
@@ -355,12 +356,14 @@ export default function ReservePage() {
             </p>
 
             <div className="mt-6 flex gap-3">
-              <button
+              <Button
                 onClick={() => setPassModal(false)}
-                className="w-full py-3.5 rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-bold text-xs uppercase tracking-wider shadow-lg transition-all"
+                fullWidth
+                size="lg"
+                className="font-bold text-xs uppercase tracking-wider"
               >
                 Done &amp; Close Pass
-              </button>
+              </Button>
             </div>
           </div>
         </div>
@@ -404,19 +407,22 @@ export default function ReservePage() {
                 />
 
                 <div className="flex gap-2 pt-2">
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
                     onClick={() => setWaitlistModal(false)}
-                    className="flex-1 py-3 rounded-full border border-neutral-700 text-xs font-bold text-neutral-300"
+                    fullWidth
+                    className="text-xs"
                   >
                     Cancel
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     type="submit"
-                    className="flex-1 py-3 rounded-full bg-amber-500 text-black text-xs font-bold hover:bg-amber-400 transition"
+                    fullWidth
+                    className="text-xs"
                   >
                     Confirm Waitlist
-                  </button>
+                  </Button>
                 </div>
               </form>
             ) : (
@@ -428,15 +434,17 @@ export default function ReservePage() {
                 <p className="text-xs text-neutral-400">
                   We will dispatch an instant SMS alert to <span className="text-amber-300">{form.phone}</span> as soon as a table becomes available.
                 </p>
-                <button
+                <Button
                   onClick={() => {
                     setWaitlistModal(false);
                     setWaitlistSubmitted(false);
                   }}
-                  className="w-full py-2.5 rounded-full bg-neutral-800 text-xs font-bold text-white hover:bg-neutral-700 transition"
+                  variant="secondary"
+                  fullWidth
+                  className="text-xs font-bold"
                 >
                   Close
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -656,13 +664,14 @@ export default function ReservePage() {
                   onChange={(e) => setPromoInput(e.target.value)}
                   className="flex-1 rounded-xl border border-neutral-800 bg-neutral-950 px-3.5 py-2.5 text-xs text-white uppercase outline-none focus:border-amber-500 font-mono"
                 />
-                <button
+                <Button
                   type="button"
+                  variant="outline"
                   onClick={applyPromoCode}
-                  className="px-4 py-2.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-amber-400 border border-amber-500/30 text-xs font-bold transition"
+                  className="text-amber-400 border-amber-500/30 hover:bg-neutral-700 text-xs font-bold"
                 >
                   Apply
-                </button>
+                </Button>
               </div>
               {appliedPromo && PROMO_CODES[appliedPromo] && (
                 <p className="text-[11px] text-emerald-400 mt-1 flex items-center gap-1">
@@ -719,13 +728,16 @@ export default function ReservePage() {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
               disabled={submitting}
-              className="w-full rounded-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 py-4 text-xs font-bold uppercase tracking-widest text-black transition shadow-xl shadow-amber-500/25 disabled:opacity-50"
+              isLoading={submitting}
+              size="lg"
+              fullWidth
+              className="py-4 text-xs font-bold uppercase tracking-widest"
             >
               {submitting ? "Processing Reservation..." : "Confirm Reservation & Issue Digital Pass"}
-            </button>
+            </Button>
           </form>
         </div>
       </div>
