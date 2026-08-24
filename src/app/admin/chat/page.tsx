@@ -64,8 +64,14 @@ export default function AdminChatPage() {
         fetchSessions();
       });
 
+      // Polling fallback every 5 seconds in case WebSocket disconnects or fails
+      const intervalId = setInterval(() => {
+        fetchSessions();
+      }, 5000);
+
       return () => {
         socket.disconnect();
+        clearInterval(intervalId);
       };
     }
   }, [loading, token]);
@@ -85,6 +91,21 @@ export default function AdminChatPage() {
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (!newMessage.trim() || !socketRef.current || !activeSessionId) return;
+
+    const message: Message = {
+      sender: "admin",
+      text: newMessage,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Optimistically update the UI
+    setSessions((prev) =>
+      prev.map((session) =>
+        session._id === activeSessionId
+          ? { ...session, messages: [...session.messages, message], updatedAt: new Date().toISOString() }
+          : session
+      )
+    );
 
     socketRef.current.emit("send_support_message", {
       sessionId: activeSessionId,

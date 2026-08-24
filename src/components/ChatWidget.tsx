@@ -101,7 +101,15 @@ export default function ChatWidget() {
           console.error("Failed to fetch chat history", error);
         }
       };
+
       fetchHistory();
+
+      // Polling fallback
+      const intervalId = setInterval(() => {
+        fetchHistory();
+      }, 5000);
+
+      return () => clearInterval(intervalId);
     }
   }, [isOpen, isNameSet, sessionId, messages.length]);
 
