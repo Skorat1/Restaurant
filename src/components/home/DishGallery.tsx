@@ -151,10 +151,10 @@ export default function DishGallery() {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2 p-1.5 rounded-full bg-neutral-950 border border-neutral-800">
+        <div className="flex gap-2 p-1.5 rounded-full bg-neutral-950 border border-neutral-800 overflow-x-auto scrollbar-none max-w-full">
           <button
             onClick={() => setActiveCategory("all")}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "all"
+            className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap shrink-0 active:scale-95 ${activeCategory === "all"
               ? "bg-amber-500 text-black shadow-md"
               : "text-neutral-400 hover:text-white"
               }`}
@@ -163,7 +163,7 @@ export default function DishGallery() {
           </button>
           <button
             onClick={() => setActiveCategory("tasting")}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "tasting"
+            className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap shrink-0 active:scale-95 ${activeCategory === "tasting"
               ? "bg-amber-500 text-black shadow-md"
               : "text-neutral-400 hover:text-white"
               }`}
@@ -172,7 +172,7 @@ export default function DishGallery() {
           </button>
           <button
             onClick={() => setActiveCategory("dessert")}
-            className={`px-5 py-2 rounded-full text-xs font-bold transition ${activeCategory === "dessert"
+            className={`px-5 py-2 rounded-full text-xs font-bold transition whitespace-nowrap shrink-0 active:scale-95 ${activeCategory === "dessert"
               ? "bg-amber-500 text-black shadow-md"
               : "text-neutral-400 hover:text-white"
               }`}

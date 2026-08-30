@@ -62,12 +62,12 @@ export default function Hero() {
           </p>
 
           {/* Action Buttons */}
-          <div className="flex gap-3 sm:gap-4 flex-wrap items-center pt-2 animate-fade-up [animation-delay:450ms]">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center pt-2 animate-fade-up [animation-delay:450ms]">
             <Button
               href="/menu"
               leftIcon={<Utensils className="w-4 h-4 text-black relative z-10" />}
               rightIcon={<ArrowRight className="w-4 h-4 text-black relative z-10 group-hover:translate-x-1 transition-transform" />}
-              className="px-5 sm:px-8 py-3.5 sm:py-4 rounded-full text-[11px] sm:text-xs uppercase tracking-widest border border-amber-300/40"
+              className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-4 rounded-full text-xs uppercase tracking-widest border border-amber-300/40 min-h-[48px] justify-center active:scale-[0.98] shadow-lg shadow-amber-500/20"
             >
               Explore Menu
             </Button>
@@ -76,7 +76,7 @@ export default function Hero() {
               href="/reserve"
               variant="secondary"
               leftIcon={<Calendar className="w-4 h-4 text-amber-400 relative z-10" />}
-              className="px-5 sm:px-8 py-3.5 sm:py-4 rounded-full border-2 border-amber-400/60 !bg-neutral-950/70 text-amber-300 hover:!text-white hover:border-amber-400 text-[11px] sm:text-xs uppercase tracking-widest"
+              className="w-full sm:w-auto px-6 sm:px-8 py-4 sm:py-4 rounded-full border-2 border-amber-400/60 !bg-neutral-950/70 text-amber-300 hover:!text-white hover:border-amber-400 text-xs uppercase tracking-widest min-h-[48px] justify-center active:scale-[0.98]"
             >
               Reserve a Table
             </Button>
@@ -86,29 +86,29 @@ export default function Hero() {
               variant="ghost"
               onClick={() => setTourModal(true)}
               leftIcon={<Eye className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform" />}
-              className="px-4 sm:px-5 py-3.5 sm:py-4 rounded-full border border-neutral-700/80 !bg-neutral-900/60 text-neutral-300 text-[11px] sm:text-xs uppercase tracking-wider hover:border-amber-500/40 hover:!text-amber-300 hover:!bg-neutral-800/80 backdrop-blur-md"
+              className="w-full sm:w-auto px-5 sm:px-5 py-3.5 sm:py-4 rounded-full border border-neutral-700/80 !bg-neutral-900/60 text-neutral-300 text-xs uppercase tracking-wider hover:border-amber-500/40 hover:!text-amber-300 hover:!bg-neutral-800/80 backdrop-blur-md min-h-[44px] justify-center active:scale-[0.98]"
             >
               360° Tour
             </Button>
           </div>
 
           {/* Trust Badges Bar */}
-          <div className="pt-6 border-t border-neutral-800/80 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 text-xs text-neutral-300 animate-fade-up [animation-delay:600ms]">
-            <div className="flex items-center gap-2">
+          <div className="pt-6 border-t border-neutral-800/80 grid grid-cols-1 sm:grid-cols-3 gap-2.5 sm:gap-4 text-xs text-neutral-300 animate-fade-up [animation-delay:600ms]">
+            <div className="flex items-center gap-2.5 bg-neutral-900/40 sm:bg-transparent p-2.5 sm:p-0 rounded-2xl border border-neutral-800/40 sm:border-0">
               <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
               <div>
                 <span className="font-bold text-white block">Instant Confirmation</span>
                 <span className="text-[10px] text-neutral-400">Direct Email Voucher</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5 bg-neutral-900/40 sm:bg-transparent p-2.5 sm:p-0 rounded-2xl border border-neutral-800/40 sm:border-0">
               <Star className="w-4 h-4 text-amber-400 fill-amber-400 shrink-0" />
               <div>
                 <span className="font-bold text-white block">4.9 / 5 Rating</span>
                 <span className="text-[10px] text-neutral-400">1,400+ Verified Guests</span>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2.5 bg-neutral-900/40 sm:bg-transparent p-2.5 sm:p-0 rounded-2xl border border-neutral-800/40 sm:border-0">
               <Clock className="w-4 h-4 text-sky-400 shrink-0" />
               <div>
                 <span className="font-bold text-white block">Private Valet</span>

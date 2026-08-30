@@ -244,7 +244,7 @@ img {
   }
 }
 
-/* Mobile touch target improvement */
+/* Mobile touch target & smooth feel */
 @media (max-width: 639px) {
   button,
   a,
@@ -253,11 +253,19 @@ img {
   }
 }
 
+/* Hide scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Safe-area padding for notched phones */
 @supports (padding: max(0px)) {
   body {
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
-    padding-bottom: env(safe-area-inset-bottom);
   }
 }
