@@ -177,7 +177,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
+    <div className="fixed bottom-[84px] right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
       {isOpen && (
         <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm sm:w-96 h-[480px] max-h-[70vh] flex flex-col bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden animate-fade-up">
           {/* Header */}
@@ -269,13 +269,14 @@ export default function ChatWidget() {
       {/* Toggle Button */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 z-50 ${
+        aria-label="Live Support Chat"
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 z-50 ${
           isOpen
             ? "bg-neutral-800 text-white"
             : "bg-amber-500 text-black shadow-amber-500/40"
         }`}
       >
-        {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
+        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />}
       </button>
     </div>
   );

@@ -135,7 +135,7 @@ export default function Home() {
     <main className="space-y-16 sm:space-y-28 overflow-x-hidden pb-16">
 
       {/* ── LUXURY FULL-SCREEN HERO SECTION ─────────────────────────────────── */}
-      <section className="relative min-h-[85vh] lg:min-h-[90vh] pt-4 sm:pt-6 pb-20 overflow-hidden flex items-center justify-center">
+      <section className="relative min-h-[85vh] lg:min-h-[90vh] pt-24 sm:pt-32 lg:pt-36 pb-16 sm:pb-20 overflow-hidden flex flex-col justify-center">
         
         {/* Dynamic Background Carousel */}
         <HeroBackground />
@@ -144,7 +144,7 @@ export default function Home() {
         <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-amber-500/20 blur-[160px] pointer-events-none rounded-full z-0" />
         <div className="absolute bottom-10 right-10 w-[450px] h-[450px] bg-amber-600/15 blur-[160px] pointer-events-none rounded-full z-0" />
 
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full pt-28 sm:pt-36 lg:pt-40">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 relative z-10 w-full">
           {/* Hero Content including Live Status and Table Finder */}
           <HeroClient />
         </div>

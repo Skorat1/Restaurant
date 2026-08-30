@@ -32,6 +32,7 @@ export default function InaugurationRibbon() {
   useEffect(() => {
     const prevDone = localStorage.getItem("etoile_inauguration_done");
     if (!prevDone) {
+      
       // Auto open modal on first visit after 800ms delay
       const t = setTimeout(() => {
         setShowCeremony(true);
