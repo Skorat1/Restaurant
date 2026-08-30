@@ -177,21 +177,26 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-[84px] right-4 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
+    <div className="fixed bottom-[74px] right-3 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-2rem)] max-w-sm sm:w-96 h-[480px] max-h-[70vh] flex flex-col bg-neutral-950 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden animate-fade-up">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 h-[460px] max-h-[70vh] flex flex-col bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden animate-fade-up">
           {/* Header */}
-          <div className="p-4 border-b border-amber-500/30 bg-amber-900/20 flex items-center justify-between shrink-0">
+          <div className="p-4 border-b border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-amber-500/20 text-amber-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-400 flex items-center justify-center shadow-inner">
                 <MessageCircle className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-white">Live Support</h3>
-                <p className="text-[10px] text-amber-400 uppercase tracking-widest">We reply instantly</p>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-sm font-bold text-white">Live Concierge Support</h3>
+                  <span className="inline-flex items-center gap-1 text-[9px] font-extrabold uppercase px-1.5 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> Live
+                  </span>
+                </div>
+                <p className="text-[10px] text-amber-400/90 uppercase tracking-widest font-mono">Instant Reply</p>
               </div>
             </div>
-            <button onClick={() => setIsOpen(false)} className="text-neutral-500 hover:text-white transition">
+            <button onClick={() => setIsOpen(false)} className="p-1 rounded-full text-neutral-400 hover:text-white hover:bg-neutral-800 transition">
               <X className="w-5 h-5" />
             </button>
           </div>
@@ -199,20 +204,22 @@ export default function ChatWidget() {
           {/* Body */}
           <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-3 custom-scrollbar bg-neutral-900/50">
             {!isNameSet ? (
-              <div className="flex-1 flex flex-col items-center justify-center text-center">
-                <MessageCircle className="w-12 h-12 text-neutral-600 mb-4" />
-                <h4 className="text-white font-bold mb-2">Welcome to VELORA Support</h4>
-                <p className="text-neutral-400 text-xs mb-6 px-4">Please enter your name to start chatting with our support team.</p>
-                <form onSubmit={handleStartChat} className="w-full max-w-[240px]">
+              <div className="flex-1 flex flex-col items-center justify-center text-center p-2">
+                <div className="w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 mb-3 shadow-md">
+                  <MessageCircle className="w-6 h-6" />
+                </div>
+                <h4 className="text-white font-serif font-bold text-base mb-1">Welcome to VELORA Support</h4>
+                <p className="text-neutral-400 text-xs mb-5 px-2">Please enter your name to connect with our concierge team.</p>
+                <form onSubmit={handleStartChat} className="w-full max-w-[240px] space-y-3">
                   <input
                     type="text"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     placeholder="Your Name"
-                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-3 text-sm text-white focus:border-amber-500 outline-none transition mb-3"
+                    className="w-full bg-neutral-950 border border-neutral-800 rounded-xl px-4 py-2.5 text-xs text-white focus:border-amber-500 outline-none transition"
                     required
                   />
-                  <button type="submit" className="w-full bg-amber-500 text-black font-bold py-3 rounded-xl hover:bg-amber-400 transition text-sm">
+                  <button type="submit" className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold py-2.5 rounded-xl hover:from-amber-400 hover:to-amber-500 transition text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-95">
                     Start Chat
                   </button>
                 </form>
@@ -220,21 +227,21 @@ export default function ChatWidget() {
             ) : (
               <>
                 {messages.length === 0 && (
-                  <div className="text-center text-neutral-500 text-xs py-10">
-                    Connecting to an agent...
+                  <div className="text-center text-neutral-500 text-xs py-10 font-mono">
+                    Connecting to concierge...
                   </div>
                 )}
                 {messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`max-w-[85%] p-3 rounded-2xl text-sm leading-relaxed ${
+                    className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${
                       msg.sender === "customer"
-                        ? "bg-amber-500 text-black rounded-tr-sm self-end"
-                        : "bg-neutral-800 text-white rounded-tl-sm self-start border border-neutral-700"
+                        ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black font-medium rounded-tr-sm self-end shadow-md"
+                        : "bg-neutral-800/90 text-white rounded-tl-sm self-start border border-neutral-700 shadow-md"
                     }`}
                   >
                     {msg.sender === "admin" && (
-                      <div className="text-[10px] font-bold uppercase tracking-widest text-amber-500 mb-1">Support Agent</div>
+                      <div className="text-[9px] font-bold uppercase tracking-widest text-amber-400 mb-1">Concierge Agent</div>
                     )}
                     {msg.text}
                   </div>
@@ -252,12 +259,12 @@ export default function ChatWidget() {
                 placeholder="Type your message..."
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
-                className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-amber-500 transition"
+                className="flex-1 bg-neutral-900 border border-neutral-800 rounded-xl px-3.5 py-2 text-xs text-white outline-none focus:border-amber-500 transition"
               />
               <button
                 type="submit"
                 disabled={!newMessage.trim()}
-                className="p-3 bg-amber-500 text-black rounded-xl hover:bg-amber-400 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-2.5 bg-gradient-to-r from-amber-500 to-amber-600 text-black rounded-xl hover:from-amber-400 hover:to-amber-500 transition disabled:opacity-40 disabled:cursor-not-allowed shrink-0 shadow-md"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -266,17 +273,28 @@ export default function ChatWidget() {
         </div>
       )}
 
-      {/* Toggle Button */}
+      {/* Luxury Glassmorphic Toggle Button with Live Pulse Dot */}
       <button
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Live Support Chat"
-        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 z-50 ${
+        className={`relative w-11 h-11 sm:w-13 sm:h-13 rounded-full flex items-center justify-center shadow-[0_8px_30px_rgba(0,0,0,0.85)] border transition-all duration-300 active:scale-95 z-50 backdrop-blur-xl ${
           isOpen
-            ? "bg-neutral-800 text-white"
-            : "bg-amber-500 text-black shadow-amber-500/40"
+            ? "bg-neutral-800 text-white border-neutral-700"
+            : "bg-neutral-950/90 hover:bg-neutral-900 text-amber-400 border-amber-500/50 hover:border-amber-400 shadow-amber-500/10 ring-1 ring-amber-400/20"
         }`}
       >
-        {isOpen ? <X className="w-5 h-5 sm:w-6 sm:h-6" /> : <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />}
+        {isOpen ? (
+          <X className="w-5 h-5" />
+        ) : (
+          <>
+            <MessageCircle className="w-5 h-5 text-amber-400" />
+            {/* Live Online Pulse Indicator */}
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border-2 border-neutral-950"></span>
+            </span>
+          </>
+        )}
       </button>
     </div>
   );
