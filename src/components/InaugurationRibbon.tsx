@@ -261,17 +261,17 @@ export default function InaugurationRibbon() {
       />
 
       {/* Top Header Announcement Ticker Bar */}
-      <div className="bg-gradient-to-r from-amber-950 via-amber-600 to-amber-950 text-amber-100 text-xs sm:text-sm py-2 px-4 border-b border-amber-500/30 flex items-center justify-between gap-2 shadow-lg relative z-40">
-        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 font-medium tracking-wide">
-            <span className="bg-amber-500 text-black font-extrabold text-[10px] sm:text-xs uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm animate-pulse">
-              <PartyPopper className="w-3 h-3" /> GRAND INAUGURATION
+      <div className="bg-gradient-to-r from-amber-950 via-amber-600 to-amber-950 text-amber-100 text-xs sm:text-sm py-2 px-3 sm:px-4 border-b border-amber-500/30 shadow-lg relative z-40 w-full max-w-full overflow-hidden">
+        <div className="max-w-7xl mx-auto w-full flex items-center justify-between gap-2 sm:gap-3">
+          <div className="flex items-center gap-1.5 sm:gap-2 font-medium tracking-wide min-w-0 truncate">
+            <span className="bg-amber-500 text-black font-extrabold text-[9px] sm:text-xs uppercase px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm animate-pulse shrink-0">
+              <PartyPopper className="w-3 h-3" /> GRAND OPENING
             </span>
-            <span className="hidden sm:inline">
+            <span className="hidden sm:inline truncate">
               VELORA Haute Cuisine is officially launched! Celebrate with 25% Off reservations.
             </span>
-            <span className="sm:hidden">
-              Official Website Inauguration 2026!
+            <span className="sm:hidden text-[11px] truncate">
+              25% Off Reservations!
             </span>
           </div>
 
@@ -282,10 +282,10 @@ export default function InaugurationRibbon() {
                 setShowVoucher(false);
                 setShowCeremony(true);
               }}
-              className="bg-neutral-900/90 hover:bg-neutral-950 text-amber-400 border border-amber-500/40 hover:border-amber-400 px-3 py-1 rounded-full text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+              className="bg-neutral-900/90 hover:bg-neutral-950 text-amber-400 border border-amber-500/40 hover:border-amber-400 px-2.5 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold flex items-center gap-1 transition-all shadow-sm active:scale-95 whitespace-nowrap"
             >
-              <Scissors className="w-3.5 h-3.5" />
-              <span>Perform Ribbon Cutting</span>
+              <Scissors className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+              <span>Ribbon Cut</span>
             </button>
           </div>
         </div>

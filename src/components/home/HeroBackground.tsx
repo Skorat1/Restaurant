@@ -19,7 +19,7 @@ export default function HeroBackground() {
   }, []);
 
   return (
-    <div className="absolute inset-0 z-0">
+    <div className="absolute inset-0 w-full h-full z-0 overflow-hidden">
       {HERO_IMAGES.map((src, idx) => (
         <Image
           key={src}
@@ -27,15 +27,16 @@ export default function HeroBackground() {
           alt={`Hero Background ${idx + 1}`}
           fill
           priority={idx === 0}
+          sizes="100vw"
           style={{ transitionDuration: '6000ms' }}
           className={`object-cover transition-all ease-out origin-center ${
             idx === currentIndex ? "opacity-100 scale-110" : "opacity-0 scale-100"
           }`}
         />
       ))}
-      {/* Heavy gradient overlays for readability */}
-      <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/90 to-transparent z-10" />
-      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-neutral-950/40 z-10" />
+      {/* Universal Luxury Scrim Gradients: full coverage on mobile, smooth fade on desktop */}
+      <div className="absolute inset-0 bg-neutral-950/75 md:bg-transparent md:bg-gradient-to-r md:from-neutral-950 md:via-neutral-950/90 md:to-transparent z-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/30 to-neutral-950/60 z-10 pointer-events-none" />
     </div>
   );
 }
