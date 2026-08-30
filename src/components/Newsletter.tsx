@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { Sparkles, CheckCircle2, AlertCircle, Loader2, Mail } from "lucide-react";
+import { Sparkles, CheckCircle2, AlertCircle, Loader2, Mail, User } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
 export default function Newsletter() {
@@ -77,14 +77,17 @@ export default function Newsletter() {
               <label htmlFor="newsletter-name" className="text-[11px] font-bold uppercase tracking-wider text-neutral-300 block mb-1">
                 Your Full Name (Optional)
               </label>
-              <input
-                id="newsletter-name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="e.g. Eleanor Vance"
-                className="input-base py-3.5 text-xs font-semibold"
-                disabled={submitting}
-              />
+              <div className="relative">
+                <input
+                  id="newsletter-name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="e.g. Eleanor Vance"
+                  className="input-base py-3.5 !pl-11 text-xs font-semibold"
+                  disabled={submitting}
+                />
+                <User className="w-4 h-4 text-amber-400/70 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+              </div>
             </div>
 
             <div>
@@ -102,10 +105,10 @@ export default function Newsletter() {
                   placeholder="name@example.com"
                   type="email"
                   required
-                  className="input-base py-3.5 pl-10 text-xs font-semibold"
+                  className="input-base py-3.5 !pl-11 text-xs font-semibold"
                   disabled={submitting}
                 />
-                <Mail className="w-4 h-4 text-amber-400/70 absolute left-3.5 top-3.5" />
+                <Mail className="w-4 h-4 text-amber-400/70 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
           </div>
@@ -124,7 +127,7 @@ export default function Newsletter() {
               ) : (
                 <>
                   <Sparkles className="w-4 h-4 text-black" />
-                  <span> &amp; Join</span>
+                  <span>JOIN VIP CLUB</span>
                 </>
               )}
             </button>
