@@ -4,7 +4,6 @@ import { usePathname } from "next/navigation";
 import Header from "./Header";
 import InaugurationRibbon from "./InaugurationRibbon";
 import CartDrawer from "./CartDrawer";
-import MobileBottomNav from "./MobileBottomNav";
 
 export default function PageWrapper({
   children,
@@ -24,11 +23,10 @@ export default function PageWrapper({
     <>
       <InaugurationRibbon />
       <Header />
-      <div id="main-content" className={`${pathname === '/' ? '' : 'pt-20 sm:pt-28'} pb-24 lg:pb-0 min-h-screen`}>
+      <div id="main-content" className={`${pathname === '/' ? '' : 'pt-20 sm:pt-28'} min-h-screen`}>
         {children}
       </div>
       <CartDrawer />
-      <MobileBottomNav />
       {footer}
     </>
   );

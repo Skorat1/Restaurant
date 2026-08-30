@@ -177,7 +177,7 @@ export default function ChatWidget() {
   };
 
   return (
-    <div className="fixed bottom-[74px] right-3 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
+    <div className="fixed bottom-6 right-5 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
       {isOpen && (
         <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 h-[460px] max-h-[70vh] flex flex-col bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden animate-fade-up">
           {/* Header */}

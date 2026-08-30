@@ -102,7 +102,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 </a>
                 <PageWrapper
                   footer={
-                    <footer className="border-t border-neutral-900 bg-neutral-950 py-6 sm:py-10 text-sm text-neutral-400" role="contentinfo">
+                    <footer className="border-t border-neutral-900 bg-neutral-950 py-8 sm:py-10 text-sm text-neutral-400" role="contentinfo">
                       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
                         <div className="space-y-1">
                           <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>

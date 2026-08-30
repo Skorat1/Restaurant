@@ -331,11 +331,11 @@ export default function Header() {
           </div>
 
           {/* Scrollable Content Area */}
-          <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-5 space-y-5">
+          <div className="flex-1 overflow-y-auto overscroll-contain px-4 py-4 space-y-4">
 
             {/* User Profile Banner (if logged in) */}
             {!mounted || loading ? (
-              <div className="w-full h-16 rounded-2xl bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
+              <div className="w-full h-14 rounded-2xl bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
             ) : user ? (
               <div className="p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-neutral-900/80 to-neutral-900/90 flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
@@ -355,31 +355,76 @@ export default function Header() {
               </div>
             ) : null}
 
-            {/* Primary Navigation */}
+            {/* Quick Cart Trigger inside Sidebar */}
+            <button
+              onClick={() => {
+                setOpen(false);
+                toggleCart();
+              }}
+              className="w-full flex items-center justify-between px-4 py-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-amber-300 text-xs font-bold uppercase tracking-wider active:scale-[0.98] transition-all"
+            >
+              <div className="flex items-center gap-2.5">
+                <ShoppingCart className="w-4 h-4 text-amber-400" />
+                <span>My Dining Bag</span>
+              </div>
+              <span className="bg-amber-500 text-black px-2 py-0.5 rounded-full text-[10px] font-black">
+                {count} {count === 1 ? "Item" : "Items"}
+              </span>
+            </button>
+
+            {/* All Website Pages Navigation */}
             <div>
-              <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-amber-400">Navigation</p>
-              <div className="space-y-1.5">
-                {PRIMARY_NAV.map(({ href, label }) => {
+              <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-amber-400">Pages &amp; Dining</p>
+              <div className="space-y-1">
+                {[
+                  { href: "/", label: "Home", icon: Sparkles },
+                  { href: "/menu", label: "Menu & Cuisine", icon: Utensils },
+                  { href: "/cellar", label: "Grand Wine Cellar", icon: Wine },
+                  { href: "/reserve", label: "Table Reservation", icon: Calendar },
+                  { href: "/membership", label: "VIP Velvet Dining Club", icon: Crown },
+                  { href: "/about", label: "About VELORA", icon: Info },
+                  { href: "/contact", label: "Contact & Concierge", icon: Globe },
+                ].map(({ href, label, icon: NavIcon }) => {
                   const isActive = pathname === href;
                   return (
                     <Link
                       key={href}
                       href={href}
                       onClick={() => setOpen(false)}
-                      className={`flex items-center gap-3 min-h-[44px] px-4 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 active:scale-[0.97] ${isActive
+                      className={`flex items-center gap-3 min-h-[42px] px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide transition-all duration-200 active:scale-[0.98] ${isActive
                         ? "bg-gradient-to-r from-amber-500/25 to-amber-600/15 border border-amber-500/60 text-amber-300 shadow-sm"
-                        : "text-neutral-200 bg-neutral-900/50 border border-neutral-800/80 hover:border-neutral-700 hover:text-white"
+                        : "text-neutral-200 bg-neutral-900/40 border border-neutral-800/80 hover:border-neutral-700 hover:text-white"
                         }`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${isActive ? "bg-amber-400 shadow-sm shadow-amber-400/80" : "bg-neutral-600"}`} />
-                      {label}
+                      <NavIcon className={`w-4 h-4 shrink-0 ${isActive ? "text-amber-400" : "text-neutral-400"}`} />
+                      <span className="flex-1">{label}</span>
+                      {isActive && <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shadow-sm shadow-amber-400" />}
                     </Link>
                   );
                 })}
               </div>
             </div>
 
-
+            {/* Account & Policies links */}
+            <div className="pt-2 border-t border-neutral-800/80">
+              <p className="px-1 pb-2 text-[10px] uppercase tracking-[0.25em] font-bold text-neutral-400">Guest Services</p>
+              <div className="grid grid-cols-2 gap-1.5 text-[11px] font-medium text-neutral-400">
+                <Link
+                  href="/contact"
+                  onClick={() => setOpen(false)}
+                  className="px-3 py-2 rounded-lg bg-neutral-900/40 border border-neutral-800/60 hover:text-white transition"
+                >
+                  📍 Location &amp; Valet
+                </Link>
+                <Link
+                  href="/about"
+                  onClick={() => setOpen(false)}
+                  className="px-3 py-2 rounded-lg bg-neutral-900/40 border border-neutral-800/60 hover:text-white transition"
+                >
+                  📜 Dress Code &amp; Policy
+                </Link>
+              </div>
+            </div>
 
           </div>
 
@@ -391,7 +436,7 @@ export default function Header() {
               className="w-full min-h-[44px] flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-lg shadow-amber-500/25 active:scale-[0.97] transition-all"
             >
               <Calendar className="w-4 h-4" />
-              Reserve Table
+              Reserve VIP Table
             </Link>
 
             {!mounted || loading ? (
