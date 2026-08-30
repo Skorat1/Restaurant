@@ -24,6 +24,7 @@ export default function InaugurationRibbon() {
   const [toastCount, setToastCount] = useState(248);
   const [hasToasted, setHasToasted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const animFrameRef = useRef<number | null>(null);
 
@@ -37,6 +38,31 @@ export default function InaugurationRibbon() {
       }, 800);
       return () => clearTimeout(t);
     }
+  }, []);
+
+  // Performance: Cancel active animation frame on unmount or when tab is hidden/backgrounded
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (document.hidden && animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+        const canvas = canvasRef.current;
+        if (canvas) {
+          const ctx = canvas.getContext("2d");
+          ctx?.clearRect(0, 0, canvas.width, canvas.height);
+        }
+        setIsAnimating(false);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      if (animFrameRef.current) {
+        cancelAnimationFrame(animFrameRef.current);
+        animFrameRef.current = null;
+      }
+    };
   }, []);
 
   // Web Audio Synthesizer for Celebratory Fanfare & Confetti Pop
@@ -82,32 +108,47 @@ export default function InaugurationRibbon() {
     }
   };
 
-  // Launch HTML5 Confetti Cannon
+  // Launch HTML5 Confetti Cannon with Mobile/GPU Optimizations
   const triggerConfetti = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+
+    const isMobile = typeof window !== "undefined" && (window.innerWidth < 768 || ("ontouchstart" in window && window.innerWidth < 1024));
+    const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    if (prefersReducedMotion) return;
+
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    const ctx = canvas.getContext("2d");
+    const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
+
+    setIsAnimating(true);
 
     const colors = ["#f59e0b", "#fbbf24", "#d97706", "#ef4444", "#dc2626", "#ffffff", "#fef08a", "#e0e7ff"];
     const particles: Particle[] = [];
 
-    // Create 160 multi-shaped particles
-    for (let i = 0; i < 180; i++) {
+    // Mobile: reduce particle count to 45 for smooth 60fps & low battery/GPU consumption; Desktop: 130
+    const particleCount = isMobile ? 45 : 130;
+
+    for (let i = 0; i < particleCount; i++) {
       particles.push({
         x: canvas.width / 2 + (Math.random() * 120 - 60),
         y: canvas.height / 2 + (Math.random() * 40 - 20),
-        vx: (Math.random() - 0.5) * 22,
-        vy: (Math.random() - 0.7) * 20 - 6,
+        vx: (Math.random() - 0.5) * (isMobile ? 16 : 22),
+        vy: (Math.random() - 0.7) * (isMobile ? 15 : 20) - 5,
         color: colors[Math.floor(Math.random() * colors.length)],
-        size: Math.random() * 10 + 6,
+        size: Math.random() * (isMobile ? 6 : 9) + 4,
         rotation: Math.random() * Math.PI * 2,
         vRot: (Math.random() - 0.5) * 0.2,
         alpha: 1,
-        shape: i % 3 === 0 ? "star" : i % 2 === 0 ? "circle" : "rect",
+        // On mobile stick to simpler shapes (rect and circle) to avoid heavy sub-path fill calculations
+        shape: !isMobile && i % 4 === 0 ? "star" : i % 2 === 0 ? "circle" : "rect",
       });
     }
 
@@ -127,13 +168,14 @@ export default function InaugurationRibbon() {
       const elapsed = Date.now() - startTime;
 
       let activeCount = 0;
-      particles.forEach((p) => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.35; // Gravity
+        p.vy += 0.38; // Gravity
         p.vx *= 0.98; // Air drag
         p.rotation += p.vRot;
-        if (elapsed > 1800) p.alpha -= 0.015;
+        if (elapsed > 1500) p.alpha -= isMobile ? 0.025 : 0.018;
 
         if (p.alpha > 0) {
           activeCount++;
@@ -154,16 +196,18 @@ export default function InaugurationRibbon() {
           }
           ctx.restore();
         }
-      });
+      }
 
-      if (activeCount > 0 && elapsed < 4000) {
+      if (activeCount > 0 && elapsed < (isMobile ? 2800 : 3800)) {
         animFrameRef.current = requestAnimationFrame(render);
       } else {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+        setIsAnimating(false);
+        animFrameRef.current = null;
       }
     };
 
-    render();
+    animFrameRef.current = requestAnimationFrame(render);
   };
 
   const handleCutRibbon = () => {
@@ -187,6 +231,20 @@ export default function InaugurationRibbon() {
     }
   };
 
+  const closeCeremonyModal = () => {
+    setShowCeremony(false);
+    if (animFrameRef.current) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext("2d");
+      ctx?.clearRect(0, 0, canvas.width, canvas.height);
+    }
+    setIsAnimating(false);
+  };
+
   const copyPromo = () => {
     navigator.clipboard.writeText("INAUGURATION2026");
     setCopied(true);
@@ -195,10 +253,10 @@ export default function InaugurationRibbon() {
 
   return (
     <>
-      {/* Canvas for Confetti Fireworks */}
+      {/* Canvas for Confetti Fireworks (Hidden when idle to prevent compositor memory overhead) */}
       <canvas
         ref={canvasRef}
-        className="fixed inset-0 pointer-events-none z-[100]"
+        className={`fixed inset-0 pointer-events-none z-[100] ${isAnimating ? "block" : "hidden"}`}
       />
 
       {/* Top Header Announcement Ticker Bar */}
@@ -209,7 +267,7 @@ export default function InaugurationRibbon() {
               <PartyPopper className="w-3 h-3" /> GRAND INAUGURATION
             </span>
             <span className="hidden sm:inline">
-              L’Étoile Dorée is officially launched! Celebrate with 25% Off reservations.
+              VELORA Haute Cuisine is officially launched! Celebrate with 25% Off reservations.
             </span>
             <span className="sm:hidden">
               Official Website Inauguration 2026!
@@ -237,7 +295,7 @@ export default function InaugurationRibbon() {
         <div className="fixed inset-0 z-[90] flex items-center justify-center p-4 bg-black/90 backdrop-blur-xl animate-in fade-in duration-300">
           {/* Close button */}
           <button
-            onClick={() => setShowCeremony(false)}
+            onClick={closeCeremonyModal}
             className="absolute top-6 right-6 text-neutral-400 hover:text-white p-2 rounded-full bg-neutral-900/80 border border-neutral-800 transition-colors z-20"
           >
             <X className="w-6 h-6" />
@@ -264,11 +322,10 @@ export default function InaugurationRibbon() {
 
               {/* Left Ribbon Half */}
               <div
-                className={`absolute left-0 top-1/2 -translate-y-1/2 h-14 bg-gradient-to-b from-red-600 via-red-500 to-red-800 border-y-2 border-amber-300/80 shadow-2xl flex items-center justify-end px-4 transition-all duration-700 ease-out z-10 ${
-                  isCut
+                className={`absolute left-0 top-1/2 -translate-y-1/2 h-14 bg-gradient-to-b from-red-600 via-red-500 to-red-800 border-y-2 border-amber-300/80 shadow-2xl flex items-center justify-end px-4 transition-all duration-700 ease-out z-10 ${isCut
                     ? "-translate-x-full opacity-0 -rotate-12 scale-90"
                     : "w-1/2 rounded-l-md"
-                }`}
+                  }`}
               >
                 <div className="h-full w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent" />
                 <span className="text-amber-200/60 text-xs uppercase tracking-widest font-mono hidden sm:inline">L’Étoile Dorée</span>
@@ -276,11 +333,10 @@ export default function InaugurationRibbon() {
 
               {/* Right Ribbon Half */}
               <div
-                className={`absolute right-0 top-1/2 -translate-y-1/2 h-14 bg-gradient-to-b from-red-600 via-red-500 to-red-800 border-y-2 border-amber-300/80 shadow-2xl flex items-center justify-start px-4 transition-all duration-700 ease-out z-10 ${
-                  isCut
+                className={`absolute right-0 top-1/2 -translate-y-1/2 h-14 bg-gradient-to-b from-red-600 via-red-500 to-red-800 border-y-2 border-amber-300/80 shadow-2xl flex items-center justify-start px-4 transition-all duration-700 ease-out z-10 ${isCut
                     ? "translate-x-full opacity-0 rotate-12 scale-90"
                     : "w-1/2 rounded-r-md"
-                }`}
+                  }`}
               >
                 <div className="h-full w-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-amber-400/20 via-transparent to-transparent" />
                 <span className="text-amber-200/60 text-xs uppercase tracking-widest font-mono hidden sm:inline">Grand Launch</span>
@@ -294,7 +350,7 @@ export default function InaugurationRibbon() {
                 >
                   {/* Glowing Ring */}
                   <span className="absolute -inset-2 rounded-full bg-amber-400/40 blur-md group-hover:bg-amber-300/60 transition-all animate-ping opacity-75" />
-                  
+
                   <Scissors className="w-10 h-10 text-neutral-950 -rotate-45 group-hover:rotate-0 transition-transform duration-300 drop-shadow-md" />
                   <span className="mt-1 text-[11px] font-extrabold uppercase text-neutral-950 tracking-wider">
                     CUT RIBBON
@@ -344,11 +400,10 @@ export default function InaugurationRibbon() {
                   {/* Toast Button */}
                   <button
                     onClick={handleToast}
-                    className={`w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${
-                      hasToasted
+                    className={`w-full sm:w-auto px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-2 border transition-all ${hasToasted
                         ? "bg-amber-500/20 text-amber-300 border-amber-500/40"
                         : "bg-neutral-800 hover:bg-neutral-700 text-neutral-200 border-neutral-700"
-                    }`}
+                      }`}
                   >
                     <Wine className="w-4 h-4 text-amber-400" />
                     <span>{hasToasted ? "Toast Raised! 🥂" : "Raise a Champagne Toast 🥂"}</span>
@@ -368,7 +423,7 @@ export default function InaugurationRibbon() {
 
                     <Link
                       href="/reserve"
-                      onClick={() => setShowCeremony(false)}
+                      onClick={closeCeremonyModal}
                       className="flex-1 sm:flex-none px-5 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-neutral-950 font-bold text-xs flex items-center justify-center gap-1 shadow-lg transition-all"
                     >
                       <span>Book VIP Table</span>
