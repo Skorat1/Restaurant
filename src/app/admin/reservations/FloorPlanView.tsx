@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Calendar,
   Users,
@@ -21,7 +21,12 @@ import {
   Flame,
   RotateCcw,
   Tag,
-  MessageSquare
+  MessageSquare,
+  RefreshCw,
+  UserCheck,
+  Check,
+  Coffee,
+  AlertCircle
 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
@@ -31,22 +36,30 @@ export interface ReservationItem {
   name: string;
   phone: string;
   email?: string;
-  time: string;
+  date?: string | Date;
+  time?: string;
   guests: number;
   area: string;
   tableNo: string;
-  status: "Seated" | "Reserved" | "Vacant" | "Pending" | "Waiting";
+  status: "Pending" | "Confirmed" | "Seated" | "Completed" | "Declined" | "Waitlisted" | "Waiting";
   vip?: boolean;
   leaf?: boolean;
-  occasion?: "Birthday" | "Anniversary" | "Business" | "General";
+  occasion?: string;
   notes?: string;
+  passCode?: string;
+  dietary?: string[];
+  preOrders?: any[];
+  specialRequests?: string;
+  totalAmount?: number;
   waitTime?: string;
   addedAt?: number;
 }
 
 export interface TableData {
   id: string;
+  _id?: string;
   tableNo: string;
+  tableNumber?: number;
   area: "Main Room" | "Patio" | "Terrace" | "Lounge";
   capacity: number;
   status: "Occupied" | "Reserved" | "Vacant" | "Cleaning";
@@ -56,66 +69,71 @@ export interface TableData {
   guestsCount?: number;
   reservationId?: string;
   shape?: "normal" | "long" | "round";
-  position: { row: number; col: number };
+  position?: { row: number; col: number };
   vip?: boolean;
   leaf?: boolean;
-  occasion?: "Birthday" | "Anniversary" | "Business" | "General";
+  occasion?: string;
   seatedMinutes?: number;
 }
 
-const INITIAL_TABLES: TableData[] = [
+const DEFAULT_TABLE_CONFIGS: TableData[] = [
   // Main Room
-  { id: "tbl-1", tableNo: "T1", area: "Main Room", capacity: 4, status: "Occupied", guestName: "John Doe", time: "6:00 PM", phone: "05254989796", guestsCount: 3, position: { row: 1, col: 1 }, seatedMinutes: 42 },
-  { id: "tbl-2", tableNo: "T2", area: "Main Room", capacity: 4, status: "Occupied", guestName: "Emma Clark", time: "6:10 PM", phone: "05254989796", guestsCount: 3, vip: true, occasion: "Anniversary", position: { row: 2, col: 1 }, seatedMinutes: 32 },
-  { id: "tbl-3", tableNo: "T3", area: "Main Room", capacity: 4, status: "Occupied", guestName: "Maria", time: "7:05 PM", phone: "05254989796", guestsCount: 3, leaf: true, position: { row: 3, col: 1 }, seatedMinutes: 18 },
-  
-  { id: "tbl-4", tableNo: "T4", area: "Main Room", capacity: 6, status: "Vacant", shape: "long", position: { row: 1, col: 2 } },
-  { id: "tbl-5", tableNo: "T5", area: "Main Room", capacity: 6, status: "Reserved", guestName: "Cathy Clark", time: "8:30 PM", phone: "05254989796", guestsCount: 4, shape: "long", position: { row: 3, col: 2 }, occasion: "Birthday" },
-  
-  { id: "tbl-12", tableNo: "T12", area: "Main Room", capacity: 4, status: "Vacant", position: { row: 1, col: 3 } },
-  { id: "tbl-6", tableNo: "T6", area: "Main Room", capacity: 4, status: "Occupied", guestName: "David Johnson", time: "6:20 PM", phone: "05254989796", guestsCount: 3, position: { row: 2, col: 3 }, seatedMinutes: 55 },
-  { id: "tbl-7", tableNo: "T7", area: "Main Room", capacity: 4, status: "Cleaning", position: { row: 3, col: 3 } },
-  { id: "tbl-8", tableNo: "T8", area: "Main Room", capacity: 4, status: "Vacant", position: { row: 4, col: 3 } },
-
-  { id: "tbl-9", tableNo: "T9", area: "Main Room", capacity: 4, status: "Reserved", guestName: "Sarah K.", time: "8:15 PM", phone: "05254989796", guestsCount: 3, position: { row: 1, col: 4 } },
-  { id: "tbl-10", tableNo: "T10", area: "Main Room", capacity: 4, status: "Occupied", guestName: "Emma Watson", time: "7:37 PM", phone: "05254989796", guestsCount: 3, vip: true, leaf: true, occasion: "Business", position: { row: 2, col: 4 }, seatedMinutes: 12 },
-  { id: "tbl-11", tableNo: "T11", area: "Main Room", capacity: 4, status: "Occupied", guestName: "John Davis", time: "7:00 PM", phone: "05254989796", guestsCount: 3, position: { row: 3, col: 4 }, seatedMinutes: 28 },
+  { id: "tbl-1", tableNo: "T1", tableNumber: 1, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 1, col: 1 } },
+  { id: "tbl-2", tableNo: "T2", tableNumber: 2, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 2, col: 1 } },
+  { id: "tbl-3", tableNo: "T3", tableNumber: 3, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 3, col: 1 } },
+  { id: "tbl-4", tableNo: "T4", tableNumber: 4, area: "Main Room", capacity: 6, status: "Vacant", shape: "long", position: { row: 1, col: 2 } },
+  { id: "tbl-5", tableNo: "T5", tableNumber: 5, area: "Main Room", capacity: 6, status: "Vacant", shape: "long", position: { row: 3, col: 2 } },
+  { id: "tbl-6", tableNo: "T6", tableNumber: 6, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 1, col: 3 } },
+  { id: "tbl-7", tableNo: "T7", tableNumber: 7, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 2, col: 3 } },
+  { id: "tbl-8", tableNo: "T8", tableNumber: 8, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 3, col: 3 } },
+  { id: "tbl-9", tableNo: "T9", tableNumber: 9, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 1, col: 4 } },
+  { id: "tbl-10", tableNo: "T10", tableNumber: 10, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 2, col: 4 } },
+  { id: "tbl-11", tableNo: "T11", tableNumber: 11, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 3, col: 4 } },
+  { id: "tbl-12", tableNo: "T12", tableNumber: 12, area: "Main Room", capacity: 4, status: "Vacant", position: { row: 4, col: 3 } },
 
   // Patio
-  { id: "tbl-p1", tableNo: "P1", area: "Patio", capacity: 2, status: "Occupied", guestName: "Alex Turner", time: "6:30 PM", phone: "0551122334", guestsCount: 2, shape: "round", position: { row: 1, col: 1 }, seatedMinutes: 38 },
-  { id: "tbl-p2", tableNo: "P2", area: "Patio", capacity: 2, status: "Vacant", shape: "round", position: { row: 1, col: 2 } },
-  { id: "tbl-p3", tableNo: "P3", area: "Patio", capacity: 4, status: "Vacant", position: { row: 2, col: 1 } },
-  { id: "tbl-p4", tableNo: "P4", area: "Patio", capacity: 4, status: "Occupied", guestName: "Laura Croft", time: "7:15 PM", phone: "0559988776", guestsCount: 4, position: { row: 2, col: 2 }, seatedMinutes: 20 },
-  { id: "tbl-p5", tableNo: "P5", area: "Patio", capacity: 4, status: "Vacant", position: { row: 3, col: 1 } },
-  { id: "tbl-p6", tableNo: "P6", area: "Patio", capacity: 4, status: "Vacant", position: { row: 3, col: 2 } },
+  { id: "tbl-p1", tableNo: "P1", tableNumber: 101, area: "Patio", capacity: 2, status: "Vacant", shape: "round", position: { row: 1, col: 1 } },
+  { id: "tbl-p2", tableNo: "P2", tableNumber: 102, area: "Patio", capacity: 2, status: "Vacant", shape: "round", position: { row: 1, col: 2 } },
+  { id: "tbl-p3", tableNo: "P3", tableNumber: 103, area: "Patio", capacity: 4, status: "Vacant", position: { row: 2, col: 1 } },
+  { id: "tbl-p4", tableNo: "P4", tableNumber: 104, area: "Patio", capacity: 4, status: "Vacant", position: { row: 2, col: 2 } },
+  { id: "tbl-p5", tableNo: "P5", tableNumber: 105, area: "Patio", capacity: 4, status: "Vacant", position: { row: 3, col: 1 } },
+  { id: "tbl-p6", tableNo: "P6", tableNumber: 106, area: "Patio", capacity: 4, status: "Vacant", position: { row: 3, col: 2 } },
 
   // Terrace
-  { id: "tbl-t1", tableNo: "R1", area: "Terrace", capacity: 4, status: "Occupied", guestName: "Oliver Queen", time: "7:00 PM", phone: "0554433221", guestsCount: 4, vip: true, position: { row: 1, col: 1 }, seatedMinutes: 45 },
-  { id: "tbl-t2", tableNo: "R2", area: "Terrace", capacity: 4, status: "Occupied", guestName: "Bruce Wayne", time: "7:20 PM", phone: "0557766554", guestsCount: 2, vip: true, position: { row: 1, col: 2 }, seatedMinutes: 30 },
-  { id: "tbl-t3", tableNo: "R3", area: "Terrace", capacity: 6, status: "Occupied", guestName: "Diana Prince", time: "7:30 PM", phone: "0551133557", guestsCount: 5, shape: "long", vip: true, position: { row: 2, col: 1 }, seatedMinutes: 22 },
-  { id: "tbl-t4", tableNo: "R4", area: "Terrace", capacity: 6, status: "Occupied", guestName: "Clark Kent", time: "7:45 PM", phone: "0559911223", guestsCount: 6, shape: "long", position: { row: 2, col: 2 }, seatedMinutes: 10 },
-  { id: "tbl-t5", tableNo: "R5", area: "Terrace", capacity: 4, status: "Occupied", guestName: "Barry Allen", time: "8:00 PM", phone: "0558877665", guestsCount: 3, position: { row: 3, col: 1 }, seatedMinutes: 5 },
+  { id: "tbl-t1", tableNo: "R1", tableNumber: 201, area: "Terrace", capacity: 4, status: "Vacant", position: { row: 1, col: 1 } },
+  { id: "tbl-t2", tableNo: "R2", tableNumber: 202, area: "Terrace", capacity: 4, status: "Vacant", position: { row: 1, col: 2 } },
+  { id: "tbl-t3", tableNo: "R3", tableNumber: 203, area: "Terrace", capacity: 6, status: "Vacant", shape: "long", position: { row: 2, col: 1 } },
+  { id: "tbl-t4", tableNo: "R4", tableNumber: 204, area: "Terrace", capacity: 6, status: "Vacant", shape: "long", position: { row: 2, col: 2 } },
+  { id: "tbl-t5", tableNo: "R5", tableNumber: 205, area: "Terrace", capacity: 4, status: "Vacant", position: { row: 3, col: 1 } },
+  { id: "tbl-t6", tableNo: "R6", tableNumber: 206, area: "Terrace", capacity: 4, status: "Vacant", position: { row: 3, col: 2 } },
 
   // Lounge
-  { id: "tbl-l1", tableNo: "L1", area: "Lounge", capacity: 4, status: "Occupied", guestName: "Sophia Loren", time: "7:10 PM", phone: "0553322114", guestsCount: 4, vip: true, position: { row: 1, col: 1 }, seatedMinutes: 50 },
-  { id: "tbl-l2", tableNo: "L2", area: "Lounge", capacity: 6, status: "Reserved", guestName: "Leonardo D.", time: "8:45 PM", phone: "0557711223", guestsCount: 6, shape: "long", vip: true, position: { row: 1, col: 2 } },
+  { id: "tbl-l1", tableNo: "L1", tableNumber: 301, area: "Lounge", capacity: 4, status: "Vacant", position: { row: 1, col: 1 } },
+  { id: "tbl-l2", tableNo: "L2", tableNumber: 302, area: "Lounge", capacity: 6, status: "Vacant", shape: "long", position: { row: 1, col: 2 } },
+  { id: "tbl-l3", tableNo: "L3", tableNumber: 303, area: "Lounge", capacity: 4, status: "Vacant", position: { row: 2, col: 1 } },
+  { id: "tbl-l4", tableNo: "L4", tableNumber: 304, area: "Lounge", capacity: 6, status: "Vacant", shape: "long", position: { row: 2, col: 2 } },
 ];
 
-const INITIAL_WAITLIST: ReservationItem[] = [
-  { id: "w-1", name: "Michael Scott", phone: "0529988776", time: "7:45 PM", guests: 4, area: "Main Room", tableNo: "", status: "Waiting", waitTime: "15 min", notes: "Prefers window table", occasion: "Business" },
-  { id: "w-2", name: "Pam Beesly", phone: "0521122334", time: "8:00 PM", guests: 2, area: "Patio", tableNo: "", status: "Waiting", waitTime: "25 min", occasion: "Anniversary" },
-  { id: "w-3", name: "Jim Halpert", phone: "0524455667", time: "8:10 PM", guests: 3, area: "Main Room", tableNo: "", status: "Waiting", waitTime: "10 min", notes: "High chair needed" },
-];
+interface FloorPlanViewProps {
+  token?: string;
+  initialReservations?: ReservationItem[];
+  onDataRefresh?: () => void;
+}
 
-export default function FloorPlanView({ token }: { token?: string }) {
+export default function FloorPlanView({
+  token: propToken,
+  initialReservations = [],
+  onDataRefresh,
+}: FloorPlanViewProps) {
   const [activeTab, setActiveTab] = useState<"RESERVATION" | "WAITING">("RESERVATION");
   const [activeArea, setActiveArea] = useState<"Main Room" | "Patio" | "Terrace" | "Lounge">("Main Room");
   const [searchQuery, setSearchQuery] = useState("");
   const [mealPeriod, setMealPeriod] = useState("Dinner");
-  const [selectedDate, setSelectedDate] = useState("Thu, Jan 19");
   
-  const [tables, setTables] = useState<TableData[]>(INITIAL_TABLES);
-  const [waitlist, setWaitlist] = useState<ReservationItem[]>(INITIAL_WAITLIST);
+  const [tables, setTables] = useState<TableData[]>(DEFAULT_TABLE_CONFIGS);
+  const [dbReservations, setDbReservations] = useState<ReservationItem[]>(initialReservations);
+  const [waitlist, setWaitlist] = useState<ReservationItem[]>([]);
+  const [loading, setLoading] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const [smsModal, setSmsModal] = useState<{ open: boolean; name: string; phone: string } | null>(null);
 
@@ -125,7 +143,112 @@ export default function FloorPlanView({ token }: { token?: string }) {
   const [isNewWaitlistOpen, setIsNewWaitlistOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
-  // Auto-increment live seating timer every 60s
+  const getAuthToken = useCallback(() => {
+    return propToken || (typeof window !== "undefined" ? localStorage.getItem("token") || "" : "");
+  }, [propToken]);
+
+  const showToast = (msg: string) => {
+    setToast(msg);
+    setTimeout(() => setToast(null), 4000);
+  };
+
+  // Fetch live reservations & tables from API
+  const fetchLiveData = useCallback(async () => {
+    const token = getAuthToken();
+    if (!token) return;
+
+    setLoading(true);
+    try {
+      // 1. Fetch reservations
+      const resRes = await fetch(`${API_BASE_URL}/api/reservations/all?all=true`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      let fetchedReservations: ReservationItem[] = [];
+      if (resRes.ok) {
+        fetchedReservations = await resRes.json();
+        setDbReservations(fetchedReservations);
+      }
+
+      // Filter waitlist
+      const waitlistItems = fetchedReservations.filter((r) => r.status === "Waitlisted");
+      setWaitlist(waitlistItems);
+
+      // 2. Map reservations onto table layout
+      setTables((prevTables) => {
+        return prevTables.map((tbl) => {
+          // Find matching active seated or reserved reservation for this table
+          const matchedSeated = fetchedReservations.find(
+            (r) =>
+              (r.tableNo === tbl.tableNo || r.tableId === tbl.tableNo) &&
+              r.status === "Seated"
+          );
+
+          if (matchedSeated) {
+            const timeStr = matchedSeated.date
+              ? new Date(matchedSeated.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : "Now";
+            return {
+              ...tbl,
+              status: "Occupied",
+              guestName: matchedSeated.name,
+              phone: matchedSeated.phone,
+              time: timeStr,
+              guestsCount: matchedSeated.guests,
+              reservationId: matchedSeated._id,
+              occasion: matchedSeated.occasion,
+              seatedMinutes: tbl.seatedMinutes || 15,
+            };
+          }
+
+          const matchedReserved = fetchedReservations.find(
+            (r) =>
+              (r.tableNo === tbl.tableNo || r.tableId === tbl.tableNo) &&
+              r.status === "Confirmed"
+          );
+
+          if (matchedReserved) {
+            const timeStr = matchedReserved.date
+              ? new Date(matchedReserved.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+              : "8:00 PM";
+            return {
+              ...tbl,
+              status: "Reserved",
+              guestName: matchedReserved.name,
+              phone: matchedReserved.phone,
+              time: timeStr,
+              guestsCount: matchedReserved.guests,
+              reservationId: matchedReserved._id,
+              occasion: matchedReserved.occasion,
+            };
+          }
+
+          // If no active reservation, keep vacant or cleaning
+          if (tbl.status === "Cleaning") return tbl;
+          return {
+            ...tbl,
+            status: "Vacant",
+            guestName: undefined,
+            phone: undefined,
+            time: undefined,
+            guestsCount: undefined,
+            reservationId: undefined,
+            occasion: undefined,
+            seatedMinutes: undefined,
+          };
+        });
+      });
+    } catch (err) {
+      console.error("Error fetching live floor plan data:", err);
+    } finally {
+      setLoading(false);
+    }
+  }, [getAuthToken]);
+
+  useEffect(() => {
+    fetchLiveData();
+  }, [fetchLiveData]);
+
+  // Live timer for occupied tables
   useEffect(() => {
     const timer = setInterval(() => {
       setTables((prev) =>
@@ -139,24 +262,20 @@ export default function FloorPlanView({ token }: { token?: string }) {
     return () => clearInterval(timer);
   }, []);
 
-  const showToast = (msg: string) => {
-    setToast(msg);
-    setTimeout(() => setToast(null), 4000);
-  };
-
   // Form states
   const [newResForm, setNewResForm] = useState({
     name: "",
     phone: "",
     email: "",
-    time: "8:00 PM",
+    time: "7:30 PM",
+    date: new Date().toISOString().split("T")[0],
     guests: 2,
     area: "Main Room" as "Main Room" | "Patio" | "Terrace" | "Lounge",
-    tableNo: "T4",
+    tableNo: "T1",
     notes: "",
     vip: false,
     leaf: false,
-    occasion: "General" as "Birthday" | "Anniversary" | "Business" | "General",
+    occasion: "General",
   });
 
   const [newWaitForm, setNewWaitForm] = useState({
@@ -165,7 +284,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
     guests: 2,
     area: "Main Room" as "Main Room" | "Patio" | "Terrace" | "Lounge",
     notes: "",
-    occasion: "General" as "Birthday" | "Anniversary" | "Business" | "General",
+    occasion: "General",
   });
 
   const openReservationForTable = (tbl: TableData) => {
@@ -195,9 +314,15 @@ export default function FloorPlanView({ token }: { token?: string }) {
   }, [tables]);
 
   const totalOccupied = useMemo(() => tables.filter((t) => t.status === "Occupied").length, [tables]);
-  const capacityPercent = useMemo(() => Math.round((totalOccupied / Math.max(1, tables.length)) * 100), [totalOccupied, tables.length]);
+  const capacityPercent = useMemo(
+    () => Math.round((totalOccupied / Math.max(1, tables.length)) * 100),
+    [totalOccupied, tables.length]
+  );
 
-  const currentAreaTables = useMemo(() => tables.filter((t) => t.area === activeArea), [tables, activeArea]);
+  const currentAreaTables = useMemo(
+    () => tables.filter((t) => t.area === activeArea),
+    [tables, activeArea]
+  );
 
   const seatedGuests = useMemo(() => {
     return tables
@@ -231,16 +356,45 @@ export default function FloorPlanView({ token }: { token?: string }) {
     return waitlist.filter((w) => {
       if (!searchQuery) return true;
       const q = searchQuery.toLowerCase();
-      return w.name.toLowerCase().includes(q) || w.phone.includes(q);
+      return w.name.toLowerCase().includes(q) || w.phone?.includes(q);
     });
   }, [waitlist, searchQuery]);
 
-  // Handlers
-  const handleUpdateTableStatus = (
+  // Update table status in database & local state
+  const handleUpdateTableStatus = async (
     tableId: string,
     newStatus: "Occupied" | "Reserved" | "Vacant" | "Cleaning",
     guestDetails?: Partial<TableData>
   ) => {
+    const tbl = tables.find((t) => t.id === tableId);
+    if (!tbl) return;
+
+    const token = getAuthToken();
+
+    // If there's an associated reservation, update it on the backend
+    if (tbl.reservationId && token) {
+      try {
+        let backendStatus = "Confirmed";
+        if (newStatus === "Occupied") backendStatus = "Seated";
+        else if (newStatus === "Vacant") backendStatus = "Completed";
+
+        await fetch(`${API_BASE_URL}/api/reservations/${tbl.reservationId}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: backendStatus,
+            tableNo: tbl.tableNo,
+            area: tbl.area,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to update reservation status in backend:", err);
+      }
+    }
+
     setTables((prev) =>
       prev.map((t) => {
         if (t.id === tableId) {
@@ -253,6 +407,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
               time: undefined,
               phone: undefined,
               guestsCount: undefined,
+              reservationId: undefined,
               seatedMinutes: undefined,
               vip: undefined,
               leaf: undefined,
@@ -277,12 +432,35 @@ export default function FloorPlanView({ token }: { token?: string }) {
         return t;
       })
     );
+
     setSelectedTable(null);
+    if (onDataRefresh) onDataRefresh();
   };
 
-  const handleSeatWaitlistGuest = (waitId: string, tableNo: string) => {
-    const item = waitlist.find((w) => w.id === waitId);
+  // Seat guest from waitlist to table
+  const handleSeatWaitlistGuest = async (waitId: string, tableNo: string) => {
+    const item = waitlist.find((w) => (w._id === waitId || w.id === waitId));
     if (!item) return;
+
+    const token = getAuthToken();
+    if (token && item._id) {
+      try {
+        await fetch(`${API_BASE_URL}/api/reservations/${item._id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            status: "Seated",
+            tableNo: tableNo,
+            area: activeArea,
+          }),
+        });
+      } catch (err) {
+        console.error("Failed to seat waitlist guest:", err);
+      }
+    }
 
     setTables((prev) =>
       prev.map((t) => {
@@ -296,13 +474,16 @@ export default function FloorPlanView({ token }: { token?: string }) {
             guestsCount: item.guests,
             seatedMinutes: 1,
             occasion: item.occasion,
+            reservationId: item._id,
           };
         }
         return t;
       })
     );
-    setWaitlist((prev) => prev.filter((w) => w.id !== waitId));
+
+    setWaitlist((prev) => prev.filter((w) => (w._id !== waitId && w.id !== waitId)));
     showToast(`Seated ${item.name} at Table ${tableNo}`);
+    if (onDataRefresh) onDataRefresh();
   };
 
   const handleSendSmsAlert = (name: string, phone: string) => {
@@ -311,93 +492,89 @@ export default function FloorPlanView({ token }: { token?: string }) {
 
   const confirmSendSms = () => {
     if (smsModal) {
-      showToast(`📱 SMS Alert sent to ${smsModal.name} (${smsModal.phone})!`);
+      showToast(`📱 SMS alert sent to ${smsModal.name} (${smsModal.phone})!`);
       setSmsModal(null);
     }
   };
 
+  // Create new reservation directly on a table
   const handleCreateReservation = async (e: React.FormEvent) => {
     e.preventDefault();
     setSubmitting(true);
+    const token = getAuthToken();
 
     try {
-      const combinedDate = `${new Date().toISOString().split("T")[0]}T${newResForm.time}`;
-      await fetch(`${API_BASE_URL}/api/reservations`, {
+      const combinedDate = `${newResForm.date}T${newResForm.time}`;
+      const res = await fetch(`${API_BASE_URL}/api/reservations`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
         body: JSON.stringify({
           name: newResForm.name,
           email: newResForm.email || `${newResForm.name.toLowerCase().replace(/\s+/g, "")}@example.com`,
           phone: newResForm.phone,
           date: combinedDate,
           guests: newResForm.guests,
-          notes: `Area: ${newResForm.area}, Table: ${newResForm.tableNo}, Occasion: ${newResForm.occasion}${newResForm.notes ? ` — ${newResForm.notes}` : ""}`,
+          tableNo: newResForm.tableNo,
+          area: newResForm.area,
+          occasion: newResForm.occasion,
+          notes: newResForm.notes,
         }),
       });
+
+      if (res.ok) {
+        showToast(`Reservation confirmed for ${newResForm.name} at Table ${newResForm.tableNo}!`);
+        setIsNewResModalOpen(false);
+        fetchLiveData();
+        if (onDataRefresh) onDataRefresh();
+      } else {
+        showToast("Error creating reservation");
+      }
     } catch (err) {
       console.error("Failed to post reservation to backend:", err);
+      showToast("Server connection error");
     } finally {
       setSubmitting(false);
     }
-
-    const targetTable = tables.find((t) => t.tableNo === newResForm.tableNo && t.area === newResForm.area);
-    if (targetTable) {
-      setTables((prev) =>
-        prev.map((t) => {
-          if (t.id === targetTable.id) {
-            return {
-              ...t,
-              status: "Reserved",
-              guestName: newResForm.name,
-              phone: newResForm.phone,
-              time: newResForm.time,
-              guestsCount: newResForm.guests,
-              vip: newResForm.vip,
-              leaf: newResForm.leaf,
-              occasion: newResForm.occasion,
-            };
-          }
-          return t;
-        })
-      );
-    }
-
-    showToast(`Reservation created for ${newResForm.name} at Table ${newResForm.tableNo}!`);
-    setIsNewResModalOpen(false);
-    setNewResForm({
-      name: "",
-      phone: "",
-      email: "",
-      time: "8:00 PM",
-      guests: 2,
-      area: activeArea,
-      tableNo: "T4",
-      notes: "",
-      vip: false,
-      leaf: false,
-      occasion: "General",
-    });
   };
 
-  const handleCreateWaitlist = (e: React.FormEvent) => {
+  // Add walk-in to waitlist
+  const handleCreateWaitlist = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newItem: ReservationItem = {
-      id: `w-${Date.now()}`,
-      name: newWaitForm.name,
-      phone: newWaitForm.phone,
-      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      guests: newWaitForm.guests,
-      area: newWaitForm.area,
-      tableNo: "",
-      status: "Waiting",
-      waitTime: "15-20 min",
-      notes: newWaitForm.notes,
-      occasion: newWaitForm.occasion,
-    };
-    setWaitlist((prev) => [...prev, newItem]);
-    showToast(`Added ${newWaitForm.name} to waitlist`);
-    setIsNewWaitlistOpen(false);
-    setNewWaitForm({ name: "", phone: "", guests: 2, area: activeArea, notes: "", occasion: "General" });
+    const token = getAuthToken();
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/reservations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          name: newWaitForm.name,
+          phone: newWaitForm.phone,
+          email: "waitlist@guest.com",
+          date: new Date().toISOString(),
+          guests: newWaitForm.guests,
+          area: newWaitForm.area,
+          isWaitlist: true,
+          occasion: newWaitForm.occasion,
+          notes: newWaitForm.notes,
+        }),
+      });
+
+      if (res.ok) {
+        showToast(`Added ${newWaitForm.name} to waitlist`);
+        setIsNewWaitlistOpen(false);
+        setNewWaitForm({ name: "", phone: "", guests: 2, area: activeArea, notes: "", occasion: "General" });
+        fetchLiveData();
+        if (onDataRefresh) onDataRefresh();
+      }
+    } catch (err) {
+      console.error("Error creating waitlist:", err);
+    }
   };
 
   return (
@@ -424,7 +601,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                     : "text-[#8e98b0] hover:text-white"
                 }`}
               >
-                RESERVATION
+                RESERVATIONS ({seatedGuests.length + upcomingReservations.length})
               </button>
               <button
                 onClick={() => setActiveTab("WAITING")}
@@ -440,17 +617,25 @@ export default function FloorPlanView({ token }: { token?: string }) {
           </div>
 
           {/* Search Guest Input */}
-          <div className="px-4 py-3 border-b border-[#212638]">
-            <div className="relative">
+          <div className="px-4 py-3 border-b border-[#212638] flex items-center gap-2">
+            <div className="relative flex-1">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#64748b]" />
               <input
                 type="text"
-                placeholder="Search Guest or Table…"
+                placeholder="Search Guest, Table, or Phone…"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="w-full bg-[#0d0e14] border border-[#232838] rounded-xl pl-10 pr-4 py-2.5 text-xs text-white placeholder-[#64748b] focus:outline-none focus:border-[#2563eb] transition"
               />
             </div>
+            <button
+              onClick={fetchLiveData}
+              disabled={loading}
+              title="Refresh Live Floor Plan"
+              className="p-2.5 bg-[#0d0e14] border border-[#232838] rounded-xl text-[#8e98b0] hover:text-white hover:border-[#2563eb] transition"
+            >
+              <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin text-amber-400" : ""}`} />
+            </button>
           </div>
 
           {/* List Content */}
@@ -462,7 +647,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-[#38bdf8] font-bold text-xs tracking-wider uppercase">
                       <Users className="w-3.5 h-3.5" />
-                      <span>Seated</span>
+                      <span>Currently Seated</span>
                     </div>
                     <span className="text-xs font-bold text-[#38bdf8] bg-[#38bdf8]/10 px-2 py-0.5 rounded-full border border-[#38bdf8]/20">
                       {seatedGuests.length}
@@ -471,7 +656,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
 
                   <div className="space-y-2.5">
                     {seatedGuests.length === 0 ? (
-                      <p className="text-xs text-[#64748b] italic py-2">No seated guests</p>
+                      <p className="text-xs text-[#64748b] italic py-2">No guests currently seated</p>
                     ) : (
                       seatedGuests.map((g) => (
                         <div
@@ -487,11 +672,11 @@ export default function FloorPlanView({ token }: { token?: string }) {
                               <div>
                                 <h4 className="text-xs font-bold text-white group-hover:text-[#38bdf8] transition flex items-center gap-1.5">
                                   {g.guestName}
-                                  {g.occasion === "Birthday" && <span title="Birthday">🎉</span>}
+                                  {g.occasion === "Birthday" && <span title="Birthday">🎂</span>}
                                   {g.occasion === "Anniversary" && <span title="Anniversary">💍</span>}
-                                  {g.occasion === "Business" && <span title="Business">💼</span>}
+                                  {g.occasion === "Business Dinner" && <span title="Business">💼</span>}
                                 </h4>
-                                <p className="text-[11px] text-[#64748b] mt-0.5">{g.phone || "05254989796"}</p>
+                                <p className="text-[11px] text-[#64748b] mt-0.5">{g.phone || "No phone"}</p>
                               </div>
                             </div>
 
@@ -505,15 +690,9 @@ export default function FloorPlanView({ token }: { token?: string }) {
                               <Clock className="w-3 h-3 text-[#38bdf8]" />
                               {g.seatedMinutes || 15}m seated
                             </span>
-                            <div className="flex items-center gap-1.5">
-                              {g.leaf && (
-                                <svg className="w-3.5 h-3.5 text-emerald-400 fill-emerald-400/20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                  <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.4 19 2c1 2 2 4.1 2 9 0 5-4 9-10 9z" />
-                                  <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12" />
-                                </svg>
-                              )}
-                              {g.vip && <Star className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />}
-                            </div>
+                            <span className="text-xs font-semibold text-emerald-400">
+                              {g.guestsCount || g.capacity} Guests · {g.area}
+                            </span>
                           </div>
                         </div>
                       ))
@@ -526,7 +705,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-2 text-[#eab308] font-bold text-xs tracking-wider uppercase">
                       <Clock className="w-3.5 h-3.5" />
-                      <span>Upcoming</span>
+                      <span>Confirmed Reserved</span>
                     </div>
                     <span className="text-xs font-bold text-[#eab308] bg-[#eab308]/10 px-2 py-0.5 rounded-full border border-[#eab308]/20">
                       {upcomingReservations.length}
@@ -535,7 +714,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
 
                   <div className="space-y-2.5">
                     {upcomingReservations.length === 0 ? (
-                      <p className="text-xs text-[#64748b] italic py-2">No upcoming reservations</p>
+                      <p className="text-xs text-[#64748b] italic py-2">No upcoming table assignments</p>
                     ) : (
                       upcomingReservations.map((g) => (
                         <div
@@ -552,7 +731,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                                 <h4 className="text-xs font-bold text-white group-hover:text-amber-400 transition">
                                   {g.guestName}
                                 </h4>
-                                <p className="text-[11px] text-[#64748b] mt-0.5">{g.phone || "05254989796"}</p>
+                                <p className="text-[11px] text-[#64748b] mt-0.5">{g.phone || "No phone"}</p>
                               </div>
                             </div>
 
@@ -591,7 +770,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                 ) : (
                   filteredWaitlist.map((w) => (
                     <div
-                      key={w.id}
+                      key={w._id || w.id}
                       className="bg-[#10121a] border border-[#232838] rounded-2xl p-3.5 space-y-2 hover:border-[#2563eb]/50 transition"
                     >
                       <div className="flex items-center justify-between">
@@ -600,11 +779,11 @@ export default function FloorPlanView({ token }: { token?: string }) {
                           {w.occasion && <span className="text-[10px] text-amber-400">({w.occasion})</span>}
                         </h4>
                         <span className="text-[10px] font-semibold bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 rounded-full">
-                          ~{w.waitTime}
+                          ~{w.waitTime || "15 min"}
                         </span>
                       </div>
                       <div className="text-[11px] text-[#94a3b8] flex justify-between items-center">
-                        <span>{w.guests} Guests · {w.area}</span>
+                        <span>{w.guests} Guests · {w.area || "Main Room"}</span>
                         <span className="text-[#64748b]">{w.phone}</span>
                       </div>
 
@@ -624,7 +803,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
 
                         <select
                           onChange={(e) => {
-                            if (e.target.value) handleSeatWaitlistGuest(w.id!, e.target.value);
+                            if (e.target.value) handleSeatWaitlistGuest(w._id || w.id!, e.target.value);
                           }}
                           defaultValue=""
                           className="bg-[#141721] border border-[#2b3145] text-xs text-white rounded-lg px-2 py-1 focus:outline-none flex-1"
@@ -636,7 +815,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                             .filter((t) => t.status === "Vacant")
                             .map((t) => (
                               <option key={t.id} value={t.tableNo}>
-                                Table {t.tableNo} ({t.capacity} s)
+                                Table {t.tableNo} ({t.capacity} Seats)
                               </option>
                             ))}
                         </select>
@@ -653,50 +832,30 @@ export default function FloorPlanView({ token }: { token?: string }) {
         <div className="flex-1 flex flex-col bg-[#141620]">
           {/* Top Control Bar */}
           <div className="p-4 border-b border-[#212638] flex flex-wrap items-center justify-between gap-4 bg-[#181b26]/50">
-            {/* Left Controls: Date Switcher & Meal Select */}
+            {/* Meal Shift Select */}
             <div className="flex items-center gap-3">
-              <div className="flex items-center bg-[#0d0e14] border border-[#232838] rounded-xl px-2.5 py-1 text-xs text-white">
-                <button className="p-1 hover:text-[#2563eb] transition">
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <span className="font-semibold px-2">{selectedDate}</span>
-                <button className="p-1 hover:text-[#2563eb] transition">
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-
               <div className="relative">
                 <select
                   value={mealPeriod}
                   onChange={(e) => setMealPeriod(e.target.value)}
-                  className="bg-[#0d0e14] border border-[#232838] rounded-xl px-3 py-1.5 text-xs font-semibold text-white appearance-none pr-8 focus:outline-none cursor-pointer"
+                  className="bg-[#0d0e14] border border-[#232838] rounded-xl px-3.5 py-2 text-xs font-semibold text-white appearance-none pr-8 focus:outline-none cursor-pointer"
                 >
-                  <option value="Dinner">Dinner Shift</option>
-                  <option value="Lunch">Lunch Shift</option>
-                  <option value="Breakfast">Breakfast Shift</option>
+                  <option value="Dinner">Dinner Shift (6:00 PM – 11:30 PM)</option>
+                  <option value="Lunch">Lunch Shift (12:00 PM – 3:30 PM)</option>
+                  <option value="Breakfast">Breakfast Shift (8:00 AM – 11:00 AM)</option>
                 </select>
                 <ChevronDown className="w-3.5 h-3.5 text-[#64748b] absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
               </div>
             </div>
 
-            {/* Right Controls: Actions & New Reservation */}
+            {/* Right Controls: New Reservation Button */}
             <div className="flex items-center gap-2.5">
-              <button title="Calendar View" className="p-2 bg-[#0d0e14] border border-[#232838] rounded-xl text-[#94a3b8] hover:text-white hover:border-[#333a4e] transition">
-                <Calendar className="w-4 h-4" />
-              </button>
-              <button title="Capacity Analytics" className="p-2 bg-[#0d0e14] border border-[#232838] rounded-xl text-[#94a3b8] hover:text-white hover:border-[#333a4e] transition">
-                <PieChart className="w-4 h-4" />
-              </button>
-              <button title="Settings" className="p-2 bg-[#0d0e14] border border-[#232838] rounded-xl text-[#94a3b8] hover:text-white hover:border-[#333a4e] transition">
-                <Settings className="w-4 h-4" />
-              </button>
-
               <button
                 onClick={() => setIsNewResModalOpen(true)}
                 className="flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-blue-500/25"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ New Reservation</span>
+                <span>+ Assign &amp; Book Table</span>
               </button>
             </div>
           </div>
@@ -737,14 +896,14 @@ export default function FloorPlanView({ token }: { token?: string }) {
             {/* Metrics Display */}
             <div className="flex items-center gap-5 text-xs text-[#94a3b8]">
               <div className="flex items-center gap-2 bg-[#0d0e14] px-3 py-1.5 rounded-xl border border-[#232838]">
-                <Clock className="w-3.5 h-3.5 text-[#38bdf8]" />
-                <span>Avg Wait:</span>
-                <span className="font-bold text-white">25 min</span>
+                <Users className="w-3.5 h-3.5 text-[#38bdf8]" />
+                <span>Seated Tables:</span>
+                <span className="font-bold text-white">{totalOccupied} / {tables.length}</span>
               </div>
               <div className="flex items-center gap-2 bg-[#0d0e14] px-3 py-1.5 rounded-xl border border-[#232838]">
                 <PieChart className="w-3.5 h-3.5 text-[#38bdf8]" />
-                <span>Capacity:</span>
-                <span className="font-bold text-white">{capacityPercent}% Full</span>
+                <span>Occupancy:</span>
+                <span className="font-bold text-white">{capacityPercent}%</span>
               </div>
             </div>
           </div>
@@ -805,7 +964,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                         : "border-[#10b981]/40 hover:border-[#10b981]/80"
                     }`}
                   >
-                    {/* Seat Chair Silhouettes */}
+                    {/* Seat Silhouettes */}
                     {tbl.shape === "long" ? (
                       <>
                         <div className="absolute top-2 left-1/2 -translate-x-1/2 flex gap-2">
@@ -838,12 +997,14 @@ export default function FloorPlanView({ token }: { token?: string }) {
                       </>
                     )}
 
-                    {/* Prominent Indicator Strip on Right Side */}
+                    {/* Table Status Indicator Strip */}
                     <div className={`absolute right-0 top-3 bottom-3 w-3 rounded-l-lg ${capColor}`} />
 
                     {/* Table Header */}
                     <div className="w-full flex items-center justify-between text-neutral-300 text-xs font-bold">
-                      <span className="bg-[#1a1d2e] px-2 py-0.5 rounded-md border border-[#373e57]">{tbl.tableNo}</span>
+                      <span className="bg-[#1a1d2e] px-2 py-0.5 rounded-md border border-[#373e57]">
+                        {tbl.tableNo} ({tbl.capacity} Seats)
+                      </span>
                       {tbl.seatedMinutes && (
                         <span className="text-[10px] font-semibold text-[#38bdf8] bg-[#38bdf8]/10 px-1.5 py-0.5 rounded border border-[#38bdf8]/20">
                           {tbl.seatedMinutes}m
@@ -855,7 +1016,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                     <div className="my-auto text-left pr-4">
                       {isVacant ? (
                         <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeBg} ${textColor}`}>
-                          Vacant
+                          Available
                         </span>
                       ) : isCleaning ? (
                         <span className={`inline-block text-[11px] font-bold px-2 py-0.5 rounded-md border ${badgeBg} ${textColor}`}>
@@ -865,7 +1026,6 @@ export default function FloorPlanView({ token }: { token?: string }) {
                         <>
                           <p className="text-xs font-bold text-white truncate max-w-[115px] flex items-center gap-1">
                             {tbl.guestName}
-                            {tbl.vip && <Star className="w-3 h-3 text-amber-400 inline shrink-0 fill-amber-400" />}
                           </p>
                           <p className={`text-[11px] font-semibold ${textColor} mt-1 flex items-center gap-1`}>
                             {isOccupied ? "Occupied" : `Reserved ${tbl.time || ""}`}
@@ -985,7 +1145,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                   onClick={() => handleUpdateTableStatus(selectedTable.id, "Vacant")}
                   className="w-full bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 py-2.5 rounded-xl text-xs font-bold hover:bg-emerald-500/25 transition"
                 >
-                  Vacate & Clear
+                  Vacate Table
                 </button>
               )}
 
@@ -994,7 +1154,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                   onClick={() =>
                     handleUpdateTableStatus(selectedTable.id, "Reserved", {
                       guestName: selectedTable.guestName || "Reserved Guest",
-                      time: "8:30 PM",
+                      time: "8:00 PM",
                     })
                   }
                   className="w-full bg-[#eab308]/15 border border-[#eab308]/30 text-[#eab308] py-2.5 rounded-xl text-xs font-bold hover:bg-[#eab308]/25 transition"
@@ -1024,7 +1184,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
               </div>
             </div>
             <div className="bg-[#10121a] p-4 rounded-xl border border-[#232838] text-xs text-neutral-300 my-4">
-              &quot;Hello {smsModal.name}, your table at L&apos;Étoile Dorée is ready! Please report to the host stand.&quot;
+              &quot;Hello {smsModal.name}, your table at VELORA is ready! Please report to the host stand.&quot;
             </div>
             <div className="flex justify-end gap-2 pt-2">
               <button onClick={() => setSmsModal(null)} className="px-4 py-2 rounded-xl text-xs text-[#8e98b0] hover:text-white">Cancel</button>
@@ -1042,7 +1202,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
               <X className="w-5 h-5" />
             </button>
 
-            <h3 className="text-lg font-bold text-white mb-1">Create New Reservation</h3>
+            <h3 className="text-lg font-bold text-white mb-1">Create Table Reservation</h3>
             <p className="text-xs text-[#8e98b0] mb-6">Assign guest to a table directly.</p>
 
             <form onSubmit={handleCreateReservation} className="space-y-4">
@@ -1061,15 +1221,38 @@ export default function FloorPlanView({ token }: { token?: string }) {
                 <div>
                   <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Phone Number</label>
                   <input
-                    placeholder="05254989796"
+                    placeholder="+91 98765 43210"
                     value={newResForm.phone}
                     onChange={(e) => setNewResForm({ ...newResForm, phone: e.target.value })}
                     className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
                   />
                 </div>
                 <div>
+                  <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Email Address</label>
+                  <input
+                    type="email"
+                    placeholder="guest@example.com"
+                    value={newResForm.email}
+                    onChange={(e) => setNewResForm({ ...newResForm, email: e.target.value })}
+                    className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Date</label>
+                  <input
+                    type="date"
+                    value={newResForm.date}
+                    onChange={(e) => setNewResForm({ ...newResForm, date: e.target.value })}
+                    className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Time Slot</label>
                   <input
+                    placeholder="7:30 PM"
                     value={newResForm.time}
                     onChange={(e) => setNewResForm({ ...newResForm, time: e.target.value })}
                     className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
@@ -1079,7 +1262,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
 
               <div className="grid grid-cols-3 gap-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Guests</label>
+                  <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Party Size</label>
                   <input
                     type="number"
                     min={1}
@@ -1118,7 +1301,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                       .filter((t) => t.area === newResForm.area)
                       .map((t) => (
                         <option key={t.id} value={t.tableNo}>
-                          {t.tableNo} ({t.capacity} s)
+                          {t.tableNo} ({t.capacity} Seats)
                         </option>
                       ))}
                   </select>
@@ -1151,7 +1334,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                 <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Guest Name</label>
                 <input
                   required
-                  placeholder="Michael Scott"
+                  placeholder="Guest Name"
                   value={newWaitForm.name}
                   onChange={(e) => setNewWaitForm({ ...newWaitForm, name: e.target.value })}
                   className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
@@ -1162,7 +1345,7 @@ export default function FloorPlanView({ token }: { token?: string }) {
                 <div>
                   <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Phone</label>
                   <input
-                    placeholder="0529988776"
+                    placeholder="+91 98765 43210"
                     value={newWaitForm.phone}
                     onChange={(e) => setNewWaitForm({ ...newWaitForm, phone: e.target.value })}
                     className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"

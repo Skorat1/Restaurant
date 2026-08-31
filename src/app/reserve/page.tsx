@@ -44,6 +44,13 @@ const DIETARY_TAGS = [
   "Dairy-Free", "Halal", "Kosher", "Shellfish Free"
 ];
 
+const SEATING_AREAS = [
+  { id: "Main Room", label: "Main Dining Room", desc: "Grand interior & crystal chandeliers", icon: "🏛️" },
+  { id: "Patio", label: "Romantic Patio", desc: "Garden greenery & fairy lights", icon: "🌿" },
+  { id: "Terrace", label: "Sky Terrace", desc: "Panoramic skyline views & sunsets", icon: "🌇" },
+  { id: "Lounge", label: "VIP Lounge", desc: "Plush booths & sommelier service", icon: "👑" },
+];
+
 const OCCASIONS = [
   { id: "General", label: "Dining", icon: Utensils },
   { id: "Birthday", label: "Birthday", icon: Cake },
@@ -72,6 +79,7 @@ export default function ReservePage() {
     date: new Date().toISOString().split("T")[0],
     time: "7:30 PM",
     guests: 2,
+    area: "Main Room",
     notes: "",
     occasion: "General",
   });
@@ -179,7 +187,7 @@ export default function ReservePage() {
     setSubmitting(true);
 
     const refCode = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
-    const fullNotes = `Occasion: ${form.occasion} | PreOrders: ${selectedPreOrders.join(", ") || "None"} | Dietary: ${selectedDietary.join(", ") || "None"} | Promo: ${appliedPromo || "None"} | Special: ${specialRequests || "None"}`;
+    const fullNotes = `Area: ${form.area} | Occasion: ${form.occasion} | PreOrders: ${selectedPreOrders.join(", ") || "None"} | Dietary: ${selectedDietary.join(", ") || "None"} | Promo: ${appliedPromo || "None"} | Special: ${specialRequests || "None"}`;
 
     const preOrderObjs = selectedPreOrders.map((id) => {
       const item = PRE_ORDER_ITEMS.find((p) => p.id === id);
@@ -196,6 +204,7 @@ export default function ReservePage() {
           phone: form.phone,
           date: `${form.date}T${form.time}`,
           guests: form.guests,
+          area: form.area,
           notes: fullNotes,
           occasion: form.occasion,
 
@@ -245,8 +254,9 @@ export default function ReservePage() {
           phone: form.phone,
           date: `${form.date}T${waitlistSlot}`,
           guests: form.guests,
+          area: form.area,
           isWaitlist: true,
-          notes: `Waitlist requested for ${waitlistSlot} on ${form.date}`,
+          notes: `Waitlist requested for ${waitlistSlot} in ${form.area} on ${form.date}`,
         }),
       });
 
@@ -309,14 +319,18 @@ export default function ReservePage() {
                 </button>
               </div>
 
-              <div className="grid grid-cols-2 gap-3 text-xs border-t border-b border-neutral-800/80 py-3">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs border-t border-b border-neutral-800/80 py-3">
                 <div>
                   <span className="text-[10px] text-neutral-500 block">GUEST</span>
                   <span className="font-bold text-white truncate block">{form.name || "VIP Guest"}</span>
                 </div>
                 <div>
-                  <span className="text-[10px] text-neutral-500 block">GUESTS</span>
-                  <span className="font-bold text-amber-300 truncate block">{form.guests} People</span>
+                  <span className="text-[10px] text-neutral-500 block">PARTY SIZE</span>
+                  <span className="font-bold text-amber-300 truncate block">{form.guests} Guests</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-neutral-500 block">SEATING AREA</span>
+                  <span className="font-bold text-amber-400 block">{form.area}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-neutral-500 block">DATE &amp; TIME</span>
@@ -661,6 +675,38 @@ export default function ReservePage() {
                       }`}
                     >
                       {slot.time} {isFull ? "(Waitlist)" : isPassed ? "(Passed)" : ""}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Seating Area Preference */}
+            <div>
+              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Preferred Dining Area</label>
+              <div className="grid grid-cols-2 gap-2.5">
+                {SEATING_AREAS.map((area) => {
+                  const isSel = form.area === area.id;
+                  return (
+                    <button
+                      key={area.id}
+                      type="button"
+                      onClick={() => setForm({ ...form, area: area.id })}
+                      className={`p-3 rounded-2xl border text-left transition-all relative ${
+                        isSel
+                          ? "bg-amber-500/15 border-amber-400 shadow-md ring-1 ring-amber-400/50"
+                          : "bg-neutral-950 border-neutral-800 hover:border-neutral-700 text-neutral-300"
+                      }`}
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-base">{area.icon}</span>
+                        <span className={`text-xs font-bold ${isSel ? "text-amber-400" : "text-white"}`}>
+                          {area.label}
+                        </span>
+                      </div>
+                      <p className="text-[10px] text-neutral-400 leading-tight">
+                        {area.desc}
+                      </p>
                     </button>
                   );
                 })}
