@@ -9,7 +9,7 @@ import { useLanguage, Language } from "@/lib/LanguageContext";
 import {
   ChevronDown, ShoppingCart, Crown, LayoutDashboard,
   CalendarDays, Package, LogOut, User, Star,
-  Wine, Gift, Sparkles, Globe, Calendar, Menu as MenuIcon, X, Image as ImageIcon, Video, Info
+  Wine, Gift, Sparkles, Globe, Calendar, Menu as MenuIcon, X, Image as ImageIcon, Video, Info, Utensils
 } from "lucide-react";
 
 // ── Primary nav (always visible in desktop bar) ───────────────────────────────

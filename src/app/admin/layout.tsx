@@ -181,7 +181,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         ))}
       </div>
 
-      {/* Mobile Top Bar */}
+      <section className="mx-auto max-w-[1600px] px-3 sm:px-6 py-4 sm:py-8 relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-10">
+        {/* Mobile Top Bar */}
         <div className="lg:hidden sticky top-2 z-[50] flex items-center justify-between mb-4 bg-neutral-900/60 backdrop-blur-2xl p-4 rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden">
           <div className="flex items-center gap-4 relative z-10">
             <button 
