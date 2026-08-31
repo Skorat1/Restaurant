@@ -87,6 +87,8 @@ export default function ReservePage() {
 
   const [passModal, setPassModal] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [waitlistError, setWaitlistError] = useState("");
   const [bookingRef, setBookingRef] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
@@ -162,6 +164,7 @@ export default function ReservePage() {
 
   const handleBookingSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setErrorMessage("");
     setSubmitting(true);
 
     const refCode = `RES-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -194,18 +197,17 @@ export default function ReservePage() {
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data) {
         setBookingRef(data.passCode || data.reservation?.passCode || refCode);
         setQrCodeUrl(data.qrDataUrl || "");
         setPassModal(true);
       } else {
-        setBookingRef(refCode);
-        setPassModal(true);
+        setErrorMessage(data?.msg || "Failed to confirm reservation. Please review your details and try again.");
       }
     } catch {
-      setBookingRef(refCode);
-      setPassModal(true);
+      setErrorMessage("Unable to connect to the reservation server. Please verify your connection and try again.");
     } finally {
       setSubmitting(false);
     }
@@ -214,9 +216,10 @@ export default function ReservePage() {
   const handleWaitlistSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!form.phone) return;
+    setWaitlistError("");
 
     try {
-      await fetch(`${API_BASE_URL}/api/reservations`, {
+      const res = await fetch(`${API_BASE_URL}/api/reservations`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -229,10 +232,17 @@ export default function ReservePage() {
           notes: `Waitlist requested for ${waitlistSlot} on ${form.date}`,
         }),
       });
+
+      const data = await res.json().catch(() => null);
+
+      if (res.ok) {
+        setWaitlistSubmitted(true);
+      } else {
+        setWaitlistError(data?.msg || "Failed to join waitlist. Please try again.");
+      }
     } catch {
-      // Fallback silent
+      setWaitlistError("Unable to connect to server. Please try again.");
     }
-    setWaitlistSubmitted(true);
   };
 
   const copyRef = () => {
@@ -405,6 +415,22 @@ export default function ReservePage() {
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}
                   className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs text-white outline-none focus:border-amber-500"
                 />
+
+                {waitlistError && (
+                  <div className="p-3 rounded-xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                      <span>{waitlistError}</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setWaitlistError("")}
+                      className="text-red-400 hover:text-white text-xs p-1"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                )}
 
                 <div className="flex gap-2 pt-2">
                   <Button
@@ -727,6 +753,23 @@ export default function ReservePage() {
                 className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs text-white outline-none focus:border-amber-500"
               />
             </div>
+
+            {/* Error Notification Banner */}
+            {errorMessage && (
+              <div className="p-4 rounded-2xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-3 shadow-lg shadow-red-950/50">
+                <div className="flex items-center gap-2.5">
+                  <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                  <span>{errorMessage}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setErrorMessage("")}
+                  className="text-red-400 hover:text-white p-1"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             <Button
               type="submit"

@@ -5,7 +5,8 @@ import Link from "next/link";
 import {
   Mail, Phone, MapPin, Clock, MessageSquare, Send, CheckCircle2,
   Sparkles, Calendar, Users, ChevronDown, ChevronUp, Copy, Check,
-  Car, Compass, ShieldCheck, Heart, Wine, Award, ExternalLink, QrCode
+  Car, Compass, ShieldCheck, Heart, Wine, Award, ExternalLink, QrCode,
+  AlertCircle
 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
@@ -67,6 +68,7 @@ export default function ContactPage() {
   });
 
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
   const [ticketModal, setTicketModal] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
   const [copied, setCopied] = useState(false);
@@ -75,6 +77,7 @@ export default function ContactPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError("");
     setSubmitting(true);
 
     const generatedRef = `INQ-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -90,17 +93,18 @@ export default function ContactPage() {
         }),
       });
 
-      if (res.ok) {
-        const data = await res.json();
+      const data = await res.json().catch(() => null);
+
+      if (res.ok && data) {
         setReferenceCode(data.referenceCode || generatedRef);
+        setTicketModal(true);
       } else {
-        setReferenceCode(generatedRef);
+        setError(data?.msg || "Failed to submit inquiry. Please review your form details and try again.");
       }
     } catch {
-      setReferenceCode(generatedRef);
+      setError("Unable to connect to the concierge server. Please check your internet connection and try again.");
     } finally {
       setSubmitting(false);
-      setTicketModal(true);
     }
   };
 
@@ -460,6 +464,23 @@ export default function ContactPage() {
                 />
               </div>
             </div>
+
+              {/* Error Notification Banner */}
+              {error && (
+                <div className="p-4 rounded-2xl bg-red-950/80 border border-red-500/50 text-red-200 text-xs flex items-center justify-between gap-3 shadow-lg shadow-red-950/50 animate-shake">
+                  <div className="flex items-center gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+                    <span>{error}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setError("")}
+                    className="text-red-400 hover:text-white p-1 text-xs"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
 
             <button
               type="submit"
