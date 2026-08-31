@@ -2,7 +2,7 @@
 import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { X, Flame, ShoppingBag } from "lucide-react";
+import { X, Flame, ShoppingBag, Check, ArrowRight } from "lucide-react";
 import { resolveImg } from "@/lib/image";
 import { useCart } from "@/components/CartContext";
 
@@ -54,9 +54,11 @@ const SIGNATURE_DISHES = [
 ];
 
 export default function DishGallery() {
-  const { addItem } = useCart();
+  const { addItem, toggleCart } = useCart();
   const [selectedDish, setSelectedDish] = useState<typeof SIGNATURE_DISHES[0] | null>(null);
   const [activeCategory, setActiveCategory] = useState<"all" | "tasting" | "dessert">("all");
+  const [addedDishId, setAddedDishId] = useState<string | null>(null);
+  const [toastMsg, setToastMsg] = useState<{ name: string; price: number } | null>(null);
 
   const filteredDishes = activeCategory === "all"
     ? SIGNATURE_DISHES
@@ -71,10 +73,40 @@ export default function DishGallery() {
       image: dish.img,
       category: dish.category
     }, 1);
+
+    setAddedDishId(dish.id);
+    setToastMsg({ name: dish.name, price: dish.price });
+
+    setTimeout(() => {
+      setAddedDishId(null);
+    }, 1800);
+
+    setTimeout(() => {
+      setToastMsg(null);
+    }, 4000);
   };
 
   return (
-    <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12">
+    <section className="max-w-7xl mx-auto px-4 sm:px-6 space-y-8 sm:space-y-12 relative">
+      {/* ── FLOATING CART POPUP TOAST ────────────────────────────────────── */}
+      {toastMsg && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-neutral-950/95 border border-amber-500/60 rounded-2xl px-5 py-3.5 shadow-2xl shadow-black/80 flex items-center gap-3.5 backdrop-blur-xl animate-fade-up">
+          <div className="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs shrink-0 shadow-md">
+            ✓
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white line-clamp-1">{toastMsg.name} added to cart</p>
+            <p className="text-[10px] text-amber-400 font-mono">₹{toastMsg.price.toLocaleString("en-IN")}</p>
+          </div>
+          <button
+            onClick={() => toggleCart()}
+            className="ml-2 px-3 py-1.5 rounded-xl bg-amber-500 text-black text-xs font-black uppercase tracking-wider hover:bg-amber-400 transition"
+          >
+            View Bag →
+          </button>
+        </div>
+      )}
+
       {/* ── DISH QUICK VIEW MODAL ─────────────────────────────────────── */}
       {selectedDish && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl animate-fade-up">
@@ -122,12 +154,17 @@ export default function DishGallery() {
                 <div className="flex items-center justify-between pt-2">
                   <div>
                     <span className="text-xs text-neutral-400 block">Price</span>
-                    <span className="text-2xl font-serif font-bold text-amber-400">₹{selectedDish.price}</span>
+                    <span className="text-2xl font-serif font-bold text-amber-400">
+                      ₹{selectedDish.price.toLocaleString("en-IN")}
+                    </span>
                   </div>
                   <div className="flex gap-2">
                     <button
-                      onClick={(e) => { handleQuickAdd(selectedDish, e); setSelectedDish(null); }}
-                      className="btn-primary flex items-center gap-2 text-xs py-3 px-5"
+                      onClick={(e) => {
+                        handleQuickAdd(selectedDish, e);
+                        setSelectedDish(null);
+                      }}
+                      className="btn-primary flex items-center gap-2 text-xs py-3 px-5 shadow-lg shadow-amber-500/20"
                     >
                       <ShoppingBag className="w-4 h-4" /> Quick Add
                     </button>
@@ -184,46 +221,66 @@ export default function DishGallery() {
 
       {/* Dish Grid */}
       <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {filteredDishes.map((dish) => (
-          <div
-            key={dish.id}
-            onClick={() => setSelectedDish(dish)}
-            className="card-glass rounded-3xl overflow-hidden group flex flex-col justify-between cursor-pointer border-neutral-800/80 hover:border-amber-500/40 relative"
-          >
-            <div>
-              <div className="relative h-56 overflow-hidden">
-                <Image
-                  src={resolveImg(dish.img)}
-                  alt={dish.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
+        {filteredDishes.map((dish) => {
+          const isAdded = addedDishId === dish.id;
 
-                <div className="absolute top-3 right-3 flex gap-1">
-                  {dish.dietary.slice(0, 1).map((d) => (
-                    <span key={d} className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-amber-300 text-[10px] font-bold border border-amber-500/30">
-                      {d}
-                    </span>
-                  ))}
+          return (
+            <div
+              key={dish.id}
+              onClick={() => setSelectedDish(dish)}
+              className="card-glass rounded-3xl overflow-hidden group flex flex-col justify-between cursor-pointer border-neutral-800/80 hover:border-amber-500/40 relative transition-all duration-300 hover:-translate-y-1 shadow-xl"
+            >
+              <div>
+                <div className="relative h-56 overflow-hidden">
+                  <Image
+                    src={resolveImg(dish.img)}
+                    alt={dish.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-transparent to-transparent" />
+
+                  <div className="absolute top-3 right-3 flex gap-1">
+                    {dish.dietary.slice(0, 1).map((d) => (
+                      <span key={d} className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md text-amber-300 text-[10px] font-bold border border-amber-500/30">
+                        {d}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <div className="p-5">
+                  <h3 className="text-sm font-bold text-white mb-1 leading-snug">{dish.name}</h3>
+                  <p className="text-[11px] text-neutral-400 line-clamp-2">{dish.desc}</p>
                 </div>
               </div>
-              <div className="p-5">
-                <h3 className="text-sm font-bold text-white mb-1 leading-snug">{dish.name}</h3>
-                <p className="text-[11px] text-neutral-400 line-clamp-2">{dish.desc}</p>
+              <div className="px-5 pb-5 pt-2 flex items-center justify-between border-t border-neutral-800/50 mt-auto">
+                <span className="text-lg font-serif font-bold text-amber-400">
+                  ₹{dish.price.toLocaleString("en-IN")}
+                </span>
+                <button
+                  onClick={(e) => handleQuickAdd(dish, e)}
+                  className={`text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 px-3.5 py-2 rounded-xl transition-all duration-300 shadow-md ${
+                    isAdded
+                      ? "bg-emerald-500 text-black shadow-emerald-500/30 animate-scale-up"
+                      : "bg-amber-500/15 border border-amber-500/30 text-amber-400 hover:bg-amber-500 hover:text-black shadow-amber-500/10 active:scale-95"
+                  }`}
+                >
+                  {isAdded ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      <span>Added ✓</span>
+                    </>
+                  ) : (
+                    <>
+                      <ShoppingBag className="w-3.5 h-3.5" />
+                      <span>Add</span>
+                    </>
+                  )}
+                </button>
               </div>
             </div>
-            <div className="px-5 pb-5 pt-2 flex items-center justify-between border-t border-neutral-800/50 mt-auto">
-              <span className="text-lg font-serif font-bold text-amber-400">₹{dish.price}</span>
-              <button 
-                onClick={(e) => handleQuickAdd(dish, e)}
-                className="text-xs font-bold uppercase tracking-widest text-amber-400 hover:text-amber-300 flex items-center gap-1 bg-amber-500/10 px-3 py-1.5 rounded-lg transition-colors"
-              >
-                <ShoppingBag className="w-3 h-3" /> Add
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );

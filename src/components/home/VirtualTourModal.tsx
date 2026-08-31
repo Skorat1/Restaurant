@@ -274,6 +274,8 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
   const [selectedHotspot, setSelectedHotspot] = useState<Hotspot | null>(null);
   const [jazzModalOpen, setJazzModalOpen] = useState(false);
 
+  const [imageLoading, setImageLoading] = useState(true);
+
   // Panorama View Angles (Yaw: horizontal deg, Pitch: vertical deg, Zoom/FOV)
   const [yaw, setYaw] = useState(0);
   const [pitch, setPitch] = useState(0);
@@ -309,11 +311,16 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
   // Load active room image into memory for Canvas 360 rendering
   useEffect(() => {
     if (!isOpen) return;
+    setImageLoading(true);
     const img = new (window as any).Image();
     img.crossOrigin = "anonymous";
     img.src = activeRoom.img;
     img.onload = () => {
       imageObjRef.current = img;
+      setImageLoading(false);
+    };
+    img.onerror = () => {
+      setImageLoading(false);
     };
   }, [activeRoom, isOpen]);
 
@@ -655,6 +662,16 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
             height={700}
             className="w-full h-full object-cover"
           />
+
+          {/* Loading Spinner & Fade Transition Overlay */}
+          {imageLoading && (
+            <div className="absolute inset-0 z-30 bg-neutral-950/85 backdrop-blur-md flex flex-col items-center justify-center space-y-3 transition-opacity duration-300">
+              <div className="w-10 h-10 border-3 border-amber-500/20 border-t-amber-400 rounded-full animate-spin" />
+              <span className="text-xs font-bold text-amber-300 font-serif tracking-widest uppercase">
+                Loading 360° Ambience...
+              </span>
+            </div>
+          )}
 
           {/* Compass & Angle HUD Indicator */}
           <div className="absolute top-4 left-4 z-20 flex items-center gap-2 bg-black/60 border border-neutral-800 rounded-full px-3 py-1.5 backdrop-blur-md text-[10px] font-mono text-neutral-300">
