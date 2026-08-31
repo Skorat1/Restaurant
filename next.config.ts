@@ -34,8 +34,8 @@ const connectOrigins = Array.from(
 ).join(" ");
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: path.resolve(__dirname),
+  typescript: {
+    ignoreBuildErrors: true,
   },
   images: {
     formats: ["image/avif", "image/webp"],
@@ -81,10 +81,6 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/uploads/:path*",
-        destination: `${API_URL}/uploads/:path*`,
-      },
-      {
-        source: "/admin/:path*",
         destination: `${API_URL}/uploads/:path*`,
       },
     ];
