@@ -16,10 +16,15 @@ import {
   UserPlus,
   Globe,
   Laptop,
+  Smartphone,
   CheckCircle2,
   AlertCircle,
   Filter,
-  Check
+  Check,
+  Copy,
+  Eye,
+  X,
+  Fingerprint
 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
@@ -31,6 +36,7 @@ interface ActivityLogItem {
   role: string;
   action: string;
   details?: string;
+  deviceId?: string;
   ip?: string;
   userAgent?: string;
   createdAt: string;
@@ -50,10 +56,19 @@ export default function AdminActivity() {
   const [searchQuery, setSearchQuery] = useState("");
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [selectedLog, setSelectedLog] = useState<ActivityLogItem | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  const copyToClipboard = (text: string, id: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    showToast(`Copied ${text} to clipboard`);
+    setTimeout(() => setCopiedId(null), 2000);
   };
 
   const fetchLogs = useCallback(async () => {
@@ -130,11 +145,11 @@ export default function AdminActivity() {
       return;
     }
 
-    const headers = "Timestamp,User,Email,Role,Action,IP Address,User Agent\n";
+    const headers = "Timestamp,User,Email,Role,Action,Device ID,IP Address,User Agent\n";
     const rows = logs
       .map(
         (l) =>
-          `"${new Date(l.createdAt).toLocaleString()}","${l.name}","${l.email}","${l.role}","${l.action}","${l.ip || ""}","${(l.userAgent || "").replace(/"/g, '""')}"`
+          `"${new Date(l.createdAt).toLocaleString()}","${l.name}","${l.email}","${l.role}","${l.action}","${l.deviceId || "DEV-DEFAULT"}","${l.ip || ""}","${(l.userAgent || "").replace(/"/g, '""')}"`
       )
       .join("\n");
 
@@ -155,6 +170,7 @@ export default function AdminActivity() {
       logins: logs.filter((l) => l.action === "login").length,
       signups: logs.filter((l) => l.action === "signup").length,
       logouts: logs.filter((l) => l.action === "logout").length,
+      uniqueDevices: new Set(logs.map((l) => l.deviceId || l.ip || "unknown")).size,
     };
   }, [logs]);
 
@@ -170,6 +186,7 @@ export default function AdminActivity() {
           log.name?.toLowerCase().includes(q) ||
           log.email?.toLowerCase().includes(q) ||
           log.action?.toLowerCase().includes(q) ||
+          log.deviceId?.toLowerCase().includes(q) ||
           log.ip?.includes(q) ||
           log.role?.toLowerCase().includes(q) ||
           log.userAgent?.toLowerCase().includes(q)
@@ -180,7 +197,7 @@ export default function AdminActivity() {
   }, [logs, activeActionFilter, searchQuery]);
 
   return (
-    <div className="space-y-6 pb-16 text-neutral-100 max-w-[1500px] mx-auto">
+    <div className="space-y-6 pb-16 text-neutral-100 max-w-[1550px] mx-auto">
       {/* Toast Alert */}
       {toastMessage && (
         <div className="fixed top-6 right-6 z-50 bg-amber-500 text-black font-bold px-5 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-amber-300 animate-bounce">
@@ -196,12 +213,15 @@ export default function AdminActivity() {
             <span className="text-xs uppercase tracking-widest text-amber-400 font-bold bg-amber-500/10 px-3 py-1 rounded-full border border-amber-500/20">
               Audit &amp; Security
             </span>
+            <span className="text-xs font-mono font-bold bg-neutral-900 border border-neutral-800 text-neutral-400 px-2.5 py-0.5 rounded-full">
+              Device Tracking Active
+            </span>
           </div>
           <h1 className="mt-2 text-3xl font-serif text-white font-bold tracking-tight">
             Activity &amp; Audit Logs
           </h1>
           <p className="mt-1 text-neutral-400 text-xs sm:text-sm">
-            Monitor real-time user authentications, staff actions, and security audit events.
+            Monitor real-time user authentications, device identifiers, and system audit events.
           </p>
         </div>
 
@@ -236,12 +256,12 @@ export default function AdminActivity() {
       </div>
 
       {/* ── KPI METRICS CARDS ── */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
         <div className="bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 shadow-xl flex items-center justify-between">
           <div>
             <span className="text-xs uppercase tracking-wider font-semibold text-neutral-400 block">Total Events</span>
             <span className="text-3xl font-serif font-bold text-white mt-1 block">{metrics.total}</span>
-            <p className="text-[11px] text-neutral-400 mt-1">Recorded entries</p>
+            <p className="text-[11px] text-neutral-400 mt-1">Recorded audit entries</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-400 flex items-center justify-center">
             <Activity className="w-6 h-6" />
@@ -250,9 +270,20 @@ export default function AdminActivity() {
 
         <div className="bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 shadow-xl flex items-center justify-between">
           <div>
+            <span className="text-xs uppercase tracking-wider font-semibold text-neutral-400 block">Unique Devices</span>
+            <span className="text-3xl font-serif font-bold text-purple-400 mt-1 block">{metrics.uniqueDevices}</span>
+            <p className="text-[11px] text-purple-400/80 mt-1">Tracked Hardware</p>
+          </div>
+          <div className="w-12 h-12 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 flex items-center justify-center">
+            <Fingerprint className="w-6 h-6" />
+          </div>
+        </div>
+
+        <div className="bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 shadow-xl flex items-center justify-between">
+          <div>
             <span className="text-xs uppercase tracking-wider font-semibold text-neutral-400 block">User Logins</span>
             <span className="text-3xl font-serif font-bold text-emerald-400 mt-1 block">{metrics.logins}</span>
-            <p className="text-[11px] text-emerald-500/80 mt-1">Successful sessions</p>
+            <p className="text-[11px] text-emerald-500/80 mt-1">Active sessions</p>
           </div>
           <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center justify-center">
             <LogIn className="w-6 h-6" />
@@ -282,7 +313,7 @@ export default function AdminActivity() {
         </div>
       </div>
 
-      {/* ── FILTERS & SEARCH ── */}
+      {/* ── FILTERS & SEARCH BAR ── */}
       <div className="bg-neutral-900/80 border border-neutral-800 p-4 rounded-3xl space-y-3 shadow-xl">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           {/* Action Filter Tabs */}
@@ -318,11 +349,11 @@ export default function AdminActivity() {
           </div>
 
           {/* Search Bar */}
-          <div className="relative w-full sm:w-80">
+          <div className="relative w-full sm:w-96">
             <Search className="w-4 h-4 text-neutral-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
-              placeholder="Search by name, email, IP, browser…"
+              placeholder="Search by Device ID, Name, Email, IP, Action…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl pl-10 pr-4 py-2 text-xs text-white placeholder-neutral-500 focus:outline-none focus:border-amber-500 transition"
@@ -331,7 +362,7 @@ export default function AdminActivity() {
         </div>
       </div>
 
-      {/* ── ACTIVITY LOGS TABLE ── */}
+      {/* ── ACTIVITY & AUDIT LOGS TABLE ── */}
       <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
@@ -340,7 +371,8 @@ export default function AdminActivity() {
                 <th className="py-4 px-5">Event Action</th>
                 <th className="py-4 px-4">User Details</th>
                 <th className="py-4 px-4">Role</th>
-                <th className="py-4 px-4">Network &amp; Device</th>
+                <th className="py-4 px-4">Device ID</th>
+                <th className="py-4 px-4">IP &amp; Client Platform</th>
                 <th className="py-4 px-4">Timestamp</th>
                 <th className="py-4 px-5 text-right">Actions</th>
               </tr>
@@ -348,18 +380,18 @@ export default function AdminActivity() {
             <tbody className="divide-y divide-neutral-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-neutral-400">
+                  <td colSpan={7} className="py-16 text-center text-neutral-400">
                     <RefreshCw className="w-6 h-6 animate-spin mx-auto text-amber-500 mb-2" />
                     <p className="text-xs">Loading activity logs…</p>
                   </td>
                 </tr>
               ) : filteredLogs.length === 0 ? (
                 <tr>
-                  <td colSpan={6} className="py-16 text-center text-neutral-500 space-y-2">
+                  <td colSpan={7} className="py-16 text-center text-neutral-500 space-y-2">
                     <Activity className="w-8 h-8 mx-auto text-neutral-600 mb-2" />
                     <p className="text-sm font-semibold text-neutral-400">No activity logs found.</p>
                     <p className="text-xs text-neutral-500">
-                      System authentication events and user actions will be recorded here automatically.
+                      System authentication events, device IDs, and user actions will be recorded here automatically.
                     </p>
                   </td>
                 </tr>
@@ -376,6 +408,9 @@ export default function AdminActivity() {
                     minute: "2-digit",
                     second: "2-digit",
                   });
+
+                  const deviceIdentifier = log.deviceId || "DEV-DEFAULT";
+                  const isCopied = copiedId === log._id;
 
                   return (
                     <tr key={log._id} className="hover:bg-neutral-800/40 transition group">
@@ -424,7 +459,28 @@ export default function AdminActivity() {
                         </span>
                       </td>
 
-                      {/* Network & Device */}
+                      {/* Device ID */}
+                      <td className="py-4 px-4">
+                        <div className="flex items-center gap-1.5">
+                          <span className="inline-flex items-center gap-1.5 bg-neutral-950 border border-neutral-800 hover:border-amber-500/40 text-amber-400 font-mono text-[11px] px-2.5 py-1 rounded-xl font-bold transition">
+                            <Laptop className="w-3 h-3 text-neutral-400" />
+                            <span>{deviceIdentifier}</span>
+                          </span>
+                          <button
+                            onClick={() => copyToClipboard(deviceIdentifier, log._id)}
+                            title="Copy Device ID"
+                            className="p-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                          >
+                            {isCopied ? (
+                              <Check className="w-3 h-3 text-emerald-400" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </button>
+                        </div>
+                      </td>
+
+                      {/* IP & Platform */}
                       <td className="py-4 px-4">
                         <div className="space-y-1 text-[11px]">
                           <span className="flex items-center gap-1 text-neutral-300 font-mono">
@@ -432,7 +488,7 @@ export default function AdminActivity() {
                             {log.ip || "127.0.0.1"}
                           </span>
                           {log.userAgent && (
-                            <span className="text-neutral-500 block truncate max-w-[200px]" title={log.userAgent}>
+                            <span className="text-neutral-500 block truncate max-w-[180px]" title={log.userAgent}>
                               {log.userAgent}
                             </span>
                           )}
@@ -452,13 +508,22 @@ export default function AdminActivity() {
 
                       {/* Actions */}
                       <td className="py-4 px-5 text-right">
-                        <button
-                          onClick={() => handleDeleteLog(log._id)}
-                          title="Delete entry"
-                          className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:bg-rose-950/40 hover:border-rose-500/40 text-neutral-400 hover:text-rose-400 transition"
-                        >
-                          <Trash2 className="w-3.5 h-3.5" />
-                        </button>
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => setSelectedLog(log)}
+                            title="View Full Audit Details"
+                            className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:bg-neutral-800 text-neutral-400 hover:text-white transition"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            onClick={() => handleDeleteLog(log._id)}
+                            title="Delete entry"
+                            className="p-2 rounded-xl bg-neutral-900 border border-neutral-800 hover:bg-rose-950/40 hover:border-rose-500/40 text-neutral-400 hover:text-rose-400 transition"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -468,6 +533,93 @@ export default function AdminActivity() {
           </table>
         </div>
       </div>
+
+      {/* ── LOG DETAILS POPUP MODAL ── */}
+      {selectedLog && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-neutral-900 border border-amber-500/40 rounded-3xl p-6 sm:p-8 max-w-lg w-full shadow-2xl relative text-white animate-in fade-in">
+            <button
+              onClick={() => setSelectedLog(null)}
+              className="absolute right-5 top-5 text-neutral-400 hover:text-white p-1"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-5 border-b border-neutral-800 pb-4">
+              <div className="w-10 h-10 rounded-2xl bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center justify-center">
+                <Shield className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-serif text-lg font-bold text-white">Audit Event Details</h3>
+                <p className="text-xs text-amber-400 font-mono uppercase">{selectedLog.action} Event</p>
+              </div>
+            </div>
+
+            <div className="bg-neutral-950 border border-neutral-800 rounded-2xl p-5 space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-4 border-b border-neutral-800 pb-4">
+                <div>
+                  <span className="text-[10px] text-neutral-500 uppercase block">User</span>
+                  <span className="font-bold text-white text-sm">{selectedLog.name}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-neutral-500 uppercase block">User Role</span>
+                  <span className="font-mono text-amber-400 font-bold uppercase">{selectedLog.role}</span>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-[10px] text-neutral-500 uppercase block">Email Address</span>
+                  <span className="font-mono text-neutral-300">{selectedLog.email}</span>
+                </div>
+              </div>
+
+              {/* Device ID Row */}
+              <div className="border-b border-neutral-800 pb-4">
+                <span className="text-[10px] text-neutral-500 uppercase block mb-1">Hardware Device Identifier (Device ID)</span>
+                <div className="flex items-center justify-between bg-neutral-900 p-2.5 rounded-xl border border-neutral-800">
+                  <span className="font-mono font-bold text-amber-400 text-sm">
+                    {selectedLog.deviceId || "DEV-DEFAULT"}
+                  </span>
+                  <button
+                    onClick={() => copyToClipboard(selectedLog.deviceId || "DEV-DEFAULT", "modal")}
+                    className="p-1.5 bg-neutral-800 hover:bg-neutral-700 rounded-lg text-neutral-300 hover:text-white transition flex items-center gap-1 text-[11px]"
+                  >
+                    <Copy className="w-3 h-3" />
+                    <span>Copy</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <span className="text-[10px] text-neutral-500 uppercase block">Client IP Address</span>
+                  <p className="text-neutral-300 font-mono">{selectedLog.ip || "127.0.0.1"}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] text-neutral-500 uppercase block">Event Timestamp</span>
+                  <p className="text-neutral-300">{new Date(selectedLog.createdAt).toLocaleString()}</p>
+                </div>
+              </div>
+
+              {selectedLog.userAgent && (
+                <div className="pt-2 border-t border-neutral-800">
+                  <span className="text-[10px] text-neutral-500 uppercase block mb-1">Client Platform / User Agent</span>
+                  <p className="text-neutral-400 text-[11px] font-mono bg-neutral-900 p-3 rounded-xl border border-neutral-800 break-all">
+                    {selectedLog.userAgent}
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6">
+              <button
+                onClick={() => setSelectedLog(null)}
+                className="w-full py-3 rounded-2xl bg-neutral-800 text-neutral-300 font-bold text-xs hover:bg-neutral-700 transition"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

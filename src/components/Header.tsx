@@ -226,7 +226,7 @@ export default function Header() {
                         <CalendarDays className="w-4 h-4 text-amber-400" /> My Reservations
                       </Link>
 
-                      <Link href="/track" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
+                      <Link href="/my-orders" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
                         <Package className="w-4 h-4 text-amber-400" /> My Orders
                       </Link>
                     </div>

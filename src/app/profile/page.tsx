@@ -245,6 +245,13 @@ export default function ProfilePage() {
             {/* Quick Action Links */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
               <Link
+                href="/my-orders"
+                className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 hover:text-white text-xs font-bold transition flex items-center gap-2"
+              >
+                <Package className="w-4 h-4 text-amber-400" />
+                <span>My Orders</span>
+              </Link>
+              <Link
                 href="/profile/reservations"
                 className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 hover:text-white text-xs font-bold transition flex items-center gap-2"
               >
@@ -257,13 +264,6 @@ export default function ProfilePage() {
               >
                 <Plus className="w-4 h-4" />
                 <span>Book Table</span>
-              </Link>
-              <Link
-                href="/cellar"
-                className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-xs font-bold text-neutral-200 hover:text-white transition flex items-center gap-2"
-              >
-                <GlassWater className="w-4 h-4 text-amber-400" />
-                <span>Wine Cellar</span>
               </Link>
             </div>
           </div>
