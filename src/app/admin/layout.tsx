@@ -87,11 +87,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isReady = !loading && !!token && STAFF_ROLES.includes(user?.role || "");
 
   const [theme, setTheme] = useState<"classic" | "cinematic">("classic");
-  const [isAiOpen, setIsAiOpen] = useState(false);
-  const [aiQuery, setAiQuery] = useState("");
-  const [aiThinking, setAiThinking] = useState(false);
-  const [aiResponse, setAiResponse] = useState<string | null>(null);
-
   const [waiterCalls, setWaiterCalls] = useState<Array<{ id: string, tableNumber: string, type: string, time: string }>>([]);
 
   useEffect(() => {
@@ -113,33 +108,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         });
         if (res.ok) {
           const data = await res.json();
-          setStats(data.counts);
+          setStats(data);
         }
-      } catch (err) {}
+      } catch (err) {
+        console.error("Failed to fetch admin stats", err);
+      }
     };
     fetchStats();
-    const int = setInterval(fetchStats, 30000);
-    return () => clearInterval(int);
+    const interval = setInterval(fetchStats, 30000);
+    return () => clearInterval(interval);
   }, [token, isReady]);
 
-  // Socket setup for waiter calls
+  // Socket for live updates and waiter calls
   useEffect(() => {
     if (!token || !isReady) return;
     const socket = io(API_BASE_URL, {
+      auth: { token },
       transports: ["websocket", "polling"],
+      reconnectionAttempts: 5,
     });
 
-    socket.on("waiter_called", (data: { tableNumber: string, type: string }) => {
-      // Play a small beep (if browser allows)
-      try {
-        const audio = new Audio("data:audio/wav;base64,UklGRl9vT19XQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YU"+Array(100).join("A"));
-        audio.play().catch(() => {});
-      } catch (e) {}
-
-      setWaiterCalls(prev => {
-        const newCall = { id: Date.now().toString(), ...data, time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}) };
-        return [newCall, ...prev];
-      });
+    socket.on("waiter_called", (data: any) => {
+      setWaiterCalls(prev => [
+        { id: `call_${Date.now()}`, tableNumber: data.tableNumber || "T1", type: data.requestType || "assistance", time: new Date().toLocaleTimeString() },
+        ...prev
+      ]);
     });
 
     return () => {
@@ -149,28 +142,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const removeWaiterCall = (id: string) => {
     setWaiterCalls(prev => prev.filter(c => c.id !== id));
-  };
-
-  const handleAiQuery = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!aiQuery.trim()) return;
-    setAiThinking(true);
-    setAiResponse(null);
-    setTimeout(() => {
-      let resp = "I couldn't find specific data for that request.";
-      const q = aiQuery.toLowerCase();
-      if (q.includes("spender") || q.includes("vip")) {
-        resp = "The top spending VIP today is Dr. Vikram Seth (Platinum VIP), with a total spend of ₹1,48,500.";
-      } else if (q.includes("wine") || q.includes("selling")) {
-        resp = "Château Margaux 2015 is currently the top-selling Grand Cru today, with 12 bottles moved.";
-      } else if (q.includes("order")) {
-        resp = "There are currently 4 pending orders in the kitchen queue, and 45 orders delivered today.";
-      } else if (q.includes("hello") || q.includes("hi")) {
-        resp = "Hello Chef! I am your VELORA AI Admin Assistant. How can I assist you with today's service?";
-      }
-      setAiResponse(resp);
-      setAiThinking(false);
-    }, 1200);
   };
 
   if (loading || !isReady) {
@@ -210,71 +181,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         ))}
       </div>
 
-      {/* ── VELORA AI ASSISTANT WIDGET ── */}
-      <div className="fixed bottom-6 right-6 z-[9999] flex flex-col items-end">
-        {isAiOpen && (
-          <div className="mb-4 w-80 sm:w-96 rounded-3xl border border-neutral-800 bg-neutral-950/90 backdrop-blur-2xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] overflow-hidden flex flex-col animate-fade-up">
-            <div className={`p-4 border-b flex items-center justify-between ${isCinematic ? "border-purple-500/30 bg-purple-900/20" : "border-amber-500/30 bg-amber-900/20"}`}>
-              <div className="flex items-center gap-2.5">
-                <div className={`w-8 h-8 rounded-full flex items-center justify-center ${isCinematic ? "bg-purple-500/20 text-purple-400" : "bg-amber-500/20 text-amber-400"}`}>
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                  </svg>
-                </div>
-                <div>
-                  <h3 className="text-sm font-bold text-white">VELORA AI</h3>
-                  <p className="text-[10px] uppercase tracking-widest text-neutral-400">Executive Assistant</p>
-                </div>
-              </div>
-              <button onClick={() => setIsAiOpen(false)} className="text-neutral-500 hover:text-white transition">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-4 h-48 overflow-y-auto flex flex-col gap-3 text-xs custom-scrollbar">
-              <div className="bg-neutral-800/50 p-3 rounded-2xl rounded-tl-sm text-neutral-300 w-[85%] leading-relaxed border border-neutral-700/50">
-                Hello Chef! I have live access to today's service data. Ask me about VIPs, sales, or orders.
-              </div>
-              {aiResponse && (
-                <div className="bg-neutral-800/50 p-3 rounded-2xl rounded-tl-sm text-white w-[90%] leading-relaxed border border-neutral-700/50 flex flex-col gap-2 animate-fade-in">
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">AI Response</span>
-                  {aiResponse}
-                </div>
-              )}
-              {aiThinking && (
-                <div className="flex gap-1.5 items-center p-3 text-neutral-500">
-                  <div className={`w-1.5 h-1.5 rounded-full animate-bounce ${isCinematic ? "bg-purple-500" : "bg-amber-500"}`}></div>
-                  <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:-0.15s] ${isCinematic ? "bg-purple-500" : "bg-amber-500"}`}></div>
-                  <div className={`w-1.5 h-1.5 rounded-full animate-bounce [animation-delay:-0.3s] ${isCinematic ? "bg-purple-500" : "bg-amber-500"}`}></div>
-                </div>
-              )}
-            </div>
-            <form onSubmit={handleAiQuery} className="p-3 border-t border-neutral-800 bg-neutral-900/50 flex gap-2">
-              <input
-                type="text"
-                placeholder="Ask about top spenders..."
-                value={aiQuery}
-                onChange={(e) => setAiQuery(e.target.value)}
-                className="flex-1 bg-neutral-950 border border-neutral-800 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-neutral-600 transition"
-              />
-              <button type="submit" disabled={aiThinking} className={`p-2.5 rounded-xl transition ${isCinematic ? "bg-purple-600 text-white hover:bg-purple-500" : "bg-amber-500 text-black hover:bg-amber-400"}`}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}><path strokeLinecap="round" strokeLinejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
-              </button>
-            </form>
-          </div>
-        )}
-        <button
-          onClick={() => setIsAiOpen(!isAiOpen)}
-          className={`w-14 h-14 rounded-full flex items-center justify-center shadow-2xl transition-all duration-300 hover:scale-110 ${isCinematic ? "bg-gradient-to-r from-purple-500 to-cyan-500 shadow-purple-500/40 text-white" : "bg-gradient-to-r from-amber-400 to-amber-600 shadow-amber-500/40 text-black"}`}
-        >
-          <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </button>
-      </div>
-
-      <section className="mx-auto max-w-[1600px] px-3 sm:px-6 py-4 sm:py-8 relative z-10 flex flex-col lg:flex-row gap-6 lg:gap-10">
-        
-        {/* Mobile Top Bar */}
+      {/* Mobile Top Bar */}
         <div className="lg:hidden sticky top-2 z-[50] flex items-center justify-between mb-4 bg-neutral-900/60 backdrop-blur-2xl p-4 rounded-2xl border border-neutral-800 shadow-2xl overflow-hidden">
           <div className="flex items-center gap-4 relative z-10">
             <button 
