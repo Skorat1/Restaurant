@@ -449,6 +449,25 @@ export default function CartDrawer() {
                 </div>
               </div>
 
+              {orderSuccess && (
+                <div className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs space-y-1.5 animate-bounce">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold flex items-center gap-1.5 text-emerald-400">
+                      <CheckCircle2 className="w-4 h-4" /> Order Placed Successfully!
+                    </span>
+                    <button
+                      onClick={() => setOrderSuccess(null)}
+                      className="text-neutral-400 hover:text-white"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                  <p className="text-[11px] text-neutral-300">
+                    Order Ref: <strong className="font-mono text-amber-400">{orderSuccess}</strong>
+                  </p>
+                </div>
+              )}
+
               {loadingOrders ? (
                 <div className="text-center py-16 text-neutral-400 text-xs space-y-2">
                   <RefreshCw className="w-6 h-6 animate-spin mx-auto text-amber-500" />
