@@ -139,12 +139,17 @@ export default function AdminChatPage() {
     try {
       const res = await fetch(`${API_BASE_URL}/api/chat/active`);
       if (res.ok) {
-        const data: ChatSession[] = await res.json();
-        setSessions(data);
+        const json = await res.json();
+        const list: ChatSession[] = Array.isArray(json)
+          ? json
+          : Array.isArray(json?.data)
+          ? json.data
+          : [];
+        setSessions(list);
 
         // Auto select first session if none selected
-        if (!selectedSessionRef.current && data.length > 0) {
-          const firstId = data[0].sessionId;
+        if (!selectedSessionRef.current && list.length > 0) {
+          const firstId = list[0].sessionId;
           setSelectedSession(firstId);
           selectedSessionRef.current = firstId;
         }
@@ -158,10 +163,17 @@ export default function AdminChatPage() {
 
   const fetchMessages = useCallback(async (sessionId: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`);
+      const res = await fetch(`${API_BASE_URL}/api/chat/history?sessionId=${encodeURIComponent(sessionId)}`);
       if (res.ok) {
-        const data: Message[] = await res.json();
-        setMessages(data);
+        const json = await res.json();
+        const msgs: Message[] = Array.isArray(json)
+          ? json
+          : Array.isArray(json?.data)
+          ? json.data
+          : Array.isArray(json?.messages)
+          ? json.messages
+          : [];
+        setMessages(msgs);
       }
     } catch (err) {
       console.error("Failed to fetch messages for session", sessionId, err);
