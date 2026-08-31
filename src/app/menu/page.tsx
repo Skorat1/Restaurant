@@ -286,10 +286,6 @@ export default function MenuPage() {
                 ))}
               </div>
             </div>
-                  </button>
-                ))}
-              </div>
-            </div>
 
             <div className="space-y-3">
               <p className="text-xs uppercase tracking-[0.36em] text-neutral-500">Dietary</p>
