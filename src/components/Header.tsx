@@ -216,15 +216,15 @@ export default function Header() {
                         <User className="w-4 h-4 text-amber-400" /> My Profile
                       </Link>
 
-                      {user.role === "admin" ? (
+                      {user.role === "admin" && (
                         <Link href="/admin" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
                           <LayoutDashboard className="w-4 h-4 text-purple-400" /> Admin Dashboard
                         </Link>
-                      ) : (
-                        <Link href="/profile#reservations" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
-                          <CalendarDays className="w-4 h-4 text-amber-400" /> My Reservations
-                        </Link>
                       )}
+
+                      <Link href="/profile/reservations" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
+                        <CalendarDays className="w-4 h-4 text-amber-400" /> My Reservations
+                      </Link>
 
                       <Link href="/track" onClick={() => setProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-xs font-semibold text-neutral-300 hover:bg-neutral-900 hover:text-white transition">
                         <Package className="w-4 h-4 text-amber-400" /> My Orders
