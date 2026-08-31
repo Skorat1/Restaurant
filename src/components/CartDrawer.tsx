@@ -242,7 +242,7 @@ export default function CartDrawer() {
     if (!order.items || order.items.length === 0) return;
     order.items.forEach((it) => {
       addItem({
-        _id: it.itemId || it._id || `item-${Date.now()}`,
+        itemId: it.itemId || it._id || `item-${Date.now()}`,
         name: it.name,
         price: it.price,
         image: it.image || "",

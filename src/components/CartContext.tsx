@@ -88,11 +88,17 @@ export function CartProvider({ children }: { children: ReactNode }) {
     }
   }, [items]);
 
-  const addItem = useCallback((item: Omit<CartItem, "quantity">, qty: number = 1) => {
+  const addItem = useCallback((item: (Omit<CartItem, "quantity"> & { _id?: string; id?: string }), qty: number = 1) => {
+    const rawId = item.itemId || item._id || item.id || `item-${Date.now()}`;
+    const normalizedItem: Omit<CartItem, "quantity"> = {
+      ...item,
+      itemId: rawId,
+    };
+
     setItems((prev) => {
-      const addonKey = (item.addons || []).map((a) => `${a.name}:${a.price}`).join("|");
-      const optionKey = (item.options || []).map((o) => `${o.group}:${o.value}`).join("|");
-      const signature = `${item.itemId}__${addonKey}__${optionKey}`;
+      const addonKey = (normalizedItem.addons || []).map((a) => `${a.name}:${a.price}`).join("|");
+      const optionKey = (normalizedItem.options || []).map((o) => `${o.group}:${o.value}`).join("|");
+      const signature = `${rawId}__${addonKey}__${optionKey}`;
 
       const idx = prev.findIndex((i) => {
         const ia = (i.addons || []).map((a) => `${a.name}:${a.price}`).join("|");
@@ -101,8 +107,8 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return isig === signature;
       });
 
-      const addonTotal = (item.addons || []).reduce((s, a) => s + a.price, 0);
-      const newLineTotal = (item.price + addonTotal) * qty;
+      const addonTotal = (normalizedItem.addons || []).reduce((s, a) => s + a.price, 0);
+      const newLineTotal = (normalizedItem.price + addonTotal) * qty;
 
       if (idx >= 0) {
         return prev.map((i, index) => {
@@ -112,7 +118,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
           return { ...i, quantity: i.quantity + qty, lineTotal: curLine + newLineTotal };
         });
       }
-      return [...prev, { ...item, quantity: qty, lineTotal: newLineTotal } as CartItem];
+      return [...prev, { ...normalizedItem, quantity: qty, lineTotal: newLineTotal } as CartItem];
     });
     setIsCartOpen(true);
   }, []);
