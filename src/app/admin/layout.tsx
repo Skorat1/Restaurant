@@ -36,7 +36,6 @@ const NAV_GROUPS: NavGroup[] = [
       { href: "/admin/kds", label: "KDS", icon: "M4 6h16v12H4zM8 10h8M8 14h5" },
       { href: "/admin/orders", label: "Orders", icon: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0", badge: "pendingOrders" },
       { href: "/admin/reservations", label: "Reservations", icon: "M3 4h18M3 4v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4M3 4l3 4h12l3-4M8 12h8M8 16h5", badge: "pendingReservations" },
-      { href: "/admin/tables", label: "Tables", icon: "M4 6a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6zm4 0v12m8-12v12" },
       { href: "/admin/chat", label: "Live Support", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
     ]
   },
@@ -48,12 +47,7 @@ const NAV_GROUPS: NavGroup[] = [
       { 
         href: "/admin/menu", 
         label: "Menu", 
-        icon: "M12 2c1.5 2 4 2.5 4 5.5 0 1.5-1 2-1 3.5 0 1 1 2.5 1 3.5C16 18 13.5 20 12 20s-4-2-4-6.5c0-1 .5-2.5.5-3.5 0-1.5-1-2-1-3.5C7.5 4.5 10 4 12 2z",
-        subItems: [
-          { href: "/admin/menu", label: "All Items" },
-          { href: "/admin/menu#categories", label: "Categories" },
-          { href: "/admin/menu#pricing", label: "Pricing" }
-        ]
+        icon: "M12 2c1.5 2 4 2.5 4 5.5 0 1.5-1 2-1 3.5 0 1 1 2.5 1 3.5C16 18 13.5 20 12 20s-4-2-4-6.5c0-1 .5-2.5.5-3.5 0-1.5-1-2-1-3.5C7.5 4.5 10 4 12 2z"
       },
       { href: "/admin/reviews", label: "Reviews", icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" },
       { href: "/admin/coupons", label: "Coupons", icon: "M20 12V8H6a2 2 0 0 1 0-4h12v4M4 6v12a2 2 0 0 0 2 2h14v-4M18 12a2 2 0 0 0 0 4h4v-4z" },
@@ -62,11 +56,9 @@ const NAV_GROUPS: NavGroup[] = [
     ]
   },
   {
-    title: "Analytics & People",
+    title: "People & Logs",
     roles: ["admin", "owner", "manager"],
     items: [
-      { href: "/admin/analytics", label: "Analytics", icon: "M21 21H3M21 15v6M17 9v12M13 3v18M9 12v9M5 6v15" },
-      { href: "/admin/crm", label: "CRM & Marketing", icon: "M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" },
       { href: "/admin/users", label: "Users", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
       { href: "/admin/activity", label: "Activity", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
     ]
@@ -322,18 +314,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="mt-8 pt-4 border-t border-neutral-800 flex flex-col gap-3">
-            {/* Quick Actions (e.g. + New) */}
-            <Button
-              variant="secondary"
-              size={isCollapsed ? "icon" : "md"}
-              themeContext={theme}
-              className={isCollapsed ? "" : "justify-start"}
-              leftIcon={<Plus className="w-5 h-5 shrink-0" />}
-              title={isCollapsed ? "Quick Actions" : ""}
-            >
-              {!isCollapsed && <span>Quick Add</span>}
-            </Button>
-            
             {/* Store Status Toggle */}
             <div className={`flex items-center ${isCollapsed ? "justify-center" : "justify-between px-3"} py-2 rounded-xl bg-neutral-900 border border-neutral-800`} title={isCollapsed ? (storeActive ? "Store Open" : "Store Closed") : ""}>
               <div className="flex items-center gap-2">

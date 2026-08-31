@@ -93,7 +93,7 @@ const fetcher = (url: string, token: string | null) => {
 
 export default function AdminDashboard() {
   const { user, token, loading } = useAuth();
-  const [activeTab, setActiveTab] = useState<"overview" | "analytics" | "guests">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "guests">("overview");
   const [rbacRole, setRbacRole] = useState<"owner" | "manager" | "chef">("owner");
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -219,7 +219,6 @@ export default function AdminDashboard() {
           <div className="flex gap-1 bg-neutral-900/80 p-1.5 rounded-2xl border border-neutral-800 backdrop-blur-xl shadow-lg">
             {[
               { id: "overview", label: "Overview" },
-              { id: "analytics", label: "Analytics" },
               { id: "guests", label: "VIP Guests" },
             ].map((t) => (
               <button
@@ -462,28 +461,7 @@ export default function AdminDashboard() {
         </>
       )}
 
-      {/* ── TAB 2: ADVANCED ANALYTICS (Redirect or Show Details) ────────────────────────────────────── */}
-      {activeTab === "analytics" && (
-        <div className="space-y-6 animate-fade-in">
-          <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 backdrop-blur-xl p-8 text-center shadow-2xl space-y-6 relative overflow-hidden group">
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-amber-500/10 rounded-full blur-3xl pointer-events-none transition-transform group-hover:scale-150"></div>
-            <div className="relative z-10 flex flex-col items-center gap-4">
-              <div className="w-16 h-16 bg-amber-500/10 border border-amber-500/20 rounded-full flex items-center justify-center text-amber-400 shadow-[0_0_30px_rgba(245,158,11,0.2)]">
-                <Sparkles className="w-8 h-8" />
-              </div>
-              <div>
-                <h2 className="text-2xl font-serif text-white font-bold">Deep Financial &amp; Guest Analytics</h2>
-                <p className="text-sm text-neutral-400 max-w-md mx-auto mt-2">Access comprehensive sales breakdowns, category revenue shares, and peak dining hour visualizations.</p>
-              </div>
-              <Link href="/admin/analytics" className="mt-4 px-8 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-black text-xs font-extrabold uppercase tracking-widest hover:scale-[1.02] active:scale-95 transition-all shadow-[0_0_20px_rgba(245,158,11,0.3)]">
-                Launch Full Analytics Dashboard
-              </Link>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ── TAB 3: VIP GUEST ANALYTICS ────────────────────────────────────── */}
+      {/* ── TAB 2: VIP GUEST PROFILES ────────────────────────────────────── */}
       {activeTab === "guests" && (
         <div className="rounded-3xl border border-neutral-800 bg-neutral-900/60 backdrop-blur-xl p-6 space-y-6 shadow-2xl animate-fade-in relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl pointer-events-none"></div>
