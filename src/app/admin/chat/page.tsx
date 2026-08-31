@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   MessageCircle,
   Send,
@@ -14,7 +14,16 @@ import {
   VolumeX,
   Sparkles,
   Bot,
-  CheckCheck
+  CheckCheck,
+  ShoppingBag,
+  Calendar,
+  Phone,
+  Mail,
+  Zap,
+  Tag,
+  CreditCard,
+  ChevronRight,
+  ExternalLink
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
@@ -31,10 +40,35 @@ interface ChatSession {
   _id: string;
   sessionId: string;
   customerName: string;
+  customerEmail?: string;
+  customerPhone?: string;
   status: "active" | "closed";
   lastMessage: string;
   updatedAt: string;
 }
+
+const CANNED_RESPONSES = [
+  {
+    title: "Operating Hours",
+    text: "Welcome to Velora! We are open daily for Lunch (12:00 PM – 3:30 PM) and Dinner (6:00 PM – 11:30 PM).",
+  },
+  {
+    title: "Valet & Parking",
+    text: "Complimentary VIP valet parking is available right at our main grand entrance portico.",
+  },
+  {
+    title: "Tasting Menu & Wine",
+    text: "Our Sommelier Grand Cru flight and Chef's 7-Course Degustation are available for pre-booking.",
+  },
+  {
+    title: "Guest Wi-Fi",
+    text: "High-speed guest Wi-Fi is available as 'Velora_Guest' with no password required.",
+  },
+  {
+    title: "Table Reservations",
+    text: "You can reserve your preferred dining area (Main Salon, Sky Terrace, or Wine Vault) at /reserve.",
+  },
+];
 
 // ── Web Audio API Chime Synthesizer ──
 function playAdminChime() {
@@ -85,6 +119,7 @@ export default function AdminChatPage() {
   const [filter, setFilter] = useState<"active" | "all">("active");
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [activeToast, setActiveToast] = useState<{ sender: string; text: string; sessionId: string } | null>(null);
+  const [customerHistory, setCustomerHistory] = useState<{ orders: any[]; reservations: any[] }>({ orders: [], reservations: [] });
 
   const socketRef = useRef<WebSocket | null>(null);
   const selectedSessionRef = useRef<string | null>(null);
@@ -99,54 +134,85 @@ export default function AdminChatPage() {
     soundEnabledRef.current = soundEnabled;
   }, [soundEnabled]);
 
-  // Request browser permissions
-  useEffect(() => {
-    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
-
-  // 1. Fetch Sessions for Admin (GET /api/chat/sessions)
-  const fetchSessions = useCallback(async (showLoading = false) => {
-    if (showLoading) setRefreshing(true);
+  const fetchSessions = useCallback(async (isManual = false) => {
+    if (isManual) setRefreshing(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/chat/sessions`, {
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setSessions(data.data);
+      const res = await fetch(`${API_BASE_URL}/api/chat/active`);
+      if (res.ok) {
+        const data: ChatSession[] = await res.json();
+        setSessions(data);
+
+        // Auto select first session if none selected
+        if (!selectedSessionRef.current && data.length > 0) {
+          const firstId = data[0].sessionId;
+          setSelectedSession(firstId);
+          selectedSessionRef.current = firstId;
+        }
       }
     } catch (err) {
       console.error("Failed to fetch chat sessions", err);
     } finally {
-      if (showLoading) setRefreshing(false);
+      if (isManual) setRefreshing(false);
     }
   }, []);
 
-  // 2. Fetch Chat History for a Session (GET /api/chat/history?sessionId=xyz)
-  const fetchMessages = useCallback(async (id: string) => {
-    if (!id) return;
+  const fetchMessages = useCallback(async (sessionId: string) => {
     try {
-      const res = await fetch(`${API_BASE_URL}/api/chat/history?sessionId=${id}`, {
-        cache: "no-store",
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.data)) {
-        setMessages(data.data);
+      const res = await fetch(`${API_BASE_URL}/api/chat/messages?sessionId=${encodeURIComponent(sessionId)}`);
+      if (res.ok) {
+        const data: Message[] = await res.json();
+        setMessages(data);
       }
     } catch (err) {
-      console.error("Failed to fetch messages for session", id, err);
+      console.error("Failed to fetch messages for session", sessionId, err);
     }
   }, []);
 
-  const handleSelectSession = (id: string) => {
-    setSelectedSession(id);
-    fetchMessages(id);
-    setActiveToast(null);
+  // Fetch Customer 360 History (Past Orders & Reservations)
+  const fetchCustomerHistory = useCallback(async (nameOrEmail: string) => {
+    if (!token || !nameOrEmail) return;
+    try {
+      const resOrders = await fetch(`${API_BASE_URL}/api/orders/all?search=${encodeURIComponent(nameOrEmail)}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      let ordersData = [];
+      if (resOrders.ok) {
+        const json = await resOrders.json();
+        ordersData = Array.isArray(json.orders) ? json.orders.slice(0, 3) : [];
+      }
+
+      const resRes = await fetch(`${API_BASE_URL}/api/reservations/all?all=true`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      let resData = [];
+      if (resRes.ok) {
+        const allRes = await resRes.json();
+        resData = Array.isArray(allRes)
+          ? allRes.filter((r: any) => (r.name || "").toLowerCase().includes(nameOrEmail.toLowerCase())).slice(0, 3)
+          : [];
+      }
+
+      setCustomerHistory({ orders: ordersData, reservations: resData });
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
+  const handleSelectSession = (sessionId: string) => {
+    setSelectedSession(sessionId);
+    selectedSessionRef.current = sessionId;
+    fetchMessages(sessionId);
+
+    const s = sessions.find((item) => item.sessionId === sessionId);
+    if (s && s.customerName) {
+      fetchCustomerHistory(s.customerName);
+    }
+
+    if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
+      socketRef.current.send(JSON.stringify({ event: "admin_join_support", data: sessionId }));
+    }
   };
 
-  // 3. Polling and WebSocket setup
   useEffect(() => {
     fetchSessions();
 
@@ -171,7 +237,6 @@ export default function AdminChatPage() {
             if (parsed.event === "support_message" || parsed.event === "active_chats_updated") {
               const msg: Message = parsed.data;
 
-              // If message is from customer, trigger sound & notification
               if (msg && msg.sender === "customer") {
                 if (soundEnabledRef.current) {
                   playAdminChime();
@@ -236,12 +301,11 @@ export default function AdminChatPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  // 4. Send Message (POST /api/chat/message)
-  const handleSendMessage = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !selectedSession || sending) return;
+  const handleSendMessage = async (e?: React.FormEvent, customText?: string) => {
+    if (e) e.preventDefault();
+    const textToSend = (customText || newMessage).trim();
+    if (!textToSend || !selectedSession || sending) return;
 
-    const textToSend = newMessage.trim();
     setNewMessage("");
     setSending(true);
 
@@ -274,7 +338,6 @@ export default function AdminChatPage() {
     }
   };
 
-  // 5. Close Session (PUT /api/chat/:id/close)
   const handleCloseSession = async (id: string) => {
     try {
       await fetch(`${API_BASE_URL}/api/chat/${id}/close`, {
@@ -290,11 +353,10 @@ export default function AdminChatPage() {
   };
 
   const filteredSessions = sessions.filter((s) => (filter === "active" ? s.status === "active" : true));
-
   const currentSessionData = sessions.find((s) => s.sessionId === selectedSession);
 
   return (
-    <div className="space-y-6 pb-16 text-neutral-100 max-w-[1550px] mx-auto">
+    <div className="space-y-6 pb-20 text-neutral-100 max-w-[1700px] mx-auto">
       {/* ── LIVE NOTIFICATION TOAST ── */}
       {activeToast && (
         <div
@@ -326,14 +388,14 @@ export default function AdminChatPage() {
             </span>
             <span className="text-xs font-mono font-bold bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-full flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              Live Sync Active
+              Live Concierge WebSocket Stream
             </span>
           </div>
           <h1 className="mt-2 text-3xl font-serif text-white font-bold tracking-tight">
-            Live Support &amp; Concierge Desk
+            Live Support &amp; Customer 360 Desk
           </h1>
           <p className="mt-1 text-neutral-400 text-xs sm:text-sm">
-            Chat in real-time with dining guests, assist with VIP table reservations, and answer menu queries.
+            Instant guest concierge with one-click canned replies and live customer order &amp; reservation history.
           </p>
         </div>
 
@@ -363,22 +425,20 @@ export default function AdminChatPage() {
         </div>
       </div>
 
-      {/* ── CHAT MAIN CONTAINER ── */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-[650px]">
-        {/* Left Col: Sessions List */}
+      {/* ── 3-COLUMN CHAT & CUSTOMER 360 CONTAINER ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[720px]">
+        {/* Col 1: Sessions List */}
         <div className="bg-neutral-900/80 border border-neutral-800 rounded-3xl p-4 flex flex-col h-full shadow-2xl overflow-hidden">
-          <div className="flex items-center justify-between pb-4 border-b border-neutral-800/80">
+          <div className="flex items-center justify-between pb-3 border-b border-neutral-800/80">
             <h3 className="font-serif text-sm font-bold text-white flex items-center gap-2">
               <MessageCircle className="w-4 h-4 text-amber-400" />
-              Conversations ({filteredSessions.length})
+              Chats ({filteredSessions.length})
             </h3>
             <div className="flex bg-neutral-950 p-1 rounded-xl border border-neutral-800 text-xs">
               <button
                 onClick={() => setFilter("active")}
                 className={`px-3 py-1 rounded-lg font-bold transition ${
-                  filter === "active"
-                    ? "bg-amber-500 text-black shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                  filter === "active" ? "bg-amber-500 text-black shadow-sm" : "text-neutral-400 hover:text-white"
                 }`}
               >
                 Active
@@ -386,9 +446,7 @@ export default function AdminChatPage() {
               <button
                 onClick={() => setFilter("all")}
                 className={`px-3 py-1 rounded-lg font-bold transition ${
-                  filter === "all"
-                    ? "bg-amber-500 text-black shadow-sm"
-                    : "text-neutral-400 hover:text-white"
+                  filter === "all" ? "bg-amber-500 text-black shadow-sm" : "text-neutral-400 hover:text-white"
                 }`}
               >
                 All
@@ -432,11 +490,8 @@ export default function AdminChatPage() {
                     <p className="text-[11px] text-neutral-400 line-clamp-1">
                       {session.lastMessage || "Started a new conversation"}
                     </p>
-                    <span className="text-[9px] text-neutral-500">
-                      {new Date(session.updatedAt).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
+                    <span className="text-[9px] text-neutral-500 font-mono">
+                      {new Date(session.updatedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
                 );
@@ -445,25 +500,21 @@ export default function AdminChatPage() {
           </div>
         </div>
 
-        {/* Right 2 Cols: Active Chat Conversation */}
-        <div className="md:col-span-2 bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 flex flex-col h-full shadow-2xl overflow-hidden">
+        {/* Col 2 & 3: Active Chat Conversation & Canned Quick Replies */}
+        <div className="lg:col-span-2 bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 flex flex-col h-full shadow-2xl overflow-hidden">
           {selectedSession && currentSessionData ? (
             <>
               {/* Active Chat Header */}
-              <div className="pb-4 border-b border-neutral-800 flex items-center justify-between">
+              <div className="pb-3 border-b border-neutral-800 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-2xl bg-amber-500/20 border border-amber-500/30 text-amber-400 flex items-center justify-center font-bold text-sm">
-                    {currentSessionData.customerName
-                      ? currentSessionData.customerName.substring(0, 2).toUpperCase()
-                      : "CL"}
+                    {currentSessionData.customerName ? currentSessionData.customerName.substring(0, 2).toUpperCase() : "CL"}
                   </div>
                   <div>
                     <h3 className="font-serif text-sm font-bold text-white flex items-center gap-2">
                       {currentSessionData.customerName || "Guest Patron"}
                     </h3>
-                    <p className="text-[10px] text-neutral-400 font-mono">
-                      Session: {currentSessionData.sessionId}
-                    </p>
+                    <p className="text-[10px] text-neutral-400 font-mono">Session: {currentSessionData.sessionId}</p>
                   </div>
                 </div>
 
@@ -478,15 +529,12 @@ export default function AdminChatPage() {
                 )}
               </div>
 
-              {/* Message List */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-3 custom-scrollbar">
+              {/* Message Thread */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-3 custom-scrollbar">
                 {messages.map((m, idx) => {
                   const isAdminMsg = m.sender === "admin";
                   return (
-                    <div
-                      key={idx}
-                      className={`flex flex-col ${isAdminMsg ? "items-end" : "items-start"}`}
-                    >
+                    <div key={idx} className={`flex flex-col ${isAdminMsg ? "items-end" : "items-start"}`}>
                       <div
                         className={`max-w-[75%] rounded-2xl p-3.5 text-xs leading-relaxed ${
                           isAdminMsg
@@ -496,13 +544,8 @@ export default function AdminChatPage() {
                       >
                         <p>{m.text}</p>
                       </div>
-                      <span className="text-[9px] text-neutral-500 mt-1 px-1">
-                        {m.createdAt
-                          ? new Date(m.createdAt).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
-                          : ""}
+                      <span className="text-[9px] text-neutral-500 mt-1 px-1 font-mono">
+                        {m.createdAt ? new Date(m.createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) : ""}
                       </span>
                     </div>
                   );
@@ -510,8 +553,26 @@ export default function AdminChatPage() {
                 <div ref={messagesEndRef} />
               </div>
 
+              {/* Canned Quick Reply Chips */}
+              <div className="py-2 overflow-x-auto custom-scrollbar flex items-center gap-1.5 border-t border-neutral-800/80">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1 shrink-0">
+                  <Zap className="w-3 h-3" /> Quick:
+                </span>
+                {CANNED_RESPONSES.map((canned, cIdx) => (
+                  <button
+                    key={cIdx}
+                    type="button"
+                    onClick={() => handleSendMessage(undefined, canned.text)}
+                    className="px-2.5 py-1 rounded-xl bg-neutral-950 border border-neutral-800 hover:border-amber-500/40 text-neutral-300 hover:text-white text-[10px] font-medium whitespace-nowrap transition shrink-0"
+                    title={canned.text}
+                  >
+                    {canned.title}
+                  </button>
+                ))}
+              </div>
+
               {/* Chat Input */}
-              <form onSubmit={handleSendMessage} className="pt-4 border-t border-neutral-800 flex gap-2">
+              <form onSubmit={handleSendMessage} className="pt-2 flex gap-2">
                 <input
                   type="text"
                   placeholder="Type reply to customer…"
@@ -534,11 +595,72 @@ export default function AdminChatPage() {
               <MessageCircle className="w-12 h-12 text-neutral-700" />
               <div>
                 <p className="text-sm font-bold text-neutral-300">No Conversation Selected</p>
-                <p className="text-xs text-neutral-500">
-                  Select a live chat session from the list on the left to view messages and reply.
-                </p>
+                <p className="text-xs text-neutral-500">Select a live chat session from the list on the left.</p>
               </div>
             </div>
+          )}
+        </div>
+
+        {/* Col 4: Customer 360 Profile & History Sidebar */}
+        <div className="bg-neutral-900/80 border border-neutral-800 rounded-3xl p-5 flex flex-col h-full shadow-2xl overflow-y-auto custom-scrollbar space-y-5">
+          <div className="border-b border-neutral-800 pb-3">
+            <h3 className="font-serif text-sm font-bold text-white flex items-center gap-2">
+              <User className="w-4 h-4 text-amber-400" />
+              Customer 360 Profile
+            </h3>
+            <p className="text-[10px] text-neutral-500">Live CRM &amp; Dining History</p>
+          </div>
+
+          {currentSessionData ? (
+            <div className="space-y-4 text-xs">
+              <div className="p-3.5 rounded-2xl bg-neutral-950 border border-neutral-800 space-y-1">
+                <span className="text-[10px] text-neutral-500 uppercase block font-bold">Patron Name</span>
+                <p className="text-white font-bold text-sm">{currentSessionData.customerName || "Guest Patron"}</p>
+                <span className="text-[10px] text-amber-400 font-mono">VIP Patron Tier</span>
+              </div>
+
+              {/* Past Orders */}
+              <div className="space-y-2">
+                <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-bold flex items-center gap-1">
+                  <ShoppingBag className="w-3 h-3 text-amber-400" /> Recent Orders ({customerHistory.orders.length})
+                </span>
+                {customerHistory.orders.length === 0 ? (
+                  <p className="text-[11px] text-neutral-500 italic">No past orders on record.</p>
+                ) : (
+                  customerHistory.orders.map((o: any, idx: number) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="font-mono font-bold text-amber-400">{o.orderNumber}</span>
+                        <span className="font-bold text-white">₹{o.total?.toLocaleString('en-IN')}</span>
+                      </div>
+                      <p className="text-[10px] text-neutral-400">{new Date(o.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              {/* Past Reservations */}
+              <div className="space-y-2 pt-2 border-t border-neutral-800">
+                <span className="text-[10px] uppercase tracking-wider text-neutral-400 font-bold flex items-center gap-1">
+                  <Calendar className="w-3 h-3 text-sky-400" /> Bookings ({customerHistory.reservations.length})
+                </span>
+                {customerHistory.reservations.length === 0 ? (
+                  <p className="text-[11px] text-neutral-500 italic">No previous reservations.</p>
+                ) : (
+                  customerHistory.reservations.map((r: any, idx: number) => (
+                    <div key={idx} className="p-2.5 rounded-xl bg-neutral-950 border border-neutral-800 space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className="font-bold text-white">{r.area} ({r.guests} Guests)</span>
+                        <span className="text-[10px] text-emerald-400 font-mono">{r.status}</span>
+                      </div>
+                      <p className="text-[10px] text-neutral-400 font-mono">Table {r.tableNo || "Assigned"}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          ) : (
+            <p className="text-xs text-neutral-500 italic text-center py-8">Select a conversation to inspect patron details.</p>
           )}
         </div>
       </div>

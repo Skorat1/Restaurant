@@ -848,14 +848,24 @@ export default function FloorPlanView({
               </div>
             </div>
 
-            {/* Right Controls: New Reservation Button */}
-            <div className="flex items-center gap-2.5">
+            {/* Right Controls: Walk-in, Merge, New Reservation Buttons */}
+            <div className="flex items-center gap-2 flex-wrap">
+              {/* 10-Second Fast Walk-in Button */}
+              <button
+                onClick={() => setIsNewWaitlistOpen(true)}
+                className="flex items-center gap-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 px-3.5 py-2 rounded-xl text-xs font-bold transition shadow-md shadow-emerald-500/10"
+                title="Rapid 10-second Walk-in Entry"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-emerald-400" />
+                <span>⚡ 10s Walk-in</span>
+              </button>
+
               <button
                 onClick={() => setIsNewResModalOpen(true)}
                 className="flex items-center gap-2 bg-[#2563eb] hover:bg-[#1d4ed8] text-white px-4 py-2 rounded-xl text-xs font-bold transition shadow-lg shadow-blue-500/25"
               >
                 <Plus className="w-4 h-4" />
-                <span>+ Assign &amp; Book Table</span>
+                <span>+ Book Table</span>
               </button>
             </div>
           </div>
@@ -1114,6 +1124,17 @@ export default function FloorPlanView({
                 >
                   <Plus className="w-4 h-4" />
                   Book Table {selectedTable.tableNo} ({selectedTable.capacity} Seats)
+                </button>
+              )}
+
+              {/* SMS Confirmation Trigger Button */}
+              {selectedTable.phone && (
+                <button
+                  onClick={() => handleSendSmsAlert(selectedTable.guestName || "Guest", selectedTable.phone || "")}
+                  className="col-span-2 w-full bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 py-2.5 rounded-xl text-xs font-bold transition flex items-center justify-center gap-2"
+                >
+                  <Send className="w-3.5 h-3.5" />
+                  <span>📱 Send SMS / WhatsApp Confirmation</span>
                 </button>
               )}
 

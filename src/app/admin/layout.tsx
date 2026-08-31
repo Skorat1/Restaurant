@@ -29,24 +29,24 @@ interface NavGroup {
 
 const NAV_GROUPS: NavGroup[] = [
   {
-    title: "Core Operations",
-    roles: ["admin", "owner", "manager", "chef", "kitchen"],
+    title: "Kitchen & Floor Ops",
+    roles: ["admin", "owner", "manager", "chef", "kitchen", "waiter", "captain", "staff"],
     items: [
-      { href: "/admin", label: "Dashboard", icon: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" },
-      { href: "/admin/kds", label: "KDS", icon: "M4 6h16v12H4zM8 10h8M8 14h5" },
-      { href: "/admin/orders", label: "Orders", icon: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0", badge: "pendingOrders" },
-      { href: "/admin/reservations", label: "Reservations", icon: "M3 4h18M3 4v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4M3 4l3 4h12l3-4M8 12h8M8 16h5", badge: "pendingReservations" },
-      { href: "/admin/chat", label: "Live Support", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
+      { href: "/admin/kds", label: "KDS Display", icon: "M4 6h16v12H4zM8 10h8M8 14h5" },
+      { href: "/admin/orders", label: "Orders & POS", icon: "M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0", badge: "pendingOrders" },
+      { href: "/admin/reservations", label: "Floor Plan & Bookings", icon: "M3 4h18M3 4v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V4M3 4l3 4h12l3-4M8 12h8M8 16h5", badge: "pendingReservations" },
+      { href: "/admin/chat", label: "Live Support & Desk", icon: "M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" },
     ]
   },
   {
-    title: "Management & Content",
-    roles: ["admin", "owner", "manager"],
+    title: "Executive & Content",
+    roles: ["admin", "owner", "manager", "chef"],
     items: [
-      { href: "/admin/inventory", label: "Inventory", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
+      { href: "/admin", label: "Executive Dashboard", icon: "M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h7v7h-7z" },
+      { href: "/admin/inventory", label: "Inventory & Stock", icon: "M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" },
       { 
         href: "/admin/menu", 
-        label: "Menu", 
+        label: "Menu & Pricing", 
         icon: "M12 2c1.5 2 4 2.5 4 5.5 0 1.5-1 2-1 3.5 0 1 1 2.5 1 3.5C16 18 13.5 20 12 20s-4-2-4-6.5c0-1 .5-2.5.5-3.5 0-1.5-1-2-1-3.5C7.5 4.5 10 4 12 2z"
       },
       { href: "/admin/reviews", label: "Reviews", icon: "M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z" },
@@ -56,16 +56,17 @@ const NAV_GROUPS: NavGroup[] = [
     ]
   },
   {
-    title: "People & Logs",
+    title: "Intelligence & Access",
     roles: ["admin", "owner", "manager"],
     items: [
-      { href: "/admin/users", label: "Users", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
-      { href: "/admin/activity", label: "Activity", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
+      { href: "/admin/analytics", label: "Financial Analytics", icon: "M18 20V10M12 20V4M6 20v-6" },
+      { href: "/admin/users", label: "Users & Staff", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+      { href: "/admin/activity", label: "Audit Intelligence", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
     ]
   }
 ];
 
-const STAFF_ROLES = ["admin", "owner", "manager", "chef", "kitchen"];
+const STAFF_ROLES = ["admin", "owner", "manager", "chef", "kitchen", "waiter", "captain", "staff"];
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const { user, token, loading } = useAuth();

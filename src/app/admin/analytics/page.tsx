@@ -147,8 +147,37 @@ export default function AnalyticsPage() {
             ))}
           </div>
 
-          <button className="px-5 py-2.5 rounded-xl bg-neutral-900/80 border border-neutral-700 text-neutral-300 text-xs font-bold hover:bg-white hover:text-black transition-all duration-300 flex items-center gap-2 shadow-xl hover:shadow-[0_0_20px_rgba(255,255,255,0.2)]">
-            <Download className="w-4 h-4" /> Export Report
+          <button
+            onClick={() => {
+              if (!data) return;
+              const csvRows = [
+                ["VELORA HAUTE CUISINE - BUSINESS ANALYTICS REPORT"],
+                [`Generated on: ${new Date().toLocaleString()}`],
+                [],
+                ["Gross Revenue (INR)", `Rs. ${kpis.revenue}`],
+                ["Total Orders Fulfilled", kpis.orders],
+                ["Average Ticket Size (INR)", `Rs. ${kpis.avgOrder.toFixed(2)}`],
+                [],
+                ["--- TOP SELLING ITEMS ---"],
+                ["Item Name", "Quantity Sold", "Revenue Generated (INR)"],
+                ...data.topItems.map(i => [`"${i._id}"`, i.quantitySold, i.revenueGenerated]),
+                [],
+                ["--- REVENUE OVER TIME ---"],
+                ["Date", "Revenue (INR)", "Orders Count"],
+                ...data.revenueOverTime.map(r => [r._id, r.revenue, r.orders])
+              ];
+              const csvContent = "data:text/csv;charset=utf-8," + csvRows.map(e => e.join(",")).join("\n");
+              const encodedUri = encodeURI(csvContent);
+              const link = document.createElement("a");
+              link.setAttribute("href", encodedUri);
+              link.setAttribute("download", `velora_analytics_${new Date().toISOString().split("T")[0]}.csv`);
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+            }}
+            className="px-5 py-2.5 rounded-xl bg-neutral-900/80 border border-neutral-700 text-neutral-300 text-xs font-bold hover:bg-amber-500 hover:text-black hover:border-amber-500 transition-all duration-300 flex items-center gap-2 shadow-xl"
+          >
+            <Download className="w-4 h-4" /> Export CSV Report
           </button>
         </div>
       </div>
