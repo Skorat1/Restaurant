@@ -6,9 +6,11 @@ import { MessageCircle, X, Send } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
 interface Message {
+  _id?: string;
   sender: "customer" | "admin";
   text: string;
-  timestamp: string;
+  createdAt?: string;
+  timestamp?: string;
 }
 
 export default function ChatWidget() {
@@ -20,30 +22,55 @@ export default function ChatWidget() {
   const [newMessage, setNewMessage] = useState("");
   const [customerName, setCustomerName] = useState("");
   const [isNameSet, setIsNameSet] = useState(false);
-  const [sessionId, setSessionId] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  if (isAdmin) {
-    return null;
-  }
+  // 1. Persistent Session ID from localStorage
+  const [sessionId, setSessionId] = useState<string>("");
 
-  // Initialize session ID from localStorage
   useEffect(() => {
-    const savedSessionId = localStorage.getItem("chatSessionId");
-    const savedName = localStorage.getItem("chatCustomerName");
+    let id = localStorage.getItem("concierge_session_id") || localStorage.getItem("chatSessionId");
+    if (!id) {
+      id = "sess_" + Math.random().toString(36).substring(2, 9);
+      localStorage.setItem("concierge_session_id", id);
+    }
+    setSessionId(id);
 
-    if (savedSessionId && savedName) {
-      setSessionId(savedSessionId);
+    const savedName = localStorage.getItem("concierge_customer_name") || localStorage.getItem("chatCustomerName");
+    if (savedName) {
       setCustomerName(savedName);
       setIsNameSet(true);
     }
   }, []);
 
-  // Socket connection for real-time delivery when supported
+  if (isAdmin) {
+    return null;
+  }
+
+  // 2. Fetch Chat History from /api/chat/history?sessionId=xyz
+  const fetchHistory = async () => {
+    if (!sessionId) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/chat/history?sessionId=${sessionId}`, {
+        cache: "no-store",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.data)) {
+          setMessages(data.data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch chat history", error);
+    }
+  };
+
+  // 3. Socket & Polling fallback
   useEffect(() => {
     if (isOpen && isNameSet && sessionId) {
+      fetchHistory();
+
       let socket: WebSocket | null = null;
       let reconnectTimeout: NodeJS.Timeout;
 
@@ -64,7 +91,7 @@ export default function ChatWidget() {
                 const message: Message = parsed.data;
                 setMessages((prev) => {
                   const isDuplicate = prev.some(
-                    (m) => m.text === message.text && m.timestamp === message.timestamp && m.sender === message.sender
+                    (m) => m.text === message.text && (m.createdAt === message.createdAt || m._id === message._id)
                   );
                   if (isDuplicate) return prev;
                   return [...prev, message];
@@ -72,9 +99,8 @@ export default function ChatWidget() {
               } else if (parsed.event === "chat_closed") {
                 setMessages((prev) => [
                   ...prev,
-                  { sender: "admin", text: "This chat has been closed by the concierge team.", timestamp: new Date().toISOString() },
+                  { sender: "admin", text: "This chat has been resolved by our concierge team.", createdAt: new Date().toISOString() },
                 ]);
-                socket?.close();
               }
             } catch (err) {
               console.error("WS parse error", err);
@@ -82,17 +108,20 @@ export default function ChatWidget() {
           };
 
           socket.onclose = () => {
-            reconnectTimeout = setTimeout(connectWs, 5000);
+            reconnectTimeout = setTimeout(connectWs, 4000);
           };
         } catch {
-          // Socket failed or not supported, fallback to HTTP
+          // Socket fallback to HTTP polling
         }
       };
 
       connectWs();
 
+      const intervalId = setInterval(fetchHistory, 3000);
+
       return () => {
         clearTimeout(reconnectTimeout);
+        clearInterval(intervalId);
         if (socket) {
           socket.onclose = null;
           socket.close();
@@ -102,40 +131,6 @@ export default function ChatWidget() {
     }
   }, [isOpen, isNameSet, sessionId, customerName]);
 
-  // Fetch & Poll messages from database
-  useEffect(() => {
-    if (isOpen && isNameSet && sessionId) {
-      const fetchHistory = async () => {
-        try {
-          const res = await fetch(`${API_BASE_URL}/api/chat/session/${sessionId}`, {
-            cache: "no-store",
-          });
-          if (res.ok) {
-            const data = await res.json();
-            if (data.status === "closed") {
-              setMessages((prev) => {
-                const hasClosedMsg = prev.some((m) => m.text.includes("closed by the concierge"));
-                if (hasClosedMsg) return prev;
-                return [
-                  ...(data.messages || []),
-                  { sender: "admin", text: "This chat has been closed by the concierge team.", timestamp: new Date().toISOString() },
-                ];
-              });
-            } else if (Array.isArray(data.messages)) {
-              setMessages(data.messages);
-            }
-          }
-        } catch (error) {
-          console.error("Failed to fetch chat history", error);
-        }
-      };
-
-      fetchHistory();
-      const intervalId = setInterval(fetchHistory, 3000);
-      return () => clearInterval(intervalId);
-    }
-  }, [isOpen, isNameSet, sessionId]);
-
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -143,33 +138,29 @@ export default function ChatWidget() {
 
   const handleStartChat = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!customerName.trim()) return;
+    if (!customerName.trim() || !sessionId) return;
 
     const trimmedName = customerName.trim();
-    const newSessionId = `chat_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
-    setSessionId(newSessionId);
+    localStorage.setItem("concierge_customer_name", trimmedName);
     setIsNameSet(true);
-    localStorage.setItem("chatSessionId", newSessionId);
-    localStorage.setItem("chatCustomerName", trimmedName);
 
-    // Save session in MongoDB immediately
+    // Send initial greeting / handshake message
     try {
-      const res = await fetch(`${API_BASE_URL}/api/chat/session`, {
+      const res = await fetch(`${API_BASE_URL}/api/chat/message`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sessionId: newSessionId,
+          sessionId,
+          sender: "customer",
+          text: `Hello, I'm ${trimmedName}. I would like some assistance.`,
           customerName: trimmedName,
         }),
       });
       if (res.ok) {
-        const data = await res.json();
-        if (data.session?.messages) {
-          setMessages(data.session.messages);
-        }
+        fetchHistory();
       }
     } catch (err) {
-      console.error("Failed to start chat session in DB", err);
+      console.error("Failed to start chat session", err);
     }
   };
 
@@ -181,16 +172,16 @@ export default function ChatWidget() {
     setNewMessage("");
     setSending(true);
 
-    const message: Message = {
+    const optimisticMsg: Message = {
       sender: "customer",
       text: textToSend,
-      timestamp: new Date().toISOString(),
+      createdAt: new Date().toISOString(),
     };
 
-    // Optimistically add message
-    setMessages((prev) => [...prev, message]);
+    // Optimistically show message
+    setMessages((prev) => [...prev, optimisticMsg]);
 
-    // Save directly to MongoDB via REST API
+    // Send to backend API
     try {
       await fetch(`${API_BASE_URL}/api/chat/message`, {
         method: "POST",
@@ -199,16 +190,16 @@ export default function ChatWidget() {
           sessionId,
           sender: "customer",
           text: textToSend,
-          customerName,
+          customerName: customerName || "Guest Customer",
         }),
       });
     } catch (err) {
-      console.error("Failed to save chat message in DB", err);
+      console.error("Failed to send message", err);
     } finally {
       setSending(false);
     }
 
-    // Broadcast via WebSocket if open
+    // Also send via WebSocket if open
     if (socketRef.current?.readyState === WebSocket.OPEN) {
       socketRef.current.send(
         JSON.stringify({
@@ -223,18 +214,18 @@ export default function ChatWidget() {
     }
   };
 
-  const handleResetChat = () => {
-    localStorage.removeItem("chatSessionId");
-    localStorage.removeItem("chatCustomerName");
-    setSessionId(null);
-    setIsNameSet(false);
+  const handleResetSession = () => {
+    const newId = "sess_" + Math.random().toString(36).substring(2, 9);
+    localStorage.setItem("concierge_session_id", newId);
+    setSessionId(newId);
     setMessages([]);
+    setIsNameSet(false);
   };
 
   return (
     <div className="fixed bottom-6 right-5 sm:bottom-6 sm:right-6 z-[9999] flex flex-col items-end font-sans">
       {isOpen && (
-        <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 h-[480px] max-h-[75vh] flex flex-col bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden animate-fade-up">
+        <div className="mb-3 w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 h-[490px] max-h-[75vh] flex flex-col bg-neutral-950/95 backdrop-blur-2xl border border-amber-500/40 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.9)] overflow-hidden animate-fade-up">
           {/* Header */}
           <div className="p-4 border-b border-amber-500/30 bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-3">
@@ -254,11 +245,11 @@ export default function ChatWidget() {
             <div className="flex items-center gap-1">
               {isNameSet && (
                 <button
-                  onClick={handleResetChat}
-                  title="Start New Chat"
+                  onClick={handleResetSession}
+                  title="Start New Thread"
                   className="px-2 py-1 text-[10px] font-semibold text-neutral-400 hover:text-amber-400 hover:bg-neutral-800/80 rounded-lg transition"
                 >
-                  New Chat
+                  New Thread
                 </button>
               )}
               <button
@@ -278,7 +269,7 @@ export default function ChatWidget() {
                   <MessageCircle className="w-6 h-6" />
                 </div>
                 <h4 className="text-white font-serif font-bold text-base mb-1">Welcome to VELORA Support</h4>
-                <p className="text-neutral-400 text-xs mb-5 px-2">Please enter your name to connect with our concierge team.</p>
+                <p className="text-neutral-400 text-xs mb-5 px-2">Please enter your name to connect with our concierge desk.</p>
                 <form onSubmit={handleStartChat} className="w-full max-w-[240px] space-y-3">
                   <input
                     type="text"
@@ -292,7 +283,7 @@ export default function ChatWidget() {
                     type="submit"
                     className="w-full bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold py-2.5 rounded-xl hover:from-amber-400 hover:to-amber-500 transition text-xs uppercase tracking-wider shadow-lg shadow-amber-500/20 active:scale-95"
                   >
-                    Start Chat
+                    Start Conversation
                   </button>
                 </form>
               </div>
@@ -300,22 +291,36 @@ export default function ChatWidget() {
               <>
                 {messages.length === 0 && (
                   <div className="text-center text-neutral-500 text-xs py-10 font-mono">
-                    Connecting to concierge...
+                    Connecting to concierge team...
                   </div>
                 )}
                 {messages.map((msg, idx) => (
                   <div
-                    key={idx}
+                    key={msg._id || idx}
                     className={`max-w-[85%] p-3 rounded-2xl text-xs leading-relaxed ${
                       msg.sender === "customer"
                         ? "bg-gradient-to-r from-amber-500 to-amber-600 text-black font-medium rounded-tr-sm self-end shadow-md"
                         : "bg-neutral-800/90 text-white rounded-tl-sm self-start border border-neutral-700 shadow-md"
                     }`}
                   >
-                    {msg.sender === "admin" && (
-                      <div className="text-[9px] font-bold uppercase tracking-widest text-amber-400 mb-1">Concierge Desk</div>
-                    )}
-                    {msg.text}
+                    <div
+                      className={`text-[9px] font-bold uppercase tracking-widest mb-1 ${
+                        msg.sender === "customer" ? "text-amber-950" : "text-amber-400"
+                      }`}
+                    >
+                      {msg.sender === "admin" ? "Concierge Desk" : "You"}
+                    </div>
+                    <p className="whitespace-pre-wrap">{msg.text}</p>
+                    <div
+                      className={`text-[8px] mt-1 text-right font-mono ${
+                        msg.sender === "customer" ? "text-amber-900" : "text-neutral-500"
+                      }`}
+                    >
+                      {new Date(msg.createdAt || msg.timestamp || Date.now()).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </div>
                   </div>
                 ))}
                 <div ref={messagesEndRef} />
