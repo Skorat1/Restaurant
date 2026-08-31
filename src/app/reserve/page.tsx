@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { Suspense, useState, useMemo, useEffect } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import {
   Calendar, Clock, Sparkles, CheckCircle2, MapPin, Utensils,
   Award, Heart, Briefcase, Cake, ShieldCheck, Star, Ticket,
@@ -28,8 +29,6 @@ const BASE_TIME_SLOTS = [
   { time: "8:30 PM", status: "available" },
   { time: "9:00 PM", status: "available" },
 ];
-
-
 
 const PRE_ORDER_ITEMS = [
   { id: "po-1", name: "Dom Pérignon Vintage 2013 Champagne", price: 24500, category: "Wine", icon: "🍾" },
@@ -64,7 +63,8 @@ const PROMO_CODES: Record<string, { discount: number; label: string }> = {
   VIPGUEST: { discount: 0.20, label: "20% VIP Patron Privilege" },
 };
 
-export default function ReservePage() {
+function ReserveContent() {
+  const searchParams = useSearchParams();
   const { t } = useLanguage();
   const { user } = useAuth();
 
@@ -83,6 +83,23 @@ export default function ReservePage() {
     notes: "",
     occasion: "General",
   });
+
+  // Pre-select area if passed via 360 Tour or URL param
+  useEffect(() => {
+    const requestedArea = searchParams.get("area") || searchParams.get("room");
+    if (requestedArea) {
+      const normalized = requestedArea.toLowerCase();
+      let matchedArea = "Main Room";
+      if (normalized.includes("terrace") || normalized.includes("sky")) {
+        matchedArea = "Terrace";
+      } else if (normalized.includes("patio") || normalized.includes("garden")) {
+        matchedArea = "Patio";
+      } else if (normalized.includes("vault") || normalized.includes("cellar") || normalized.includes("lounge")) {
+        matchedArea = "Lounge";
+      }
+      setForm((prev) => ({ ...prev, area: matchedArea }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     if (user) {
@@ -848,5 +865,13 @@ export default function ReservePage() {
         </div>
       </div>
     </section>
+  );
+}
+
+export default function ReservePage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-neutral-950 flex items-center justify-center text-amber-400 font-serif">Loading Reservation Desk...</div>}>
+      <ReserveContent />
+    </Suspense>
   );
 }
