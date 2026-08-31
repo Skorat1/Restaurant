@@ -113,10 +113,14 @@ export default function MenuPage() {
     return () => clearTimeout(t);
   }, [searchInput]);
 
+  const [cartToast, setCartToast] = useState<{ name: string; price: number } | null>(null);
+
   const handleAddToCart = (item: MenuItem) => {
     addItem({ itemId: item._id, name: item.name, price: item.price, image: item.image, category: item.category });
     setAddedId(item._id);
+    setCartToast({ name: item.name, price: item.price });
     setTimeout(() => setAddedId(""), 1500);
+    setTimeout(() => setCartToast(null), 4000);
   };
 
   const toggleDietary = (tag: string) =>
@@ -159,7 +163,31 @@ export default function MenuPage() {
   const activeFiltersCount = (activeTab !== "All" ? 1 : 0) + (maxPrice ? 1 : 0) + dietary.length + (search ? 1 : 0);
 
   return (
-    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.12),transparent_35%)]">
+    <section className="mx-auto max-w-7xl px-4 sm:px-6 py-16 sm:py-24 bg-[radial-gradient(circle_at_top,_rgba(245,158,11,0.12),transparent_35%)] relative">
+      {/* Interactive Cart Toast Notification */}
+      {cartToast && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 bg-neutral-950/95 border border-amber-500/60 rounded-2xl px-5 py-3.5 shadow-2xl shadow-black/80 flex items-center gap-3.5 backdrop-blur-xl animate-fade-up">
+          <div className="w-8 h-8 rounded-full bg-amber-500 text-black flex items-center justify-center font-bold text-xs shrink-0 shadow-md">
+            ✓
+          </div>
+          <div>
+            <p className="text-xs font-bold text-white line-clamp-1">{cartToast.name} added to cart</p>
+            <p className="text-[10px] text-amber-400 font-mono">₹{cartToast.price.toLocaleString("en-IN")}</p>
+          </div>
+          <Link
+            href="/menu"
+            onClick={(e) => {
+              e.preventDefault();
+              const cartBtn = document.querySelector('button[aria-label="View cart"]') as HTMLButtonElement;
+              if (cartBtn) cartBtn.click();
+            }}
+            className="ml-2 px-3 py-1.5 rounded-xl bg-amber-500 text-black text-xs font-black uppercase tracking-wider hover:bg-amber-400 transition"
+          >
+            View Bag →
+          </Link>
+        </div>
+      )}
+
       {/* Header */}
       <div className="text-center">
         <p className="text-sm uppercase tracking-[0.4em] text-amber-400/90">Seasonal showcase</p>
@@ -180,13 +208,13 @@ export default function MenuPage() {
               <div key={item._id} className="group shrink-0 w-full max-w-[260px] flex flex-col rounded-[2rem] border border-neutral-800/60 bg-neutral-900/50 backdrop-blur-xl p-2 shadow-2xl shadow-black/40 transition-all duration-500 hover:-translate-y-2 hover:border-amber-500/40 hover:bg-neutral-900">
                 <div className="relative w-full h-32 rounded-[1.5rem] overflow-hidden bg-neutral-950 mb-3">
                   {resolveImg(item.image) && (
-                    <img src={resolveImg(item.image)} alt={item.name} className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 group-hover:scale-110" />
+                    <img src={resolveImg(item.image)} alt={item.name} loading="lazy" decoding="async" className="w-full h-full object-cover opacity-80 group-hover:opacity-100 transition duration-500 group-hover:scale-110" />
                   )}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
                   <div className="absolute bottom-3 left-3 right-3 flex items-end justify-between">
                     <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-neutral-300 shadow-black drop-shadow-md">{item.category}</span>
                     <span className="rounded-xl bg-black/60 border border-white/10 backdrop-blur-md px-2.5 py-1 text-xs font-black text-amber-400 shadow-lg drop-shadow-md">
-                      ₹{item.price}
+                      ₹{item.price.toLocaleString("en-IN")}
                     </span>
                   </div>
                 </div>
@@ -239,15 +267,25 @@ export default function MenuPage() {
         <div className="mt-4 rounded-3xl border border-neutral-800 bg-neutral-950/95 p-6 shadow-2xl shadow-black/20">
           <div className="grid gap-5 lg:grid-cols-2">
             <div className="space-y-3">
-              <p className="text-xs uppercase tracking-[0.36em] text-neutral-500">Max Price</p>
+              <p className="text-xs uppercase tracking-[0.36em] text-neutral-500">Max Price (INR)</p>
               <div className="flex flex-wrap gap-2">
-                {["", "15", "25", "40", "60"].map((p) => (
+                {[
+                  { val: "", label: "Any" },
+                  { val: "1000", label: "Under ₹1,000" },
+                  { val: "2000", label: "Under ₹2,000" },
+                  { val: "3500", label: "Under ₹3,500" },
+                  { val: "5000", label: "Under ₹5,000" },
+                ].map(({ val, label }) => (
                   <button
-                    key={p}
-                    onClick={() => setMaxPrice(p)}
-                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${maxPrice === p ? "bg-amber-500 text-black" : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"}`}
+                    key={val}
+                    onClick={() => setMaxPrice(val)}
+                    className={`rounded-full px-4 py-2 text-sm font-semibold transition ${maxPrice === val ? "bg-amber-500 text-black" : "bg-neutral-900 text-neutral-300 hover:bg-neutral-800"}`}
                   >
-                    {p ? `Under $${p}` : "Any"}
+                    {label}
+                  </button>
+                ))}
+              </div>
+            </div>
                   </button>
                 ))}
               </div>
@@ -357,12 +395,12 @@ export default function MenuPage() {
                   <span className="absolute top-5 right-5 rounded-full bg-red-500/90 backdrop-blur-md px-3.5 py-1.5 text-[10px] font-black uppercase tracking-widest text-white shadow-lg border border-red-400/30">Sold Out</span>
                 )}
 
-                {/* Price tag */}
-                <div className="absolute bottom-5 right-5">
-                  <span className="inline-flex items-center justify-center rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl px-5 py-2 text-xl font-black text-amber-400 shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-amber-500/50 group-hover:bg-black/70">
-                    ₹{item.price}
-                  </span>
-                </div>
+                  {/* Price tag */}
+                  <div className="absolute bottom-5 right-5">
+                    <span className="inline-flex items-center justify-center rounded-2xl bg-black/50 border border-white/10 backdrop-blur-xl px-5 py-2 text-xl font-black text-amber-400 shadow-2xl transition-all duration-300 group-hover:scale-105 group-hover:border-amber-500/50 group-hover:bg-black/70">
+                      ₹{item.price.toLocaleString("en-IN")}
+                    </span>
+                  </div>
               </div>
 
               <div className="p-6 sm:p-8 flex flex-col flex-1 justify-between">

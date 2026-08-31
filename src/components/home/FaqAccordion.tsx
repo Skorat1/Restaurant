@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, HelpCircle } from "lucide-react";
 
 interface FAQ {
   q: string;
@@ -38,29 +38,47 @@ export default function FaqAccordion() {
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3.5 max-w-4xl mx-auto">
       {FAQS.map((faq, index) => {
         const isOpen = expandedFaq === index;
         return (
           <div
             key={faq.q}
-            className="card-glass rounded-2xl border-neutral-800/80 overflow-hidden transition-all duration-300"
+            className={`rounded-2xl border transition-all duration-300 backdrop-blur-xl ${
+              isOpen
+                ? "bg-neutral-900/90 border-amber-500/50 shadow-xl shadow-black/40"
+                : "bg-neutral-950/60 border-neutral-800/80 hover:border-neutral-700"
+            }`}
           >
             <button
               type="button"
               onClick={() => setExpandedFaq(isOpen ? null : index)}
-              className="w-full p-5 text-left flex items-center justify-between text-white font-serif font-bold text-base hover:text-amber-400 transition"
+              className="w-full p-5 sm:p-6 text-left flex items-center justify-between gap-4 text-white font-serif font-bold text-sm sm:text-base hover:text-amber-400 transition"
               aria-expanded={isOpen}
             >
-              <span className="pr-4">{faq.q}</span>
-              <ChevronDown className={`w-5 h-5 text-amber-400 shrink-0 transition-transform duration-300 ${isOpen ? "rotate-180" : ""}`} />
+              <span className="flex items-center gap-3">
+                <HelpCircle className={`w-4 h-4 shrink-0 transition-colors ${isOpen ? "text-amber-400" : "text-neutral-500"}`} />
+                <span>{faq.q}</span>
+              </span>
+              <ChevronDown
+                className={`w-5 h-5 text-amber-400 shrink-0 transition-transform duration-300 ease-out ${
+                  isOpen ? "rotate-180" : "rotate-0"
+                }`}
+              />
             </button>
 
-            {isOpen && (
-              <div className="px-5 pb-5 text-xs text-neutral-300 leading-relaxed font-light border-t border-neutral-800/60 pt-4 animate-fade-up">
-                {faq.a}
+            {/* Smooth CSS Grid Accordion Transition */}
+            <div
+              className={`grid transition-all duration-300 ease-in-out ${
+                isOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+              }`}
+            >
+              <div className="overflow-hidden">
+                <div className="px-5 sm:px-6 pb-6 pt-1 text-xs sm:text-sm text-neutral-300 leading-relaxed font-light border-t border-neutral-800/50">
+                  {faq.a}
+                </div>
               </div>
-            )}
+            </div>
           </div>
         );
       })}
