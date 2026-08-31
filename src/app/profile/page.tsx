@@ -8,35 +8,12 @@ import {
   Utensils, CheckCircle2, Gift, GlassWater,
   LogOut, Save, Share2, Copy, Bell, Star,
   Plus, Trash2, Eye, EyeOff, TrendingUp, Package,
-  CalendarDays, Camera, Home, Briefcase, ChevronRight, ChevronDown,
-  Clock, Users, RefreshCw, AlertCircle, QrCode
+  CalendarDays, Camera, Home, Briefcase, ChevronRight
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/components/CartContext";
 import API_BASE_URL from "@/lib/api";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
-
-interface UserReservation {
-  _id: string;
-  passCode?: string;
-  name: string;
-  email: string;
-  phone?: string;
-  date: string;
-  guests: number;
-  occasion?: string;
-  tableId?: string;
-  tableNo?: string;
-  area?: string;
-  status: "Pending" | "Confirmed" | "Declined" | "Seated" | "Completed" | "Waitlisted";
-  specialRequests?: string;
-  notes?: string;
-  dietary?: string[];
-  preOrders?: Array<{ id: string; name: string; price: number; category: string }>;
-  totalAmount?: number;
-  verified?: boolean;
-  createdAt: string;
-}
 
 const AVATAR_ICONS = [
   { id: "crown", icon: Crown, label: "VIP Crown" },
@@ -80,15 +57,18 @@ export default function ProfilePage() {
   const [newAddr, setNewAddr] = useState({ label: "Home", line: "", city: "Pune, MH", pincode: "" });
 
   // UI Status State
-  const [activeTab, setActiveTab] = useState("overview"); // overview | reservations | personal | addresses | avatar | referral
+  const [activeTab, setActiveTab] = useState("overview"); // overview | personal | addresses | avatar | referral
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [copiedReferral, setCopiedReferral] = useState(false);
 
-  // Live User Reservations State
-  const [reservations, setReservations] = useState<UserReservation[]>([]);
-  const [loadingReservations, setLoadingReservations] = useState(false);
+  // Recent Activity Timeline Data
+  const recentTimeline = [
+    { id: "t1", icon: Package, title: "Order #ORD-20260804-3821", detail: "Delivered · 3 course meal · ₹2,840", time: "Aug 4, 2026", color: "text-amber-400 border-amber-500/40 bg-amber-500/10" },
+    { id: "t2", icon: CalendarDays, title: "VIP Skylight Reservation", detail: "Confirmed · Table T7 (Skylight) · 8:00 PM", time: "Aug 2, 2026", color: "text-emerald-400 border-emerald-500/40 bg-emerald-500/10" },
+    { id: "t3", icon: GlassWater, title: "Cellar Wine Tasting Reserved", detail: "Château Margaux 2018 reserved by Sommelier", time: "Jul 28, 2026", color: "text-purple-400 border-purple-500/40 bg-purple-500/10" },
+  ];
 
   useEffect(() => {
     if (!loading && !token) router.push("/login");
@@ -102,49 +82,6 @@ export default function ProfilePage() {
       email: user.email || "",
     }));
   }, [user]);
-
-  // Handle URL hash navigation e.g. #reservations
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const checkHash = () => {
-        const hash = window.location.hash.replace("#", "");
-        if (hash === "reservations") {
-          setActiveTab("reservations");
-        }
-      };
-      checkHash();
-      window.addEventListener("hashchange", checkHash);
-      return () => window.removeEventListener("hashchange", checkHash);
-    }
-  }, []);
-
-  // Fetch real reservations for user
-  const fetchUserReservations = async () => {
-    if (!user?.email) return;
-    setLoadingReservations(true);
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/reservations/my?email=${encodeURIComponent(user.email)}`, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {},
-        cache: "no-store",
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data.success && Array.isArray(data.data)) {
-          setReservations(data.data);
-        }
-      }
-    } catch (err) {
-      console.error("Failed to fetch reservations", err);
-    } finally {
-      setLoadingReservations(false);
-    }
-  };
-
-  useEffect(() => {
-    if (user?.email) {
-      fetchUserReservations();
-    }
-  }, [user?.email, token]);
 
   // Profile Picture Upload Handler
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -258,45 +195,8 @@ export default function ProfilePage() {
     }
   };
 
-  const getStatusBadge = (status: string) => {
-    switch (status?.toLowerCase()) {
-      case "confirmed":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-            <CheckCircle2 className="w-3 h-3 text-emerald-400" /> Confirmed Table
-          </span>
-        );
-      case "seated":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/40">
-            <Utensils className="w-3 h-3 text-blue-400" /> Currently Seated
-          </span>
-        );
-      case "waitlisted":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/40">
-            <Clock className="w-3 h-3 text-purple-400" /> Priority Waitlist
-          </span>
-        );
-      case "declined":
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-red-500/20 text-red-400 border border-red-500/40">
-            <AlertCircle className="w-3 h-3" /> Declined
-          </span>
-        );
-      default:
-        return (
-          <span className="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">
-            <Clock className="w-3 h-3 text-amber-400 animate-spin" /> Pending Confirmation
-          </span>
-        );
-    }
-  };
-
   const inputBaseCls = "w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3.5 text-xs text-white placeholder-neutral-500 transition focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400";
   const inputWithIconCls = "w-full rounded-2xl border border-neutral-800 bg-neutral-950 pl-11 pr-4 py-3.5 text-xs text-white placeholder-neutral-500 transition focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400";
-
-  const upcomingReservations = reservations.filter((r) => r.status !== "Completed" && r.status !== "Declined");
 
   return (
     <section className="min-h-screen bg-neutral-950 text-neutral-100 pt-28 pb-20 px-4 sm:px-6">
@@ -344,17 +244,13 @@ export default function ProfilePage() {
 
             {/* Quick Action Links */}
             <div className="flex flex-wrap items-center justify-center gap-2.5">
-              <button
-                onClick={() => setActiveTab("reservations")}
-                className={`px-4 py-2.5 rounded-xl border transition flex items-center gap-2 text-xs font-bold ${
-                  activeTab === "reservations"
-                    ? "bg-amber-500 text-black border-amber-400 shadow-lg shadow-amber-500/20"
-                    : "border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 hover:text-white"
-                }`}
+              <Link
+                href="/profile/reservations"
+                className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-neutral-900 hover:bg-neutral-800 text-neutral-200 hover:text-white text-xs font-bold transition flex items-center gap-2"
               >
                 <CalendarDays className="w-4 h-4 text-amber-400" />
-                <span>My Reservations ({reservations.length})</span>
-              </button>
+                <span>My Reservations</span>
+              </Link>
               <Link
                 href="/reserve"
                 className="px-4 py-2.5 rounded-xl border border-amber-500/40 bg-amber-500/10 hover:bg-amber-500 hover:text-black text-xs font-bold text-amber-300 transition flex items-center gap-2"
@@ -385,23 +281,6 @@ export default function ProfilePage() {
               }`}
             >
               <TrendingUp className="w-4 h-4" /> Overview Dashboard
-            </button>
-            <button
-              onClick={() => setActiveTab("reservations")}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between ${
-                activeTab === "reservations" ? "bg-amber-500 text-black shadow-lg shadow-amber-500/20" : "text-neutral-400 hover:text-white hover:bg-neutral-900"
-              }`}
-            >
-              <span className="flex items-center gap-3">
-                <CalendarDays className="w-4 h-4" /> My Reservations
-              </span>
-              {reservations.length > 0 && (
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  activeTab === "reservations" ? "bg-black text-amber-400" : "bg-amber-500/20 text-amber-400 border border-amber-500/40"
-                }`}>
-                  {reservations.length}
-                </span>
-              )}
             </button>
             <button
               onClick={() => setActiveTab("personal")}
@@ -445,12 +324,12 @@ export default function ProfilePage() {
               <div className="space-y-6 animate-fade-up">
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
-                    <p className="text-neutral-400 text-xs font-semibold mb-1">Total Reservations</p>
-                    <p className="text-2xl text-white font-bold font-serif">{reservations.length}</p>
+                    <p className="text-neutral-400 text-xs font-semibold mb-1">VIP Reward Points</p>
+                    <p className="text-2xl text-amber-400 font-bold font-serif">850 pts</p>
                   </div>
                   <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
-                    <p className="text-neutral-400 text-xs font-semibold mb-1">Upcoming Bookings</p>
-                    <p className="text-2xl text-amber-400 font-bold font-serif">{upcomingReservations.length}</p>
+                    <p className="text-neutral-400 text-xs font-semibold mb-1">Membership Tier</p>
+                    <p className="text-2xl text-white font-bold font-serif">{user?.tier || "Gold VIP"}</p>
                   </div>
                   <div className="bg-neutral-900/90 border border-neutral-800 rounded-2xl p-5 shadow-xl">
                     <p className="text-neutral-400 text-xs font-semibold mb-1">Saved Addresses</p>
@@ -458,30 +337,24 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Quick Reserved Tables Summary Banner */}
-                {upcomingReservations.length > 0 && (
-                  <div className="bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 border border-amber-500/40 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div className="space-y-1">
-                      <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">Next Upcoming Table</span>
-                      <h4 className="text-lg font-serif font-bold text-white">
-                        Table {upcomingReservations[0].tableId || upcomingReservations[0].tableNo || "T1"} ({upcomingReservations[0].area || "Main Dining"})
-                      </h4>
-                      <p className="text-xs text-neutral-300 flex items-center gap-2">
-                        <span>{new Date(upcomingReservations[0].date).toLocaleDateString("en-US", { weekday: "short", month: "short", day: "numeric" })}</span>
-                        <span>•</span>
-                        <span>{new Date(upcomingReservations[0].date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}</span>
-                        <span>•</span>
-                        <span>{upcomingReservations[0].guests} Guests</span>
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveTab("reservations")}
-                      className="px-5 py-2.5 rounded-full bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition shadow-lg shadow-amber-500/20"
-                    >
-                      View Pass Code
-                    </button>
+                {/* Direct Link to My Reservations */}
+                <div className="bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 border border-amber-500/40 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">Dining Reservations</span>
+                    <h4 className="text-lg font-serif font-bold text-white">
+                      View Your Reserved Tables &amp; Dining Passes
+                    </h4>
+                    <p className="text-xs text-neutral-300">
+                      Check table numbers, seating zones, and digital entry pass codes.
+                    </p>
                   </div>
-                )}
+                  <Link
+                    href="/profile/reservations"
+                    className="px-5 py-2.5 rounded-full bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition shadow-lg shadow-amber-500/20 shrink-0"
+                  >
+                    Open Reservations
+                  </Link>
+                </div>
                 
                 {/* Recent Activity Timeline Card */}
                 <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-5 shadow-xl">
@@ -489,220 +362,40 @@ export default function ProfilePage() {
                     <h3 className="text-lg font-serif text-white flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-amber-400" /> Recent Activity Timeline
                     </h3>
-                    <button onClick={fetchUserReservations} className="text-xs text-neutral-400 hover:text-white transition flex items-center gap-1">
-                      <RefreshCw className={`w-3.5 h-3.5 ${loadingReservations ? "animate-spin text-amber-400" : ""}`} /> Refresh
-                    </button>
+                    <span className="text-xs text-neutral-400">Activity Log</span>
                   </div>
 
                   <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-neutral-800">
-                    {reservations.slice(0, 3).map((res) => (
-                      <div key={res._id} className="relative flex items-start gap-4 group">
-                        <div className="absolute -left-6 top-0.5 w-5 h-5 rounded-full border flex items-center justify-center text-emerald-400 border-emerald-500/40 bg-emerald-500/10 shadow-md">
-                          <CalendarDays className="w-2.5 h-2.5" />
+                    {recentTimeline.map(({ id, icon: Icon, title, detail, time, color }) => (
+                      <div key={id} className="relative flex items-start gap-4 group">
+                        <div className={`absolute -left-6 top-0.5 w-5 h-5 rounded-full border flex items-center justify-center ${color} shadow-md`}>
+                          <Icon className="w-2.5 h-2.5" />
                         </div>
                         <div className="flex-1 bg-neutral-950/80 border border-neutral-800/80 rounded-2xl p-3.5 transition group-hover:border-neutral-700">
                           <div className="flex items-center justify-between text-xs font-bold text-white mb-1">
-                            <span>Reserved Table {res.tableId || res.tableNo || "T1"} ({res.area || "Main Dining"})</span>
-                            <span className="text-[10px] text-neutral-500 font-normal">{new Date(res.createdAt).toLocaleDateString()}</span>
+                            <span>{title}</span>
+                            <span className="text-[10px] text-neutral-500 font-normal">{time}</span>
                           </div>
-                          <p className="text-xs text-neutral-300">
-                            {res.guests} Guests · {new Date(res.date).toLocaleDateString()} at {new Date(res.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                          </p>
+                          <p className="text-xs text-neutral-300">{detail}</p>
                         </div>
                       </div>
                     ))}
-                    {reservations.length === 0 && (
-                      <div className="text-xs text-neutral-500 italic py-2">
-                        No recent activity recorded yet.
-                      </div>
-                    )}
                   </div>
 
                   <div className="pt-2 text-right">
                     <button
                       type="button"
-                      onClick={() => setActiveTab("reservations")}
+                      onClick={openCart}
                       className="text-xs font-bold text-amber-400 hover:text-amber-300 transition inline-flex items-center gap-1"
                     >
-                      View All Reserved Tables <ChevronRight className="w-3.5 h-3.5" />
+                      View Cart &amp; Active Orders <ChevronRight className="w-3.5 h-3.5" />
                     </button>
                   </div>
                 </div>
               </div>
             )}
 
-            {/* 2. MY RESERVED TABLES TAB */}
-            {activeTab === "reservations" && (
-              <div className="space-y-6 animate-fade-up">
-                <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-neutral-800 pb-5 mb-6">
-                    <div>
-                      <h3 className="text-xl sm:text-2xl font-serif text-white flex items-center gap-3">
-                        <CalendarDays className="w-6 h-6 text-amber-400" />
-                        My Reserved Tables
-                      </h3>
-                      <p className="text-xs text-neutral-400 mt-1">
-                        View your live table reservations, dining passes, and entry QR codes.
-                      </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      <button
-                        onClick={fetchUserReservations}
-                        className="px-3.5 py-2 rounded-xl bg-neutral-800 hover:bg-neutral-700 text-neutral-300 hover:text-white transition text-xs font-semibold flex items-center gap-1.5 border border-neutral-700"
-                        title="Reload Reservations"
-                      >
-                        <RefreshCw className={`w-3.5 h-3.5 ${loadingReservations ? "animate-spin text-amber-400" : ""}`} />
-                        <span>Refresh</span>
-                      </button>
-                      <Link
-                        href="/reserve"
-                        className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black text-xs font-bold uppercase tracking-wider transition flex items-center gap-1.5 shadow-lg shadow-amber-500/20"
-                      >
-                        <Plus className="w-4 h-4" />
-                        <span>Book New Table</span>
-                      </Link>
-                    </div>
-                  </div>
-
-                  {loadingReservations && reservations.length === 0 ? (
-                    <div className="py-16 text-center text-neutral-400 font-mono text-xs">
-                      <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-400" />
-                      Loading your reserved tables...
-                    </div>
-                  ) : reservations.length === 0 ? (
-                    <div className="py-16 text-center space-y-4">
-                      <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center mx-auto text-amber-400/40">
-                        <CalendarDays className="w-8 h-8" />
-                      </div>
-                      <h4 className="text-lg font-serif font-bold text-white">No Reservations Found</h4>
-                      <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
-                        You have not made any table reservations yet. Book your table now to enjoy haute gastronomy and private salon seating at VELORA.
-                      </p>
-                      <div className="pt-2">
-                        <Link
-                          href="/reserve"
-                          className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold uppercase tracking-wider transition shadow-xl shadow-amber-500/20"
-                        >
-                          <Utensils className="w-4 h-4" />
-                          <span>Reserve a Table Now</span>
-                        </Link>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="grid gap-5">
-                      {reservations.map((res) => {
-                        const resDate = new Date(res.date);
-                        const isUpcoming = resDate.getTime() > Date.now() - 3 * 3600 * 1000;
-                        return (
-                          <div
-                            key={res._id}
-                            className={`rounded-2xl border p-5 sm:p-6 transition-all ${
-                              isUpcoming
-                                ? "bg-neutral-950 border-amber-500/40 shadow-lg shadow-amber-500/5 hover:border-amber-400"
-                                : "bg-neutral-950/60 border-neutral-800 hover:border-neutral-700"
-                            }`}
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-neutral-800">
-                              <div className="flex items-center gap-3.5">
-                                <div className="w-12 h-12 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex flex-col items-center justify-center text-amber-400 shrink-0">
-                                  <span className="text-[10px] font-bold uppercase">{resDate.toLocaleString("en-US", { month: "short" })}</span>
-                                  <span className="text-base font-bold font-serif leading-none">{resDate.getDate()}</span>
-                                </div>
-                                <div>
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <h4 className="text-base sm:text-lg font-serif font-bold text-white">
-                                      Table {res.tableId || res.tableNo || "T1"}
-                                    </h4>
-                                    <span className="text-xs text-neutral-400">({res.area || "Main Dining Room"})</span>
-                                  </div>
-                                  <p className="text-xs text-neutral-300 mt-0.5 flex items-center gap-2">
-                                    <Clock className="w-3.5 h-3.5 text-amber-400" />
-                                    <span>
-                                      {resDate.toLocaleDateString("en-US", { weekday: "short", year: "numeric", month: "short", day: "numeric" })} at{" "}
-                                      {resDate.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                    </span>
-                                  </p>
-                                </div>
-                              </div>
-
-                              <div className="flex items-center gap-2">
-                                {getStatusBadge(res.status)}
-                              </div>
-                            </div>
-
-                            {/* Details Grid */}
-                            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 py-4 text-xs">
-                              <div className="bg-neutral-900/60 p-3 rounded-xl border border-neutral-800/80">
-                                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Guests</span>
-                                <div className="flex items-center gap-1.5 font-semibold text-white">
-                                  <Users className="w-3.5 h-3.5 text-amber-400" />
-                                  <span>{res.guests} Person(s)</span>
-                                </div>
-                              </div>
-
-                              <div className="bg-neutral-900/60 p-3 rounded-xl border border-neutral-800/80">
-                                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Occasion</span>
-                                <span className="font-semibold text-white">{res.occasion || "General Dining"}</span>
-                              </div>
-
-                              <div className="bg-neutral-900/60 p-3 rounded-xl border border-neutral-800/80">
-                                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Pass Code</span>
-                                <span className="font-mono font-bold text-amber-400 tracking-wider">{res.passCode || `RES-${res._id.slice(-6).toUpperCase()}`}</span>
-                              </div>
-
-                              <div className="bg-neutral-900/60 p-3 rounded-xl border border-neutral-800/80">
-                                <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Entry Status</span>
-                                <span className={`font-semibold ${res.verified ? "text-emerald-400" : "text-neutral-400"}`}>
-                                  {res.verified ? "✓ Verified Pass" : "Entry Pass Active"}
-                                </span>
-                              </div>
-                            </div>
-
-                            {/* Pre-Orders & Special Requests */}
-                            {(res.specialRequests || res.notes || (res.preOrders && res.preOrders.length > 0)) && (
-                              <div className="pt-2 text-xs text-neutral-400 space-y-1.5 border-t border-neutral-800/60">
-                                {res.preOrders && res.preOrders.length > 0 && (
-                                  <div className="flex items-center gap-2 flex-wrap">
-                                    <span className="text-[10px] uppercase font-bold text-amber-400">Pre-ordered Courses:</span>
-                                    {res.preOrders.map((item, idx) => (
-                                      <span key={idx} className="bg-neutral-900 border border-neutral-800 text-neutral-200 px-2 py-0.5 rounded-lg text-[11px]">
-                                        {item.name}
-                                      </span>
-                                    ))}
-                                  </div>
-                                )}
-                                {(res.specialRequests || res.notes) && (
-                                  <p className="italic text-neutral-400">
-                                    Special Request: "{res.specialRequests || res.notes}"
-                                  </p>
-                                )}
-                              </div>
-                            )}
-
-                            {/* Action Footer */}
-                            <div className="pt-3.5 flex items-center justify-between gap-3 flex-wrap">
-                              <span className="text-[10px] text-neutral-500 font-mono">
-                                Booked on {new Date(res.createdAt).toLocaleDateString()}
-                              </span>
-                              <div className="flex items-center gap-2">
-                                <Link
-                                  href="/contact"
-                                  className="text-xs text-neutral-400 hover:text-amber-400 transition"
-                                >
-                                  Modify / Concierge Help
-                                </Link>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
-
-            {/* 3. PERSONAL DETAILS */}
+            {/* 2. PERSONAL DETAILS */}
             {activeTab === "personal" && (
               <div className="animate-fade-up">
                 <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-2xl">
@@ -863,7 +556,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* 4. SAVED ADDRESSES */}
+            {/* 3. SAVED ADDRESSES */}
             {activeTab === "addresses" && (
               <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl animate-fade-up">
                 <div className="flex items-center justify-between border-b border-neutral-800 pb-4">
@@ -987,7 +680,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* 5. AVATAR SETTINGS */}
+            {/* 4. AVATAR SETTINGS */}
             {activeTab === "avatar" && (
               <div className="animate-fade-up">
                 <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 shadow-xl">
@@ -1023,7 +716,7 @@ export default function ProfilePage() {
               </div>
             )}
 
-            {/* 6. REFERRAL */}
+            {/* 5. REFERRAL */}
             {activeTab === "referral" && (
               <div className="animate-fade-up">
                 <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-6 sm:p-8 space-y-4 shadow-xl">
