@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   CalendarDays, Clock, Users, CheckCircle2, AlertCircle,
-  Utensils, Plus, RefreshCw, ChevronLeft, ShieldCheck, MapPin
+  Utensils, Plus, RefreshCw, ChevronLeft, Search, Mail, Phone
 } from "lucide-react";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
@@ -34,43 +33,71 @@ interface UserReservation {
 
 export default function MyReservationsPage() {
   const { user, token, loading } = useAuth();
-  const router = useRouter();
   const [reservations, setReservations] = useState<UserReservation[]>([]);
-  const [loadingReservations, setLoadingReservations] = useState(true);
+  const [loadingReservations, setLoadingReservations] = useState(false);
   const [filter, setFilter] = useState<"all" | "upcoming" | "past">("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searched, setSearched] = useState(false);
 
-  useEffect(() => {
-    if (!loading && !token) {
-      router.push("/login");
-    }
-  }, [loading, token, router]);
-
-  const fetchReservations = async () => {
-    if (!user?.email) return;
+  // Fetch reservations based on user email, stored booking email, or search query
+  const fetchReservations = useCallback(async (customQuery?: string) => {
     setLoadingReservations(true);
+    setSearched(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/reservations/my?email=${encodeURIComponent(user.email)}`, {
+      const storedEmail = typeof window !== "undefined" ? localStorage.getItem("user_booking_email") : null;
+      const storedPhone = typeof window !== "undefined" ? localStorage.getItem("user_booking_phone") : null;
+
+      const queryTerm = (customQuery !== undefined ? customQuery : searchQuery).trim();
+      const emailToUse = queryTerm || user?.email || storedEmail || "";
+      const phoneToUse = storedPhone || "";
+
+      let url = `${API_BASE_URL}/api/reservations/my`;
+      const params = new URLSearchParams();
+
+      if (queryTerm) {
+        params.set("search", queryTerm);
+      } else {
+        if (emailToUse) params.set("email", emailToUse);
+        if (phoneToUse) params.set("phone", phoneToUse);
+      }
+
+      if (params.toString()) {
+        url += `?${params.toString()}`;
+      }
+
+      const res = await fetch(url, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
         cache: "no-store",
       });
+
       if (res.ok) {
         const data = await res.json();
         if (data.success && Array.isArray(data.data)) {
           setReservations(data.data);
+        } else {
+          setReservations([]);
         }
+      } else {
+        setReservations([]);
       }
     } catch (err) {
       console.error("Failed to fetch reservations", err);
+      setReservations([]);
     } finally {
       setLoadingReservations(false);
     }
-  };
+  }, [user?.email, token, searchQuery]);
 
   useEffect(() => {
-    if (user?.email) {
+    if (!loading) {
       fetchReservations();
     }
-  }, [user?.email, token]);
+  }, [loading, fetchReservations]);
+
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchReservations(searchQuery);
+  };
 
   const getStatusBadge = (status: string) => {
     switch (status?.toLowerCase()) {
@@ -116,10 +143,10 @@ export default function MyReservationsPage() {
   });
 
   return (
-    <section className="min-h-screen bg-neutral-950 text-neutral-100 pt-28 pb-20 px-4 sm:px-6">
-      <div className="mx-auto max-w-4xl space-y-8">
+    <section className="min-h-screen bg-neutral-950 text-neutral-100 pt-28 pb-20 px-4 sm:px-6 font-sans">
+      <div className="mx-auto max-w-4xl space-y-7">
         
-        {/* Navigation & Header */}
+        {/* Navigation & Actions */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <Link
             href="/profile"
@@ -130,7 +157,7 @@ export default function MyReservationsPage() {
 
           <div className="flex items-center gap-3">
             <button
-              onClick={fetchReservations}
+              onClick={() => fetchReservations()}
               className="px-3.5 py-2 rounded-xl bg-neutral-900 hover:bg-neutral-800 text-neutral-300 hover:text-white transition text-xs font-semibold flex items-center gap-1.5 border border-neutral-800 shadow-sm"
               title="Refresh Reservations"
             >
@@ -158,11 +185,11 @@ export default function MyReservationsPage() {
                 My Reserved Tables
               </h1>
               <p className="text-xs text-neutral-400 max-w-lg">
-                Manage your confirmed bookings, digital dining entry passes, and table details for VELORA Fine Dining.
+                View your confirmed table reservations, seating areas, dining passes, and live entry pass codes.
               </p>
             </div>
 
-            {/* Quick Stats */}
+            {/* Stats */}
             <div className="flex items-center gap-4 bg-neutral-950/80 border border-neutral-800 p-4 rounded-2xl shrink-0">
               <div className="text-center px-2">
                 <span className="text-[10px] text-neutral-500 uppercase font-bold block">Total</span>
@@ -178,8 +205,28 @@ export default function MyReservationsPage() {
             </div>
           </div>
 
+          {/* Booking Lookup & Search Bar */}
+          <form onSubmit={handleSearchSubmit} className="mt-6 flex flex-col sm:flex-row gap-2.5">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 text-neutral-500 absolute left-4 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search booking by email, phone, name, or Pass Code (e.g. demo705@gmail.com)..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full rounded-2xl border border-neutral-800 bg-neutral-950/90 pl-11 pr-4 py-3 text-xs text-white placeholder-neutral-500 transition focus:border-amber-400 focus:outline-none focus:ring-1 focus:ring-amber-400"
+              />
+            </div>
+            <button
+              type="submit"
+              className="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold uppercase tracking-wider transition shadow-lg shadow-amber-500/20 shrink-0"
+            >
+              Find Booking
+            </button>
+          </form>
+
           {/* Filter Pills */}
-          <div className="flex items-center gap-2 pt-6 border-t border-neutral-800/80 mt-6">
+          <div className="flex items-center gap-2 pt-5 border-t border-neutral-800/80 mt-5">
             <button
               onClick={() => setFilter("all")}
               className={`px-4 py-1.5 rounded-full text-xs font-semibold transition ${
@@ -218,7 +265,7 @@ export default function MyReservationsPage() {
           {loadingReservations && reservations.length === 0 ? (
             <div className="py-20 text-center text-neutral-400 font-mono text-xs bg-neutral-900/40 border border-neutral-800 rounded-3xl">
               <RefreshCw className="w-6 h-6 animate-spin mx-auto mb-2 text-amber-400" />
-              Loading your table reservations...
+              Searching table reservations in database...
             </div>
           ) : filteredReservations.length === 0 ? (
             <div className="py-20 text-center space-y-4 bg-neutral-900/40 border border-neutral-800 rounded-3xl p-6">
@@ -227,9 +274,9 @@ export default function MyReservationsPage() {
               </div>
               <h3 className="text-lg font-serif font-bold text-white">No Reservations Found</h3>
               <p className="text-xs text-neutral-400 max-w-md mx-auto leading-relaxed">
-                {filter === "upcoming"
-                  ? "You have no upcoming table reservations at the moment."
-                  : "You have not made any table reservations yet. Book your table now to enjoy haute gastronomy."}
+                {searched && searchQuery
+                  ? `No reservation matched "${searchQuery}". Please check the email or phone number used during booking.`
+                  : "No table reservation found for this account. Enter the email or phone number you used during booking in the search bar above."}
               </p>
               <div className="pt-2">
                 <Link
@@ -282,7 +329,7 @@ export default function MyReservationsPage() {
                     </div>
                   </div>
 
-                  {/* 4 Details Grid */}
+                  {/* Details Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 py-4 text-xs">
                     <div className="bg-neutral-950/80 p-3.5 rounded-2xl border border-neutral-800">
                       <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Guests</span>
@@ -305,9 +352,9 @@ export default function MyReservationsPage() {
                     </div>
 
                     <div className="bg-neutral-950/80 p-3.5 rounded-2xl border border-neutral-800">
-                      <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Entry Status</span>
-                      <span className={`font-bold ${res.verified ? "text-emerald-400" : "text-neutral-300"}`}>
-                        {res.verified ? "✓ Pass Verified" : "Active Pass"}
+                      <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold block mb-1">Guest Contact</span>
+                      <span className="font-bold text-neutral-200 truncate block text-[11px]">
+                        {res.email}
                       </span>
                     </div>
                   </div>
@@ -327,7 +374,7 @@ export default function MyReservationsPage() {
                       )}
                       {(res.specialRequests || res.notes) && (
                         <p className="italic text-neutral-400 bg-neutral-950/40 p-2.5 rounded-xl border border-neutral-800/50">
-                          Special Request: "{res.specialRequests || res.notes}"
+                          {res.specialRequests || res.notes}
                         </p>
                       )}
                     </div>
@@ -336,7 +383,7 @@ export default function MyReservationsPage() {
                   {/* Action Footer */}
                   <div className="pt-4 flex items-center justify-between gap-3 flex-wrap border-t border-neutral-800/60 mt-3">
                     <span className="text-[10px] text-neutral-500 font-mono">
-                      Booking Reference: #{res._id}
+                      Booking Reference: #{res._id} · Booked by {res.name}
                     </span>
                     <div className="flex items-center gap-3">
                       <Link

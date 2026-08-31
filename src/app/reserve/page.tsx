@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 import { useLanguage } from "@/lib/LanguageContext";
+import { useAuth } from "@/lib/AuthContext";
 import { Button } from "@/components/ui/Button";
 
 const BASE_TIME_SLOTS = [
@@ -58,7 +59,7 @@ const PROMO_CODES: Record<string, { discount: number; label: string }> = {
 
 export default function ReservePage() {
   const { t } = useLanguage();
-
+  const { user } = useAuth();
 
   const [selectedPreOrders, setSelectedPreOrders] = useState<string[]>([]);
   const [selectedDietary, setSelectedDietary] = useState<string[]>([]);
@@ -74,6 +75,16 @@ export default function ReservePage() {
     notes: "",
     occasion: "General",
   });
+
+  useEffect(() => {
+    if (user) {
+      setForm((prev) => ({
+        ...prev,
+        name: prev.name || user.name || "",
+        email: prev.email || user.email || "",
+      }));
+    }
+  }, [user]);
 
   // Promo Code State
   const [promoInput, setPromoInput] = useState("INAUGURATION2026");
@@ -200,6 +211,12 @@ export default function ReservePage() {
       const data = await res.json().catch(() => null);
 
       if (res.ok && data) {
+        if (form.email) {
+          localStorage.setItem("user_booking_email", form.email);
+        }
+        if (form.phone) {
+          localStorage.setItem("user_booking_phone", form.phone);
+        }
         setBookingRef(data.passCode || data.reservation?.passCode || refCode);
         setQrCodeUrl(data.qrDataUrl || "");
         setPassModal(true);
