@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { MessageCircle, X, Send } from "lucide-react";
 import API_BASE_URL from "@/lib/api";
 
@@ -11,6 +12,9 @@ interface Message {
 }
 
 export default function ChatWidget() {
+  const pathname = usePathname();
+  const isAdmin = pathname?.startsWith("/admin");
+
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -19,6 +23,10 @@ export default function ChatWidget() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  if (isAdmin) {
+    return null;
+  }
 
   // Initialize session ID from localStorage or create new
   useEffect(() => {

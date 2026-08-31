@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Header from "./Header";
 import InaugurationRibbon from "./InaugurationRibbon";
 import CartDrawer from "./CartDrawer";
+import ChatWidget from "./ChatWidget";
 
 export default function PageWrapper({
   children,
@@ -27,6 +28,7 @@ export default function PageWrapper({
         {children}
       </div>
       <CartDrawer />
+      <ChatWidget />
       {footer}
     </>
   );
