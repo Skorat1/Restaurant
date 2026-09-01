@@ -128,6 +128,34 @@ function ReserveContent() {
   const [bookingRef, setBookingRef] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [copied, setCopied] = useState(false);
+  const [liveSlots, setLiveSlots] = useState<Array<{ time: string; status: string; bookedGuests?: number }> | null>(null);
+
+  // ── Real-Time Live Slot Availability Fetcher ──
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveSlots = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/reservations/slots-availability?date=${form.date}`, {
+          cache: "no-store",
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && Array.isArray(data.slots) && isMounted) {
+            setLiveSlots(data.slots);
+          }
+        }
+      } catch {
+        // Silently fallback to standard slots if offline
+      }
+    };
+
+    fetchLiveSlots();
+    const timer = setInterval(fetchLiveSlots, 10000); // 10s auto-refresh
+    return () => {
+      isMounted = false;
+      clearInterval(timer);
+    };
+  }, [form.date]);
 
   const getDynamicTimeSlots = () => {
     const today = new Date();
@@ -139,7 +167,9 @@ function ReserveContent() {
     todayStart.setHours(0, 0, 0, 0);
     const isPastDate = selectedDate < todayStart;
 
-    return BASE_TIME_SLOTS.map((slot) => {
+    const sourceSlots = liveSlots && liveSlots.length > 0 ? liveSlots : BASE_TIME_SLOTS;
+
+    return sourceSlots.map((slot) => {
       let isPastTime = false;
       if (isPastDate) {
         isPastTime = true;
@@ -658,10 +688,18 @@ function ReserveContent() {
               </div>
             </div>
 
-            {/* Time Slot Selector Grid */}
+            {/* TIME SLOT Selector Grid (Matching Reference Screenshot) */}
             <div>
-              <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-2">Time Slot</label>
-              <div className="grid grid-cols-3 gap-2 max-h-44 overflow-y-auto pr-1">
+              <div className="flex items-center justify-between mb-2.5">
+                <label className="block text-xs font-mono font-extrabold uppercase tracking-widest text-neutral-400">
+                  TIME SLOT
+                </label>
+                <span className="text-[10px] text-amber-400/80 font-mono font-semibold">
+                  ● Real-time Live
+                </span>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-2.5 sm:gap-3">
                 {dynamicTimeSlots.map((slot) => {
                   const isSel = form.time === slot.time;
                   const isFull = slot.status === "full";
@@ -681,17 +719,21 @@ function ReserveContent() {
                           setForm({ ...form, time: slot.time });
                         }
                       }}
-                      className={`py-2.5 rounded-xl text-[11px] font-bold border transition ${
+                      className={`py-3 px-2 rounded-2xl text-xs sm:text-sm font-bold border transition-all duration-200 flex items-center justify-center text-center ${
                         isPassed
-                          ? "bg-neutral-900 border-neutral-800 text-neutral-600 opacity-50 cursor-not-allowed"
-                          : isFull
-                          ? "bg-neutral-950 border-red-500/30 text-red-400 opacity-70"
+                          ? "bg-neutral-950 border-neutral-900 text-neutral-600 opacity-40 cursor-not-allowed"
                           : isSel
-                          ? "bg-amber-500 text-black border-amber-400 shadow-md"
-                          : "bg-neutral-950 border-neutral-800 text-neutral-300 hover:border-amber-500/50"
+                          ? "bg-gradient-to-r from-amber-500 to-amber-400 text-neutral-950 font-black border-amber-300 shadow-[0_0_18px_rgba(245,158,11,0.4)] scale-[1.02]"
+                          : isFull
+                          ? "bg-[#141010] border-red-600/50 text-red-400 hover:border-red-500 hover:bg-red-950/30 hover:scale-[1.01]"
+                          : "bg-[#121212] border-neutral-800 text-neutral-100 hover:border-neutral-600 hover:bg-neutral-850 hover:scale-[1.01] active:scale-98"
                       }`}
                     >
-                      {slot.time} {isFull ? "(Waitlist)" : isPassed ? "(Passed)" : ""}
+                      <span>
+                        {slot.time}
+                        {isFull && <span className="block sm:inline text-[10px] font-semibold text-red-400/90 ml-0 sm:ml-1"> (Waitlist)</span>}
+                        {isPassed && <span className="block sm:inline text-[10px] text-neutral-600 ml-0 sm:ml-1"> (Passed)</span>}
+                      </span>
                     </button>
                   );
                 })}

@@ -7,6 +7,7 @@ import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
 import { io } from "socket.io-client";
 import { Button } from "@/components/ui/Button";
+import PushNotificationBanner from "@/components/PushNotificationBanner";
 
 interface NavSubItem {
   href: string;
@@ -61,6 +62,7 @@ const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: "/admin/analytics", label: "Financial Analytics", icon: "M18 20V10M12 20V4M6 20v-6" },
       { href: "/admin/users", label: "Users & Staff", icon: "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zm14 10v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" },
+      { href: "/admin/notifications", label: "Push Notifications", icon: "M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" },
       { href: "/admin/activity", label: "Audit Intelligence", icon: "M12 20h9M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" },
     ]
   }
@@ -345,6 +347,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Main Content Area */}
         <main className="flex-1 w-full min-w-0 animate-fade-in relative z-10 pb-20 lg:pb-0 min-h-[50vh]">
+          <PushNotificationBanner role="admin" className="mb-6" />
           {children}
         </main>
       </section>

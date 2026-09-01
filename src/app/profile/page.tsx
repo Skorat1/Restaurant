@@ -15,6 +15,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { useCart } from "@/components/CartContext";
 import API_BASE_URL from "@/lib/api";
 import EmailVerificationBanner from "@/components/EmailVerificationBanner";
+import PushNotificationBanner from "@/components/PushNotificationBanner";
 
 export interface AddressItem {
   id: string;
@@ -266,6 +267,7 @@ export default function ProfilePage() {
     <section className="min-h-screen bg-neutral-950 text-neutral-100 pt-28 pb-20 px-4 sm:px-6">
       <div className="mx-auto max-w-6xl space-y-8">
         <EmailVerificationBanner />
+        <PushNotificationBanner role="customer" />
 
         {/* Hidden Global File Input for Instant Profile Picture Picker */}
         <input
