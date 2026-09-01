@@ -20,6 +20,7 @@ import {
   getDownloadURL,
 } from "firebase/storage";
 import { getMessaging, Messaging, getToken, onMessage } from "firebase/messaging";
+import { getAnalytics, isSupported, Analytics, logEvent } from "firebase/analytics";
 
 // Firebase Configuration from Environment Variables
 const firebaseConfig = {
@@ -29,6 +30,7 @@ const firebaseConfig = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
 // Initialize Firebase safely for SSR / Next.js
@@ -47,6 +49,34 @@ export const storage: FirebaseStorage = getStorage(app);
 // Google Auth Provider
 export const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: "select_account" });
+
+// Analytics Instance (Browser-only)
+let analytics: Analytics | null = null;
+if (typeof window !== "undefined") {
+  isSupported()
+    .then((supported) => {
+      if (supported) {
+        analytics = getAnalytics(app);
+      }
+    })
+    .catch((error) => {
+      console.warn("Firebase Analytics could not be initialized:", error);
+    });
+}
+export { analytics };
+
+/**
+ * Log custom event to Firebase Analytics
+ */
+export function logAnalyticsEvent(eventName: string, params?: Record<string, any>) {
+  if (analytics) {
+    try {
+      logEvent(analytics, eventName, params);
+    } catch (e) {
+      console.warn(`Failed to log Firebase event [${eventName}]:`, e);
+    }
+  }
+}
 
 // Messaging Instance (Browser-only)
 let messaging: Messaging | null = null;

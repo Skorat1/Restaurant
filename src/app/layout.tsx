@@ -9,6 +9,7 @@ import PageWrapper from "@/components/PageWrapper";
 import { LanguageProvider } from "@/lib/LanguageContext";
 import API_BASE_URL from "@/lib/api";
 import { Analytics } from "@vercel/analytics/next";
+import FirebaseAnalyticsTracker from "@/components/FirebaseAnalyticsTracker";
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || "http://restaurant-psi-henna-35.vercel.app";
 
@@ -122,6 +123,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               </CartProvider>
           </LanguageProvider>
         </AuthProvider>
+        <FirebaseAnalyticsTracker />
         <Analytics />
       </body>
     </html>

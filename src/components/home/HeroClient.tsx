@@ -55,35 +55,50 @@ export default function Hero() {
             Experience ultra-modern French culinary heritage redefined. 7-course seasonal tasting menus, 2,500+ Grand Cru cellar vintages, and extraordinary starlit dining ambiances.
           </p>
 
-          {/* ── ALIGNED CTA BUTTONS ── */}
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center pt-2 animate-fade-up [animation-delay:450ms]">
-            {/* 1. Explore Menu */}
+          {/* ── LUXURY HERO CTA BUTTONS ── */}
+          <div className="flex flex-col sm:flex-row gap-3.5 sm:gap-4 items-stretch sm:items-center pt-2 animate-fade-up [animation-delay:450ms]">
+            {/* 1. Explore Menu (Primary Gold Shimmer CTA) */}
             <Link
               href="/menu"
-              className="group relative flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-widest shadow-xl shadow-amber-500/20 hover:shadow-amber-500/40 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 border border-amber-300/40 text-center whitespace-nowrap"
+              className="group relative inline-flex items-center justify-center gap-3 h-[52px] px-8 rounded-full bg-gradient-to-r from-amber-400 via-amber-300 to-amber-500 text-neutral-950 font-bold text-xs sm:text-[13px] uppercase tracking-[0.14em] shadow-[0_0_25px_rgba(245,158,11,0.35)] hover:shadow-[0_0_40px_rgba(245,158,11,0.6)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 overflow-hidden border border-amber-200/60 text-center whitespace-nowrap"
             >
-              <Utensils className="w-4 h-4 text-black shrink-0" />
-              <span>Explore Menu</span>
-              <ArrowRight className="w-4 h-4 text-black shrink-0 group-hover:translate-x-1 transition-transform" />
+              {/* Shimmer sweep effect */}
+              <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000 ease-out" />
+              
+              <div className="relative flex items-center gap-2.5">
+                <Utensils className="w-4 h-4 text-neutral-950 group-hover:rotate-12 transition-transform duration-300 shrink-0" />
+                <span>Explore Menu</span>
+                <ArrowRight className="w-4 h-4 text-neutral-950 group-hover:translate-x-1 transition-transform duration-300 shrink-0" />
+              </div>
             </Link>
 
-            {/* 2. Reserve a Table */}
+            {/* 2. Reserve a Table (Luxury Obsidian Glass CTA) */}
             <Link
               href="/reserve"
-              className="group relative flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 h-[50px] px-7 rounded-full bg-neutral-950/80 hover:bg-neutral-900 border-2 border-amber-400/60 hover:border-amber-400 text-amber-300 hover:text-white font-extrabold text-xs uppercase tracking-widest shadow-lg hover:shadow-amber-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-center whitespace-nowrap backdrop-blur-md"
+              className="group relative inline-flex items-center justify-center gap-3 h-[52px] px-7 rounded-full bg-neutral-950/80 hover:bg-neutral-900/90 backdrop-blur-xl border border-amber-500/40 hover:border-amber-400 text-amber-200 hover:text-white font-bold text-xs sm:text-[13px] uppercase tracking-[0.14em] shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:shadow-[0_0_30px_rgba(245,158,11,0.25)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 overflow-hidden text-center whitespace-nowrap"
             >
-              <Calendar className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
-              <span>Reserve a Table</span>
+              {/* Subtle gold ambient glow */}
+              <span className="absolute inset-0 bg-gradient-to-r from-amber-500/10 via-transparent to-amber-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              
+              <div className="relative flex items-center gap-2.5">
+                <div className="w-6 h-6 rounded-full bg-amber-500/15 flex items-center justify-center border border-amber-500/30 group-hover:scale-110 group-hover:border-amber-400 transition-all duration-300">
+                  <Calendar className="w-3.5 h-3.5 text-amber-400" />
+                </div>
+                <span>Reserve a Table</span>
+              </div>
             </Link>
 
-            {/* 3. 360° Tour */}
+            {/* 3. 360° Tour (Frosted Glass Interactive CTA) */}
             <button
               type="button"
               onClick={() => setTourModal(true)}
-              className="group relative flex-1 sm:flex-initial inline-flex items-center justify-center gap-2.5 h-[50px] px-6 rounded-full bg-neutral-900/70 hover:bg-neutral-800 border border-neutral-700/80 hover:border-amber-500/50 text-neutral-300 hover:text-amber-300 font-extrabold text-xs uppercase tracking-widest shadow-md hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 text-center whitespace-nowrap backdrop-blur-md"
+              className="group relative inline-flex items-center justify-center gap-2.5 h-[52px] px-6 rounded-full bg-white/[0.04] hover:bg-white/[0.08] backdrop-blur-lg border border-white/15 hover:border-amber-400/50 text-neutral-300 hover:text-white font-semibold text-xs sm:text-[13px] uppercase tracking-[0.14em] shadow-md hover:shadow-[0_0_20px_rgba(255,255,255,0.1)] hover:-translate-y-0.5 active:translate-y-0 transition-all duration-300 text-center whitespace-nowrap"
             >
-              <Eye className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
-              <span>360° Tour</span>
+              <div className="relative flex items-center gap-2">
+                <Eye className="w-4 h-4 text-amber-400/90 group-hover:text-amber-300 group-hover:scale-110 transition-transform duration-300 shrink-0" />
+                <span>360° Tour</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
+              </div>
             </button>
           </div>
 
