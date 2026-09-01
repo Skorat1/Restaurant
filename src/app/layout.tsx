@@ -97,7 +97,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                   href="#main-content"
                   className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:rounded-xl focus:bg-amber-500 focus:px-4 focus:py-2 focus:text-black focus:font-semibold"
                 >
-                  Skip to main content
                 </a>
                 <PageWrapper
                   footer={
@@ -105,7 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                       <div className="max-w-7xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-4 sm:gap-6 sm:flex-row sm:justify-between text-center sm:text-left">
                         <div className="space-y-1">
                           <p className="text-amber-500 font-serif font-bold text-lg tracking-wider">VELORA</p>
-                          <p className="text-neutral-400 text-xs">23, Boat Club Road, Pune · +91 20 4890 7700</p>
+                          <p className="text-neutral-400 text-xs">23, Boat Club Road, USA · +1 20 4890 7700</p>
                         </div>
                         <nav aria-label="Footer navigation" className="flex flex-wrap justify-center gap-6 text-xs font-semibold uppercase tracking-wider">
                           <a href="#" className="text-neutral-400 hover:text-amber-400 transition">Privacy</a>

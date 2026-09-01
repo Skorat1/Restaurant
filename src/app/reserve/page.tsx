@@ -457,7 +457,7 @@ function ReserveContent() {
                 />
                 <input
                   type="tel"
-                  placeholder="Mobile Phone (+91 98765 43210)"
+                  placeholder="Mobile Phone (+1 98765 43210)"
                   required
                   value={form.phone}
                   onChange={(e) => setForm({ ...form, phone: e.target.value })}

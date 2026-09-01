@@ -13,9 +13,9 @@ import API_BASE_URL from "@/lib/api";
 const RESTAURANT = {
   name: "VELORA",
   address: "23, Boat Club Road, Race Course Area",
-  city: "Pune, Maharashtra — 411 001",
-  phone: "+91 20 4890 7700",
-  whatsapp: "+91 98765 43210",
+  city: "new york, USA — 411 001",
+  phone: "+1 20 4890 7700",
+  whatsapp: "+1 98765 43210",
   email: "concierge@letoiledoree.in",
   hours: {
     lunch: "12:00 PM – 3:30 PM",
@@ -281,7 +281,7 @@ export default function ContactPage() {
                 className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition ${directionTab === "airport" ? "bg-amber-500 text-black font-bold" : "text-neutral-400 hover:text-white"
                   }`}
               >
-                ✈️ Pune Airport
+                ✈️ International Airport
               </button>
             </div>
 
@@ -290,10 +290,10 @@ export default function ContactPage() {
                 <p>Private white-glove valet attendants are stationed right at the main entrance gate on Boat Club Road. Complimentary for all dining patrons.</p>
               )}
               {directionTab === "transit" && (
-                <p>Located 8 minutes from Bund Garden Metro Station &amp; 10 minutes from Pune Railway Station. Taxi pick-up available at main lobby entrance.</p>
+                <p>Located 8 minutes from Bund Garden Metro Station &amp; 10 minutes from national  Railway Station. Taxi pick-up available at main lobby entrance.</p>
               )}
               {directionTab === "airport" && (
-                <p>20 minutes drive (7.5 km) from Pune International Airport (PNQ). Private chauffeured airport transfer available upon VIP request.</p>
+                <p>20 minutes drive (7.5 km) from USA International Airport (PNQ). Private chauffeured airport transfer available upon VIP request.</p>
               )}
             </div>
           </div>
@@ -423,7 +423,7 @@ export default function ContactPage() {
                   <label className="block text-xs font-semibold uppercase tracking-wider text-neutral-400 mb-1">Mobile Phone</label>
                   <input
                     type="tel"
-                    placeholder="+91 98765 43210"
+                    placeholder="+1 98765 43210"
                     value={form.phone}
                     onChange={(e) => setForm({ ...form, phone: e.target.value })}
                     className="w-full rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-xs text-white outline-none focus:border-amber-500 transition"

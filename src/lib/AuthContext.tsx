@@ -6,11 +6,23 @@ interface User {
   _id: string;
   name: string;
   email: string;
+  phone?: string;
+  avatar?: string;
+  avatarIcon?: string;
+  avatarColor?: string;
+  addresses?: Array<{
+    id: string;
+    label: string;
+    line: string;
+    city: string;
+    pincode: string;
+    isPrimary?: boolean;
+  }>;
   role: string;
   isVerified?: boolean;
   loyaltyPoints?: number;
   membership?: {
-    tier: "gold" | "platinum" | null;
+    tier: "silver" | "gold" | "platinum" | null;
     active: boolean;
     startedAt?: string;
     expiresAt?: string;

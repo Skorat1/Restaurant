@@ -126,13 +126,13 @@ const nextConfig: NextConfig = {
   async redirects() {
     return process.env.NODE_ENV === "production"
       ? [
-          {
-            source: "/(.*)",
-            has: [{ type: "host", value: "www.letoiledoree.com" }],
-            destination: "https://letoiledoree.com/:path*",
-            permanent: true,
-          },
-        ]
+        {
+          source: "/(.*)",
+          has: [{ type: "host", value: "www.Velora.com" }],
+          destination: "https://Velora.com/:path*",
+          permanent: true,
+        },
+      ]
       : [];
   },
 };

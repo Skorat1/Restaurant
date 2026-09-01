@@ -1242,7 +1242,7 @@ export default function FloorPlanView({
                 <div>
                   <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Phone Number</label>
                   <input
-                    placeholder="+91 98765 43210"
+                    placeholder="+1 98765 43210"
                     value={newResForm.phone}
                     onChange={(e) => setNewResForm({ ...newResForm, phone: e.target.value })}
                     className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"
@@ -1366,7 +1366,7 @@ export default function FloorPlanView({
                 <div>
                   <label className="block text-xs font-semibold text-[#94a3b8] mb-1.5">Phone</label>
                   <input
-                    placeholder="+91 98765 43210"
+                    placeholder="+1 98765 43210"
                     value={newWaitForm.phone}
                     onChange={(e) => setNewWaitForm({ ...newWaitForm, phone: e.target.value })}
                     className="w-full bg-[#10121a] border border-[#232838] rounded-xl px-3.5 py-2.5 text-xs text-white focus:outline-none focus:border-[#2563eb]"

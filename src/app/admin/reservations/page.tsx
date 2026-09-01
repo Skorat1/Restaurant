@@ -1000,7 +1000,7 @@ export default function AdminReservations() {
                   <label className="block text-neutral-400 font-semibold mb-1">Mobile Phone</label>
                   <input
                     required
-                    placeholder="+91 98765 43210"
+                    placeholder="+1 98765 43210"
                     value={newForm.phone}
                     onChange={(e) => setNewForm({ ...newForm, phone: e.target.value })}
                     className="w-full bg-neutral-950 border border-neutral-800 rounded-2xl px-4 py-2.5 text-white focus:outline-none focus:border-amber-500"

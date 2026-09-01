@@ -177,8 +177,12 @@ export default function Header() {
                   aria-label="Profile menu"
                 >
                   <div className="relative">
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black text-xs font-bold flex items-center justify-center ring-2 ring-amber-500/30 group-hover:ring-amber-500/60 transition">
-                      {initials}
+                    <div className="w-7 h-7 rounded-full overflow-hidden bg-gradient-to-br from-amber-400 to-amber-600 text-black text-xs font-bold flex items-center justify-center ring-2 ring-amber-500/30 group-hover:ring-amber-500/60 transition">
+                      {user.avatar ? (
+                        <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span>{initials}</span>
+                      )}
                     </div>
                     {user.role === "admin" && (
                       <Crown className="absolute -top-1.5 -right-1.5 w-3.5 h-3.5 text-amber-400 fill-amber-400" />
@@ -192,8 +196,12 @@ export default function Header() {
                   <div className="absolute right-0 mt-2 w-64 rounded-2xl border border-amber-500/30 bg-neutral-950/98 backdrop-blur-2xl shadow-2xl shadow-black/70 overflow-hidden z-50 animate-fade-up">
                     <div className="px-4 py-4 border-b border-neutral-800 bg-gradient-to-r from-amber-500/10 via-transparent to-transparent">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black text-sm font-bold flex items-center justify-center ring-2 ring-amber-500/40">
-                          {initials}
+                        <div className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-amber-400 to-amber-600 text-black text-sm font-bold flex items-center justify-center ring-2 ring-amber-500/40 shrink-0">
+                          {user.avatar ? (
+                            <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                          ) : (
+                            <span>{initials}</span>
+                          )}
                         </div>
                         <div className="min-w-0">
                           <p className="text-sm font-bold text-white truncate">{user.name}</p>
@@ -338,8 +346,12 @@ export default function Header() {
               <div className="w-full h-14 rounded-2xl bg-neutral-800/50 animate-pulse border border-neutral-700/30" />
             ) : user ? (
               <div className="p-3 rounded-2xl border border-amber-500/30 bg-gradient-to-r from-amber-500/10 via-neutral-900/80 to-neutral-900/90 flex items-center gap-3">
-                <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 text-black font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
-                  {initials}
+                <div className="w-9 h-9 rounded-full overflow-hidden bg-gradient-to-br from-amber-400 to-amber-600 text-black font-bold text-xs flex items-center justify-center ring-2 ring-amber-400/40 shrink-0">
+                  {user.avatar ? (
+                    <img src={user.avatar} alt={user.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{initials}</span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-bold text-white truncate">{user.name}</p>
