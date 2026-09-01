@@ -195,6 +195,41 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       playChimeAlert(notif.type === "chat" ? "chat" : "waiter");
     }
 
+    // Trigger OS Desktop Notification (Windows Notification Center)
+    if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+      try {
+        const notifTitle = notif.title;
+        const notifBody = notif.message;
+        const notifUrl = notif.link || "/admin/chat";
+
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification(notifTitle, {
+              body: notifBody,
+              icon: "/icon.svg",
+              badge: "/icon.svg",
+              tag: `velora_${newNotif.id}`,
+              renotify: true,
+              requireInteraction: true,
+              data: { url: notifUrl },
+            } as any);
+          }).catch(() => {
+            new Notification(notifTitle, {
+              body: notifBody,
+              icon: "/icon.svg",
+            } as any);
+          });
+        } else {
+          new Notification(notifTitle, {
+            body: notifBody,
+            icon: "/icon.svg",
+          } as any);
+        }
+      } catch (notifErr) {
+        console.warn("OS Notification trigger error:", notifErr);
+      }
+    }
+
     // Auto-remove toast after 8 seconds
     setTimeout(() => {
       setActiveToasts(prev => prev.filter(t => t.id !== newNotif.id));

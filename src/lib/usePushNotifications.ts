@@ -90,12 +90,37 @@ export function usePushNotifications() {
         data: msg.data,
       });
 
-      // Also trigger a browser native notification if permitted
-      if (Notification.permission === "granted" && msg.notification) {
-        new Notification(msg.notification.title || "VELORA", {
-          body: msg.notification.body,
-          icon: msg.notification.icon || "/icons/icon-192x192.png",
-        });
+      // Also trigger a browser native notification in OS Action Center
+      if (Notification.permission === "granted" && (msg.notification || msg.data)) {
+        const notifTitle = msg.notification?.title || (msg.data?.title as string) || "VELORA";
+        const notifBody = msg.notification?.body || (msg.data?.body as string) || "You have a new update";
+        const notifIcon = msg.notification?.icon || "/icon.svg";
+
+        if ("serviceWorker" in navigator) {
+          navigator.serviceWorker.ready.then((reg) => {
+            reg.showNotification(notifTitle, {
+              body: notifBody,
+              icon: notifIcon,
+              badge: notifIcon,
+              requireInteraction: true, // Persist in Windows Notification Center
+              tag: (msg.data?.type as string) || `fcm_${Date.now()}`,
+              renotify: true,
+              data: msg.data,
+            });
+          }).catch(() => {
+            new Notification(notifTitle, {
+              body: notifBody,
+              icon: notifIcon,
+              requireInteraction: true,
+            });
+          });
+        } else {
+          new Notification(notifTitle, {
+            body: notifBody,
+            icon: notifIcon,
+            requireInteraction: true,
+          });
+        }
       }
     });
 

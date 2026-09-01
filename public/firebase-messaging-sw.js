@@ -31,8 +31,12 @@ try {
         body: payload.notification?.body || payload.data?.body || 'You have a new update.',
         icon: payload.notification?.icon || '/icon.svg',
         badge: '/icon.svg',
+        tag: payload.data?.type || `velora_${Date.now()}`,
+        renotify: true,
+        requireInteraction: true, // Display persistently in Windows Action Center / Notification tray
+        vibrate: [200, 100, 200],
         data: {
-          url: payload.data?.url || payload.data?.click_action || '/',
+          url: payload.data?.url || payload.data?.click_action || '/admin/chat',
           ...payload.data,
         },
       };
@@ -44,10 +48,53 @@ try {
   console.warn('[firebase-messaging-sw.js] Messaging init warning:', swErr);
 }
 
+// Fallback direct push event listener to ensure 100% OS / Windows tray display
+self.addEventListener('push', (event) => {
+  if (!event.data) return;
+
+  try {
+    const payload = event.data.json();
+    console.log('[firebase-messaging-sw.js] Raw push event data:', payload);
+
+    const title = payload.notification?.title || payload.data?.title || 'VELORA Restaurant';
+    const body = payload.notification?.body || payload.data?.body || 'New live update received.';
+    const url = payload.data?.url || payload.fcmOptions?.link || payload.notification?.click_action || '/admin/chat';
+
+    const options = {
+      body,
+      icon: payload.notification?.icon || '/icon.svg',
+      badge: '/icon.svg',
+      tag: payload.data?.type || `velora_${Date.now()}`,
+      renotify: true,
+      requireInteraction: true, // Keep in Windows Notification Bar
+      vibrate: [200, 100, 200],
+      data: {
+        url,
+        ...payload.data,
+      },
+    };
+
+    event.waitUntil(self.registration.showNotification(title, options));
+  } catch (err) {
+    try {
+      const text = event.data.text();
+      event.waitUntil(
+        self.registration.showNotification('VELORA Restaurant', {
+          body: text,
+          icon: '/icon.svg',
+          requireInteraction: true,
+        })
+      );
+    } catch (e) {
+      console.warn('[firebase-messaging-sw.js] Push parse error:', e);
+    }
+  }
+});
+
 // Notification Click Handler to navigate to order/chat/admin URL
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  const targetUrl = event.notification.data?.url || '/';
+  const targetUrl = event.notification.data?.url || '/admin/chat';
 
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((windowClients) => {
