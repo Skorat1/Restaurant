@@ -56,11 +56,15 @@ if (typeof window !== "undefined") {
   isSupported()
     .then((supported) => {
       if (supported) {
-        analytics = getAnalytics(app);
+        try {
+          analytics = getAnalytics(app);
+        } catch (initErr) {
+          console.warn("[Firebase Analytics] Init error:", initErr);
+        }
       }
     })
     .catch((error) => {
-      console.warn("Firebase Analytics could not be initialized:", error);
+      console.warn("[Firebase Analytics] Not supported or blocked:", error);
     });
 }
 export { analytics };
