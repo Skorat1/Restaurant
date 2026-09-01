@@ -31,10 +31,11 @@ export function usePushNotifications() {
   // Check support and current permission on mount
   useEffect(() => {
     if (typeof window !== "undefined" && "Notification" in window && "serviceWorker" in navigator) {
+      const currentPermission = Notification.permission;
       setState((prev) => ({
         ...prev,
         isSupported: true,
-        permission: Notification.permission,
+        permission: currentPermission,
       }));
 
       // Register service worker if not already registered
@@ -46,6 +47,28 @@ export function usePushNotifications() {
         .catch((err) => {
           console.warn("[PushNotifications] Service Worker registration failed:", err);
         });
+
+      // Auto-sync token if permission is already granted
+      if (currentPermission === "granted") {
+        requestFcmToken()
+          .then(async (token) => {
+            if (token) {
+              setState((prev) => ({ ...prev, token, permission: "granted" }));
+              const authToken = localStorage.getItem("token") || localStorage.getItem("velora_token");
+              const headers: Record<string, string> = { "Content-Type": "application/json" };
+              if (authToken) {
+                headers["Authorization"] = `Bearer ${authToken}`;
+              }
+
+              await fetch(`${API_BASE_URL}/api/notifications/fcm-token`, {
+                method: "POST",
+                headers,
+                body: JSON.stringify({ token, role: "admin" }),
+              }).catch((e) => console.warn("[PushNotifications] Failed to auto-sync token:", e));
+            }
+          })
+          .catch((e) => console.warn("[PushNotifications] Auto-sync error:", e));
+      }
     }
   }, []);
 

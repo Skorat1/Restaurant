@@ -147,8 +147,8 @@ export async function uploadFileToFirebase(
  * @returns FCM Registration Token string or null
  */
 export async function requestFcmToken(): Promise<string | null> {
-  if (typeof window === "undefined" || !("Notification" in window) || !messaging) {
-    console.warn("Notifications or Firebase Messaging are not supported in this browser.");
+  if (typeof window === "undefined" || !("Notification" in window)) {
+    console.warn("Notifications are not supported in this browser.");
     return null;
   }
 
@@ -159,10 +159,21 @@ export async function requestFcmToken(): Promise<string | null> {
       return null;
     }
 
-    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-    const currentToken = await getToken(messaging, {
-      vapidKey: vapidKey || undefined,
-      serviceWorkerRegistration: await navigator.serviceWorker.ready,
+    let msgInstance = messaging;
+    if (!msgInstance) {
+      msgInstance = getMessaging(app);
+    }
+
+    let registration: ServiceWorkerRegistration | undefined;
+    if ("serviceWorker" in navigator) {
+      registration = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+      await navigator.serviceWorker.ready;
+    }
+
+    const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY || "BF9xb73bhM6p6Lbzxit9XC7yalCAgcp6hP3hmk1QE26OYsQLATximMZ3VcYAF1vVuI0qxpX2poh6A8qqcoMrwaE";
+    const currentToken = await getToken(msgInstance, {
+      vapidKey,
+      serviceWorkerRegistration: registration,
     });
 
     if (currentToken) {
