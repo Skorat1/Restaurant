@@ -139,8 +139,8 @@ export default function ChatWidget() {
           });
         }
       }
-    } catch (error) {
-      console.error("Failed to fetch chat history", error);
+    } catch {
+      // Silently ignore temporary network/offline glitches during polling
     }
   }, [sessionId]);
 

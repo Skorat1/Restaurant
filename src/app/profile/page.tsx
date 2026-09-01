@@ -140,38 +140,6 @@ export default function ProfilePage() {
     reader.readAsDataURL(file);
   };
 
-  // Remove Profile Photo
-  const removePhoto = async () => {
-    setUploadingPhoto(true);
-    setError("");
-    setMessage("");
-
-    try {
-      const res = await fetch(`${API_BASE_URL}/api/auth/me`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ avatar: "" }),
-      });
-
-      if (!res.ok) {
-        setError("Failed to remove profile picture.");
-        return;
-      }
-
-      setCustomPhotoUrl(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      setMessage("Profile picture removed successfully.");
-      if (refreshUser) await refreshUser();
-    } catch {
-      setError("Error removing profile picture.");
-    } finally {
-      setUploadingPhoto(false);
-    }
-  };
-
   // Referral Link Copy
   const referralCode = `VELORA-${(user?.name || "VIP").split(" ")[0].toUpperCase()}-2026`;
   const copyReferralLink = () => {
@@ -375,24 +343,7 @@ export default function ProfilePage() {
                     <Sparkles className="w-3.5 h-3.5" /> {user?.loyaltyPoints || 850} VIP Points
                   </span>
                   <span>•</span>
-                  {customPhotoUrl ? (
-                    <button
-                      type="button"
-                      onClick={removePhoto}
-                      disabled={uploadingPhoto}
-                      className="text-xs text-red-400 hover:text-red-300 hover:underline flex items-center gap-1 font-sans"
-                    >
-                      <Trash2 className="w-3 h-3" /> Remove Photo
-                    </button>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => fileInputRef.current?.click()}
-                      className="text-xs text-amber-300 hover:underline flex items-center gap-1 font-sans"
-                    >
-                      <UploadCloud className="w-3 h-3" /> Add Profile Picture
-                    </button>
-                  )}
+                  <span className="text-neutral-300">VIP Lounge Access</span>
                 </div>
               </div>
             </div>

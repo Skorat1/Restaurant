@@ -34,6 +34,9 @@ const connectOrigins = Array.from(
 ).join(" ");
 
 const nextConfig: NextConfig = {
+  turbopack: {
+    root: path.resolve(__dirname),
+  },
   typescript: {
     ignoreBuildErrors: true,
   },

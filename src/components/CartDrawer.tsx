@@ -27,6 +27,7 @@ import { useCart } from "@/components/CartContext";
 import { useAuth } from "@/lib/AuthContext";
 import API_BASE_URL from "@/lib/api";
 import { resolveImg } from "@/lib/image";
+import UpiQrGenerator from "@/components/UpiQrGenerator";
 
 interface OrderItem {
   _id?: string;
@@ -698,18 +699,17 @@ export default function CartDrawer() {
               </div>
 
               {paymentMethod === "UPI" && (
-                <div className="bg-neutral-900 border border-neutral-800 rounded-2xl p-6 text-center space-y-4">
-                  <div className="w-32 h-32 mx-auto bg-white rounded-xl flex items-center justify-center">
-                    <QrCode className="w-24 h-24 text-black" />
+                <div className="bg-neutral-900/90 border border-neutral-800 rounded-3xl p-5 text-center shadow-xl space-y-4">
+                  <div className="flex items-center justify-between border-b border-neutral-800 pb-3">
+                    <span className="text-xs font-bold text-neutral-400">Scan &amp; Pay via UPI</span>
+                    <span className="text-base font-serif font-black text-amber-400">₹{grandTotal.toFixed(2)}</span>
                   </div>
-                  <div>
-                    <p className="text-xs text-neutral-400">Scan with any UPI app</p>
-                    <p className="text-lg font-serif font-bold text-amber-400 mt-1">₹{grandTotal.toFixed(2)}</p>
-                    <div className="mt-3 py-2 px-4 rounded-xl bg-neutral-950 border border-neutral-800 inline-block">
-                      <p className="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-0.5">UPI ID</p>
-                      <p className="text-sm font-mono text-white">velora@ybl</p>
-                    </div>
-                  </div>
+                  <UpiQrGenerator
+                    upiId="velora@ybl"
+                    payeeName="VELORA Haute Cuisine"
+                    amount={grandTotal}
+                    transactionNote="Dining Checkout"
+                  />
                 </div>
               )}
 
