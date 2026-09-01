@@ -582,26 +582,6 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                {/* Direct Link to Avatar Studio */}
-                <div className="bg-gradient-to-r from-amber-500/15 via-neutral-900 to-neutral-950 border border-amber-500/40 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                  <div className="space-y-1">
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-400">Profile Customization</span>
-                    <h4 className="text-lg font-serif font-bold text-white">
-                      Profile Picture &amp; VIP Badge Studio
-                    </h4>
-                    <p className="text-xs text-neutral-300">
-                      Upload your custom profile photo, select fine-dining avatars, or choose luxury icon badges.
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("avatar")}
-                    className="px-5 py-2.5 rounded-full bg-amber-500 text-black text-xs font-bold uppercase tracking-wider hover:bg-amber-400 transition shadow-lg shadow-amber-500/20 shrink-0"
-                  >
-                    Customize Avatar
-                  </button>
-                </div>
-
                 {/* Direct Link to My Reservations */}
                 <div className="bg-gradient-to-r from-neutral-900 via-neutral-900/80 to-neutral-950 border border-neutral-800 rounded-3xl p-6 shadow-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="space-y-1">
