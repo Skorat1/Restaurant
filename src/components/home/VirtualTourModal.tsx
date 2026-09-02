@@ -324,6 +324,25 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
     };
   }, [activeRoom, isOpen]);
 
+  // Lock background body scroll when 360 Tour is active (sticky modal)
+  useEffect(() => {
+    if (isOpen) {
+      const originalBodyOverflow = document.body.style.overflow;
+      const originalHtmlOverflow = document.documentElement.style.overflow;
+      const originalTouchAction = document.body.style.touchAction;
+
+      document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
+      document.body.style.touchAction = "none";
+
+      return () => {
+        document.body.style.overflow = originalBodyOverflow;
+        document.documentElement.style.overflow = originalHtmlOverflow;
+        document.body.style.touchAction = originalTouchAction;
+      };
+    }
+  }, [isOpen]);
+
   // Gyroscope / Device Orientation handler
   useEffect(() => {
     if (!gyroActive) return;
@@ -430,11 +449,14 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
     };
   }, [isOpen, yaw, pitch, zoom, isAutoRotate, gyroActive]);
 
-  // Mouse & Touch Pan Interaction
+  // Mouse & Touch Pan Interaction with Pointer Capture
   const handlePointerDown = (e: React.PointerEvent) => {
     isDraggingRef.current = true;
     lastMousePos.current = { x: e.clientX, y: e.clientY };
     setIsAutoRotate(false);
+    try {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    } catch {}
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -444,11 +466,15 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
 
     lastMousePos.current = { x: e.clientX, y: e.clientY };
     setYaw((prev) => (prev - deltaX * 0.35) % 360);
-    setPitch((prev) => Math.max(-45, Math.min(45, prev + deltaY * 0.25)));
+    // Smooth, stabilized pitch to keep horizontal 360 horizon sticky without sliding up/down
+    setPitch((prev) => Math.max(-15, Math.min(15, prev + deltaY * 0.1)));
   };
 
-  const handlePointerUp = () => {
+  const handlePointerUp = (e: React.PointerEvent) => {
     isDraggingRef.current = false;
+    try {
+      (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
   // Wheel Zoom
@@ -651,9 +677,9 @@ export default function VirtualTourModal({ isOpen, onClose }: Props) {
           onPointerDown={handlePointerDown}
           onPointerMove={handlePointerMove}
           onPointerUp={handlePointerUp}
-          onPointerLeave={handlePointerUp}
+          onPointerCancel={handlePointerUp}
           onWheel={handleWheel}
-          className="w-full h-[320px] sm:h-[420px] rounded-3xl border border-amber-500/30 relative overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing select-none bg-neutral-950"
+          className="w-full h-[320px] sm:h-[420px] rounded-3xl border border-amber-500/30 relative overflow-hidden shadow-2xl cursor-grab active:cursor-grabbing select-none bg-neutral-950 touch-none overscroll-none"
         >
           {/* WebGL / Canvas Output */}
           <canvas
