@@ -106,7 +106,7 @@ export function usePushNotifications() {
               tag: (msg.data?.type as string) || `fcm_${Date.now()}`,
               renotify: true,
               data: msg.data,
-            });
+            } as NotificationOptions & { renotify?: boolean });
           }).catch(() => {
             new Notification(notifTitle, {
               body: notifBody,
